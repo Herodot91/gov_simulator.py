@@ -1,4 +1,5 @@
 # app.py (real-time)
+import os
 import random
 import time
 import json
@@ -7,8 +8,50 @@ from copy import deepcopy
 import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
+import folium
+from streamlit_folium import st_folium
 
 st.set_page_config(page_title="Florești Metropole — CivicTech Simulator", layout="wide")
+
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+ROOT_DISTRICT = "Florești District"
+DISTRICT_COLORS = ["#2a9d8f", "#e76f51", "#e9c46a", "#264653", "#f4a261",
+                    "#8ab17d", "#6d597a", "#eaac8b", "#457b9d", "#bc6c25"]
+
+
+@st.cache_data
+def load_geo_data():
+    with open(os.path.join(DATA_DIR, "floresti_localities.json"), encoding="utf-8") as f:
+        localities = json.load(f)
+    with open(os.path.join(DATA_DIR, "floresti_district.geojson"), encoding="utf-8") as f:
+        boundary = json.load(f)
+    return localities, boundary
+
+
+LOCALITIES, DISTRICT_BOUNDARY = load_geo_data()
+LOCALITIES_BY_ID = {loc["id"]: loc for loc in LOCALITIES}
+
+
+def convex_hull(points):
+    """Andrew's monotone chain. points: list of (lat, lon). No extra deps needed."""
+    pts = sorted(set(points))
+    if len(pts) <= 2:
+        return pts
+
+    def cross(o, a, b):
+        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+    lower = []
+    for p in pts:
+        while len(lower) >= 2 and cross(lower[-2], lower[-1], p) <= 0:
+            lower.pop()
+        lower.append(p)
+    upper = []
+    for p in reversed(pts):
+        while len(upper) >= 2 and cross(upper[-2], upper[-1], p) <= 0:
+            upper.pop()
+        upper.append(p)
+    return lower[:-1] + upper[:-1]
 
 SCENARIOS = [
     {"title": "Decentralization of Customs & Border Police",
@@ -74,6 +117,8 @@ def reset_simulation(start_budget):
     st.session_state.last_intl = ""
     st.session_state.sim_month = 0
     st.session_state.autoplay = False
+    st.session_state.decentralized = False
+    st.session_state.districts = {ROOT_DISTRICT: [loc["id"] for loc in LOCALITIES]}
 
 
 if "scores" not in st.session_state:
@@ -113,8 +158,34 @@ def resolve_choice(scenario, key):
         turnout = clamp(int(30 + 0.5 * st.session_state.scores["Stability"]))
         passed = (st.session_state.scores["Stability"] + st.session_state.scores["Governance"]) > 90
         note += f" | Vote: turnout {turnout}% → {'PASSED' if passed else 'FAILED'}"
+    if scenario is SCENARIOS[0] and key == "B":
+        st.session_state.decentralized = True
+        note += " | 🗺️ Decentralization enabled — new districts can now be founded on the map below."
     record(note)
     st.session_state.turn += 1
+
+
+def found_district(name, member_ids, cost):
+    st.session_state.sim_month += 1
+    if not member_ids or not name:
+        return
+    if name in st.session_state.districts:
+        record(f"Month {st.session_state.sim_month}: District formation failed — '{name}' already exists.")
+        return
+    if st.session_state.budget < cost:
+        record(f"Month {st.session_state.sim_month}: Not enough budget ({cost}) to found district '{name}'. Skipped.")
+        return
+    st.session_state.budget -= cost
+    st.session_state.districts[ROOT_DISTRICT] = [
+        i for i in st.session_state.districts[ROOT_DISTRICT] if i not in member_ids
+    ]
+    st.session_state.districts[name] = list(member_ids)
+    apply_effects({"Governance": +5, "Stability": +3})
+    names_preview = ", ".join(LOCALITIES_BY_ID[i]["display_name"] for i in member_ids[:5])
+    more = "" if len(member_ids) <= 5 else f" +{len(member_ids) - 5} more"
+    record(f"Month {st.session_state.sim_month}: 🏛️ New district founded — '{name}' "
+           f"({len(member_ids)} localities: {names_preview}{more}) | Cost {cost} "
+           f"| Scores {st.session_state.scores} | Budget {st.session_state.budget}")
 
 
 def apply_random_tick():
@@ -123,6 +194,54 @@ def apply_random_tick():
     apply_effects(effects)
     st.session_state.last_intl = blurb
     record(f"Month {st.session_state.sim_month}: 🌍 {title} — {blurb} | Scores {st.session_state.scores}")
+
+
+def build_map():
+    m = folium.Map(location=[47.90, 28.35], zoom_start=10, tiles="CartoDB positron")
+    folium.GeoJson(
+        DISTRICT_BOUNDARY,
+        name="Florești District boundary",
+        style_function=lambda f: {"color": "#333333", "weight": 2, "dashArray": "6,4", "fillOpacity": 0},
+    ).add_to(m)
+
+    for i, (dname, ids) in enumerate(st.session_state.districts.items()):
+        color = DISTRICT_COLORS[i % len(DISTRICT_COLORS)]
+        pts = [(LOCALITIES_BY_ID[i_]["lat"], LOCALITIES_BY_ID[i_]["lon"])
+               for i_ in ids if i_ in LOCALITIES_BY_ID]
+        if dname != ROOT_DISTRICT and len(pts) >= 3:
+            hull = convex_hull(pts)
+            folium.Polygon(
+                hull, color=color, weight=2, fill=True, fill_opacity=0.18,
+                tooltip=f"{dname} ({len(ids)} localities)",
+            ).add_to(m)
+        for loc_id in ids:
+            loc = LOCALITIES_BY_ID.get(loc_id)
+            if not loc:
+                continue
+            folium.CircleMarker(
+                location=[loc["lat"], loc["lon"]],
+                radius=7 if loc["type"] == "town" else 4,
+                color=color, fill=True, fill_color=color, fill_opacity=0.9, weight=1,
+                popup=f"{loc['display_name']} ({loc['type']}) — {dname}",
+                tooltip=loc["display_name"],
+            ).add_to(m)
+
+    legend_items = "".join(
+        f'<div style="display:flex;align-items:center;gap:6px;margin:2px 0;">'
+        f'<span style="width:12px;height:12px;border-radius:50%;background:{DISTRICT_COLORS[i % len(DISTRICT_COLORS)]};display:inline-block;"></span>'
+        f'<span style="font-size:12px;">{dname} ({len(ids)})</span></div>'
+        for i, (dname, ids) in enumerate(st.session_state.districts.items())
+    )
+    legend_html = f'''
+    <div style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; background: white;
+                padding: 10px 12px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.25);
+                max-height: 220px; overflow-y: auto;">
+      <div style="font-weight:700;font-size:12px;margin-bottom:4px;">Districts</div>
+      {legend_items}
+    </div>
+    '''
+    m.get_root().html.add_child(folium.Element(legend_html))
+    return m
 
 
 # ---------- Sidebar ----------
@@ -206,6 +325,7 @@ with left:
         "current_budget": st.session_state.budget,
         "current_month": st.session_state.sim_month,
         "current_scores": st.session_state.scores,
+        "districts": {name: len(ids) for name, ids in st.session_state.districts.items()},
         "log": st.session_state.logs,
     }
     st.download_button("Download Report JSON", json.dumps(report, indent=2).encode(),
@@ -241,6 +361,7 @@ with right:
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:12px;">
         <div style="background:rgba(255,255,255,.06);padding:8px 10px;border-radius:10px;">Month: <b>{st.session_state.sim_month}</b></div>
         <div style="background:rgba(255,255,255,.06);padding:8px 10px;border-radius:10px;">Budget: <b>{st.session_state.budget}</b></div>
+        <div style="background:rgba(255,255,255,.06);padding:8px 10px;border-radius:10px;">Districts: <b>{len(st.session_state.districts)}</b></div>
         <div style="background:rgba(255,255,255,.06);padding:8px 10px;border-radius:10px;">Governance: <b>{g}</b></div>
         <div style="background:rgba(255,255,255,.06);padding:8px 10px;border-radius:10px;">Economy: <b>{e}</b></div>
         <div style="background:rgba(255,255,255,.06);padding:8px 10px;border-radius:10px;">Stability: <b>{st_}</b></div>
@@ -258,6 +379,45 @@ with right:
     </div>
     """
     st.markdown(card_html, unsafe_allow_html=True)
+
+# ---------- Regional map & district formation ----------
+st.subheader("🗺️ Regional Map — Florești District")
+if not st.session_state.decentralized:
+    st.info("Choose **B) Decentralize to regions** in Scenario 1 to unlock founding new districts. "
+            "The map below shows the real localities of Florești District, Moldova (OpenStreetMap data).")
+else:
+    st.caption("Decentralization is in effect — found new districts from real localities below.")
+
+st_folium(build_map(), height=420, use_container_width=True, key="district_map")
+
+if st.session_state.decentralized:
+    unassigned = st.session_state.districts.get(ROOT_DISTRICT, [])
+    if unassigned:
+        with st.expander("🏛️ Found a New District"):
+            options = sorted(unassigned, key=lambda i_: LOCALITIES_BY_ID[i_]["display_name"])
+            picked = st.multiselect(
+                "Localities to split off",
+                options=options,
+                format_func=lambda i_: f"{LOCALITIES_BY_ID[i_]['display_name']} ({LOCALITIES_BY_ID[i_]['type']})",
+                key="district_picker",
+            )
+            new_name = st.text_input("New district name", key="new_district_name",
+                                      placeholder="e.g. Ghindești District")
+            cost = max(10, 4 * len(picked))
+            st.caption(f"Cost: {cost} units | Effect: Governance +5, Stability +3")
+            if st.button("🏛️ Found District", disabled=not picked or not new_name.strip()):
+                found_district(new_name.strip(), picked, cost)
+                st.rerun()
+    else:
+        st.success("All localities have been assigned to a district.")
+
+    if len(st.session_state.districts) > 1:
+        st.markdown("**Current districts:**")
+        for dname, ids in st.session_state.districts.items():
+            towns = [LOCALITIES_BY_ID[i_]["display_name"] for i_ in ids
+                     if LOCALITIES_BY_ID.get(i_, {}).get("type") == "town"]
+            extra = f" (incl. {', '.join(towns)})" if towns else ""
+            st.markdown(f"- **{dname}** — {len(ids)} localities{extra}")
 
 # ---------- Real-time clock loop ----------
 # While auto-play is on, the app sleeps for one tick then reruns itself,

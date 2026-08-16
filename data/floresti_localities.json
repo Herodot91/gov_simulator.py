@@ -1,0 +1,586 @@
+[
+ {
+  "id": 282317476,
+  "name": "Florești",
+  "display_name": "Florești",
+  "type": "town",
+  "lat": 47.8938318,
+  "lon": 28.2996474
+ },
+ {
+  "id": 6467218317,
+  "name": "Ghindești",
+  "display_name": "Ghindești",
+  "type": "town",
+  "lat": 47.8623849,
+  "lon": 28.3870348
+ },
+ {
+  "id": 281158770,
+  "name": "Mărculești",
+  "display_name": "Mărculești",
+  "type": "town",
+  "lat": 47.8693441,
+  "lon": 28.2415422
+ },
+ {
+  "id": 281158759,
+  "name": "Alexandrovca",
+  "display_name": "Alexandrovca",
+  "type": "village",
+  "lat": 47.953937,
+  "lon": 28.1301474
+ },
+ {
+  "id": 281158744,
+  "name": "Alexeevca",
+  "display_name": "Alexeevca",
+  "type": "village",
+  "lat": 47.9417629,
+  "lon": 28.286113
+ },
+ {
+  "id": 1160964687,
+  "name": "Antonovca",
+  "display_name": "Antonovca",
+  "type": "village",
+  "lat": 47.7864089,
+  "lon": 28.2135659
+ },
+ {
+  "id": 281158768,
+  "name": "Bezeni",
+  "display_name": "Bezeni",
+  "type": "village",
+  "lat": 47.9868359,
+  "lon": 28.1175382
+ },
+ {
+  "id": 281158704,
+  "name": "Bobulești",
+  "display_name": "Bobulești",
+  "type": "village",
+  "lat": 47.8807345,
+  "lon": 28.3523787
+ },
+ {
+  "id": 281158736,
+  "name": "Bursuc",
+  "display_name": "Bursuc",
+  "type": "village",
+  "lat": 47.9743198,
+  "lon": 28.739457
+ },
+ {
+  "id": 281158775,
+  "name": "Băhrinești",
+  "display_name": "Băhrinești",
+  "type": "village",
+  "lat": 47.8551355,
+  "lon": 28.2442922
+ },
+ {
+  "id": 2280493036,
+  "name": "Cașunca",
+  "display_name": "Cașunca",
+  "type": "village",
+  "lat": 47.7858571,
+  "lon": 28.3924981
+ },
+ {
+  "id": 281158654,
+  "name": "Cenușa",
+  "display_name": "Cenușa",
+  "type": "village",
+  "lat": 47.846467,
+  "lon": 28.3868639
+ },
+ {
+  "id": 281158739,
+  "name": "Cernița",
+  "display_name": "Cernița",
+  "type": "village",
+  "lat": 47.9662483,
+  "lon": 28.465551
+ },
+ {
+  "id": 281158743,
+  "name": "Chirilovca",
+  "display_name": "Chirilovca",
+  "type": "village",
+  "lat": 47.9607482,
+  "lon": 28.3290705
+ },
+ {
+  "id": 281158742,
+  "name": "Ciripcău",
+  "display_name": "Ciripcău",
+  "type": "village",
+  "lat": 47.9835655,
+  "lon": 28.3808055
+ },
+ {
+  "id": 281158628,
+  "name": "Ciutulești",
+  "display_name": "Ciutulești",
+  "type": "village",
+  "lat": 47.7594962,
+  "lon": 28.3907679
+ },
+ {
+  "id": 281158729,
+  "name": "Coșernița",
+  "display_name": "Coșernița",
+  "type": "village",
+  "lat": 47.9372138,
+  "lon": 28.4609876
+ },
+ {
+  "id": 281158720,
+  "name": "Cuhureștii de Jos",
+  "display_name": "Cuhureștii de Jos",
+  "type": "village",
+  "lat": 47.9284966,
+  "lon": 28.5914976
+ },
+ {
+  "id": 281158718,
+  "name": "Cuhureștii de Sus",
+  "display_name": "Cuhureștii de Sus",
+  "type": "village",
+  "lat": 47.9217384,
+  "lon": 28.5531085
+ },
+ {
+  "id": 281158716,
+  "name": "Cunicea",
+  "display_name": "Cunicea",
+  "type": "village",
+  "lat": 47.9139733,
+  "lon": 28.6456445
+ },
+ {
+  "id": 281158638,
+  "name": "Căprești",
+  "display_name": "Căprești",
+  "type": "village",
+  "lat": 47.7533722,
+  "lon": 28.4649435
+ },
+ {
+  "id": 281158647,
+  "name": "Domulgeni",
+  "display_name": "Domulgeni",
+  "type": "village",
+  "lat": 47.7916356,
+  "lon": 28.436965
+ },
+ {
+  "id": 281158745,
+  "name": "Dumitreni",
+  "display_name": "Dumitreni",
+  "type": "village",
+  "lat": 47.970581,
+  "lon": 28.3178203
+ },
+ {
+  "id": 281158761,
+  "name": "Frumușica",
+  "display_name": "Frumușica",
+  "type": "village",
+  "lat": 47.9611844,
+  "lon": 28.1170531
+ },
+ {
+  "id": 1160965389,
+  "name": "Frunzești",
+  "display_name": "Frunzești",
+  "type": "village",
+  "lat": 47.7840729,
+  "lon": 28.1881569
+ },
+ {
+  "id": 281158727,
+  "name": "Făgădău",
+  "display_name": "Făgădău",
+  "type": "village",
+  "lat": 47.9365616,
+  "lon": 28.5257806
+ },
+ {
+  "id": 281158672,
+  "name": "Ghindești",
+  "display_name": "Ghindești (2)",
+  "type": "village",
+  "lat": 47.8534032,
+  "lon": 28.3761123
+ },
+ {
+  "id": 281158706,
+  "name": "Gura Camencii",
+  "display_name": "Gura Camencii",
+  "type": "village",
+  "lat": 47.8901159,
+  "lon": 28.3553067
+ },
+ {
+  "id": 281158772,
+  "name": "Gura Căinarului",
+  "display_name": "Gura Căinarului",
+  "type": "village",
+  "lat": 47.8627915,
+  "lon": 28.1831829
+ },
+ {
+  "id": 281158708,
+  "name": "Gvozdova",
+  "display_name": "Gvozdova",
+  "type": "village",
+  "lat": 47.9027672,
+  "lon": 28.3533547
+ },
+ {
+  "id": 281158674,
+  "name": "Hîrtop",
+  "display_name": "Hîrtop",
+  "type": "village",
+  "lat": 47.88248,
+  "lon": 28.4587622
+ },
+ {
+  "id": 281158763,
+  "name": "Iliciovca",
+  "display_name": "Iliciovca",
+  "type": "village",
+  "lat": 47.9357575,
+  "lon": 28.0697766
+ },
+ {
+  "id": 281158626,
+  "name": "Ion Vodă",
+  "display_name": "Ion Vodă",
+  "type": "village",
+  "lat": 47.7262428,
+  "lon": 28.3253762
+ },
+ {
+  "id": 281158755,
+  "name": "Ivanovca",
+  "display_name": "Ivanovca",
+  "type": "village",
+  "lat": 47.9108974,
+  "lon": 28.1570201
+ },
+ {
+  "id": 281158767,
+  "name": "Izvoare",
+  "display_name": "Izvoare",
+  "type": "village",
+  "lat": 47.9765863,
+  "lon": 28.1336342
+ },
+ {
+  "id": 281158735,
+  "name": "Japca",
+  "display_name": "Japca",
+  "type": "village",
+  "lat": 47.9784888,
+  "lon": 28.7117347
+ },
+ {
+  "id": 281158774,
+  "name": "Lunga",
+  "display_name": "Lunga",
+  "type": "village",
+  "lat": 47.8617078,
+  "lon": 28.231765
+ },
+ {
+  "id": 281158765,
+  "name": "Maiscoe",
+  "display_name": "Maiscoe",
+  "type": "village",
+  "lat": 47.9116198,
+  "lon": 28.048417
+ },
+ {
+  "id": 1160964942,
+  "name": "Mihailovca",
+  "display_name": "Mihailovca",
+  "type": "village",
+  "lat": 47.8020037,
+  "lon": 28.2673242
+ },
+ {
+  "id": 281158769,
+  "name": "Mărculești",
+  "display_name": "Mărculești (2)",
+  "type": "village",
+  "lat": 47.8824414,
+  "lon": 28.2477865
+ },
+ {
+  "id": 281158625,
+  "name": "Mărinești",
+  "display_name": "Mărinești",
+  "type": "village",
+  "lat": 47.7273138,
+  "lon": 28.3809068
+ },
+ {
+  "id": 281158632,
+  "name": "Nicolaevca",
+  "display_name": "Nicolaevca",
+  "type": "village",
+  "lat": 47.758184,
+  "lon": 28.290891
+ },
+ {
+  "id": 281158676,
+  "name": "Nicolaevca",
+  "display_name": "Nicolaevca (2)",
+  "type": "village",
+  "lat": 47.9187543,
+  "lon": 28.5284547
+ },
+ {
+  "id": 281158733,
+  "name": "Năpadova",
+  "display_name": "Năpadova",
+  "type": "village",
+  "lat": 48.0175723,
+  "lon": 28.597048
+ },
+ {
+  "id": 281158732,
+  "name": "Octeabriscoe",
+  "display_name": "Octeabriscoe",
+  "type": "village",
+  "lat": 47.955869,
+  "lon": 28.5362432
+ },
+ {
+  "id": 281158776,
+  "name": "Prajila",
+  "display_name": "Prajila",
+  "type": "village",
+  "lat": 47.84049,
+  "lon": 28.2100662
+ },
+ {
+  "id": 281158636,
+  "name": "Prodănești",
+  "display_name": "Prodănești",
+  "type": "village",
+  "lat": 47.7437473,
+  "lon": 28.4808848
+ },
+ {
+  "id": 281158623,
+  "name": "Prodăneștii Vechi",
+  "display_name": "Prodăneștii Vechi",
+  "type": "village",
+  "lat": 47.7165445,
+  "lon": 28.4433801
+ },
+ {
+  "id": 281158777,
+  "name": "Putinești",
+  "display_name": "Putinești",
+  "type": "village",
+  "lat": 47.8372997,
+  "lon": 28.1226509
+ },
+ {
+  "id": 281158650,
+  "name": "Roșietici",
+  "display_name": "Roșietici",
+  "type": "village",
+  "lat": 47.8300892,
+  "lon": 28.4024798
+ },
+ {
+  "id": 281158648,
+  "name": "Roșieticii Vechi",
+  "display_name": "Roșieticii Vechi",
+  "type": "village",
+  "lat": 47.8200415,
+  "lon": 28.3972745
+ },
+ {
+  "id": 281158748,
+  "name": "Rădulenii Noi",
+  "display_name": "Rădulenii Noi",
+  "type": "village",
+  "lat": 47.9567436,
+  "lon": 28.247045
+ },
+ {
+  "id": 281158749,
+  "name": "Rădulenii Vechi",
+  "display_name": "Rădulenii Vechi",
+  "type": "village",
+  "lat": 47.9849755,
+  "lon": 28.2637849
+ },
+ {
+  "id": 281158753,
+  "name": "Scăieni",
+  "display_name": "Scăieni",
+  "type": "village",
+  "lat": 47.9774464,
+  "lon": 28.1178565
+ },
+ {
+  "id": 281158751,
+  "name": "Sevirova",
+  "display_name": "Sevirova",
+  "type": "village",
+  "lat": 47.926838,
+  "lon": 28.1520668
+ },
+ {
+  "id": 281158702,
+  "name": "Stîrceni",
+  "display_name": "Stîrceni",
+  "type": "village",
+  "lat": 47.8761523,
+  "lon": 28.365392
+ },
+ {
+  "id": 281158643,
+  "name": "Sîrbești",
+  "display_name": "Sîrbești",
+  "type": "village",
+  "lat": 47.800596,
+  "lon": 28.3266775
+ },
+ {
+  "id": 281158734,
+  "name": "Sănătăuca",
+  "display_name": "Sănătăuca",
+  "type": "village",
+  "lat": 48.0135907,
+  "lon": 28.6730823
+ },
+ {
+  "id": 281158738,
+  "name": "Temeleuți",
+  "display_name": "Temeleuți",
+  "type": "village",
+  "lat": 47.9772252,
+  "lon": 28.4964137
+ },
+ {
+  "id": 281158757,
+  "name": "Trifănești",
+  "display_name": "Trifănești",
+  "type": "village",
+  "lat": 47.9432919,
+  "lon": 28.1310888
+ },
+ {
+  "id": 281158740,
+  "name": "Tîrgul Vertiujeni",
+  "display_name": "Tîrgul Vertiujeni",
+  "type": "village",
+  "lat": 48.0308535,
+  "lon": 28.5301051
+ },
+ {
+  "id": 281158726,
+  "name": "Unchitești",
+  "display_name": "Unchitești",
+  "type": "village",
+  "lat": 47.9293685,
+  "lon": 28.5264312
+ },
+ {
+  "id": 281158724,
+  "name": "Unchitești, localitatea-stație de cale ferată",
+  "display_name": "Unchitești, localitatea-stație de cale ferată",
+  "type": "village",
+  "lat": 47.9064983,
+  "lon": 28.4895393
+ },
+ {
+  "id": 281158630,
+  "name": "Valea Rădoaiei",
+  "display_name": "Valea Rădoaiei",
+  "type": "village",
+  "lat": 47.7540284,
+  "lon": 28.2625871
+ },
+ {
+  "id": 281158737,
+  "name": "Vertiujeni",
+  "display_name": "Vertiujeni",
+  "type": "village",
+  "lat": 47.9927181,
+  "lon": 28.539332
+ },
+ {
+  "id": 281158711,
+  "name": "Vărvăreuca",
+  "display_name": "Vărvăreuca",
+  "type": "village",
+  "lat": 47.8798617,
+  "lon": 28.3113869
+ },
+ {
+  "id": 281158731,
+  "name": "Văscăuți",
+  "display_name": "Văscăuți",
+  "type": "village",
+  "lat": 47.9539952,
+  "lon": 28.51049
+ },
+ {
+  "id": 281158771,
+  "name": "Zarojeni",
+  "display_name": "Zarojeni",
+  "type": "village",
+  "lat": 47.863559,
+  "lon": 28.162298
+ },
+ {
+  "id": 281158741,
+  "name": "Zăluceni",
+  "display_name": "Zăluceni",
+  "type": "village",
+  "lat": 48.0520643,
+  "lon": 28.5586212
+ },
+ {
+  "id": 6469949126,
+  "name": "Ţîra, loc. staţie c.f.",
+  "display_name": "Ţîra, loc. staţie c.f.",
+  "type": "village",
+  "lat": 47.8615208,
+  "lon": 28.4388362
+ },
+ {
+  "id": 281158634,
+  "name": "Ștefănești",
+  "display_name": "Ștefănești",
+  "type": "village",
+  "lat": 47.7330265,
+  "lon": 28.4395676
+ },
+ {
+  "id": 281158722,
+  "name": "Țipordei",
+  "display_name": "Țipordei",
+  "type": "village",
+  "lat": 47.9339461,
+  "lon": 28.6158975
+ },
+ {
+  "id": 281158652,
+  "name": "Țîra",
+  "display_name": "Țîra",
+  "type": "village",
+  "lat": 47.842381,
+  "lon": 28.4044004
+ }
+]
