@@ -44,7 +44,7 @@ METRO_STRUCTURE = {
     },
 }
 SUBURBS = [{"name": "Ghindești"}, {"name": "Gura Camencii"}, {"name": "Prajila"}]
-MUNICIPALITY_COLORS = {"Florești Central": "#4cc9f0", "Mărculești": "#f4a261",
+MUNICIPALITY_COLORS = {"Florești Central": "#4cc9f0", "Mărculești": "#8338ec",
                         "Vărvăreuca": "#8ab17d", "Lunga": "#e76f51"}
 INAUGURATION_COST = 15
 
@@ -272,7 +272,13 @@ def build_map():
 
     m = folium.Map(location=center, zoom_start=zoom, tiles=None)
     folium.TileLayer(
-        tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        # no_labels: the labeled variant prints the base map's own real-world
+        # place names (e.g. the real town of Mărculești) whichever territory
+        # they geographically sit in now, which visually reads as if that
+        # name were part of a *different* municipality's colored area than it
+        # actually is. Our own DivIcon labels below are the only place names
+        # that should appear, each guaranteed to sit inside its own polygon.
+        tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png",
         attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
              'contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         name="Streets",
@@ -313,13 +319,16 @@ def build_map():
         folium.GeoJson(
             mapping(poly),
             style_function=lambda f, color=color, active=active: {
-                "color": color, "weight": 2.5,
-                "fillColor": color, "fillOpacity": 0.5 if active else 0.15,
+                "color": color, "weight": 3,
+                "fillColor": color, "fillOpacity": 0.6 if active else 0.4,
             },
             tooltip=f"{name} {'✅ inaugurated' if active else '(not yet inaugurated)'}",
         ).add_to(m)
-        c = poly.centroid
-        label(c.y, c.x, f"{name}{' ✅' if active else ''}", "#111111" if active else "#555555")
+        # representative_point() (unlike centroid) is guaranteed to fall
+        # inside the polygon even for an irregular/concave shape -- a
+        # centroid can land outside and visually read as a neighbor's label.
+        c = poly.representative_point()
+        label(c.y, c.x, f"{name}{' ✅' if active else ''}", "#111111" if active else "#333333")
 
     legend_rows = "".join(
         f'<div style="display:flex;align-items:center;gap:6px;margin:2px 0;">'
