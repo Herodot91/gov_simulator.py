@@ -45,11 +45,17 @@ the raion system itself:
 
 The structure is shown as a real street-level Leaflet map, not a schematic
 diagram: each of the 4 municipalities is rendered as its actual current
-territory — the real OpenStreetMap administrative boundary (admin_level=8)
-of Florești, Mărculești, Vărvăreuca, and Lunga — and Florești Metropole is
-literally their union. The map view is fit tightly to that merged territory
-only (no suburbs, no extra padding out to the full prefecture), computed
-once and baked into `data/floresti_municipalities.geojson`. Inaugurated
-municipalities render with a bright fill; the rest stay muted. Suburbs
-(Ghindești, Gura Camencii, Prajila) are listed in the app but not drawn on
-the map, keeping its extent to just the 4 merged municipalities.
+territory — starting from the real OpenStreetMap administrative boundary
+(admin_level=8) of Florești, Mărculești, Vărvăreuca, and Lunga. Those real
+boundaries don't perfectly tile against each other (there's real unclaimed
+land between them), so each municipality's boundary is grown outward in
+small proximity-based steps until every gap is claimed by whichever
+municipality is actually closest — giving one seamless merged shape with no
+white space between them, still grounded in the real footprints rather than
+a synthetic tessellation. Florești Metropole is literally their union. The
+map view is fit tightly to that merged territory only (no suburbs, no extra
+padding out to the full prefecture), computed once and baked into
+`data/floresti_municipalities.geojson`. Inaugurated municipalities render
+with a bright fill; the rest stay muted. Suburbs (Ghindești, Gura Camencii,
+Prajila) are listed in the app but not drawn on the map, keeping its extent
+to just the 4 merged municipalities.
