@@ -44,17 +44,27 @@ the raion system itself:
   dependent on the metropole, no local government of their own.
 
 The structure is shown as a real street-level Leaflet map, not a schematic
-diagram: each of the 4 municipalities is rendered as its actual current
+diagram: each of the 4 municipalities starts from its actual current
 territory — the real OpenStreetMap administrative boundary (admin_level=8)
-of Florești, Mărculești, Vărvăreuca, and Lunga, left essentially untouched.
-Those real boundaries don't perfectly tile against each other (Florești
-Central already touches Vărvăreuca, and Mărculești already touches Lunga,
-but the other two real gaps run 750m-1.3km), so a narrow connecting corridor
-is added only where one is actually needed to fully join the four into one
-shape — not a wholesale territory expansion or a synthetic tessellation of
-the whole area. Florești Metropole is literally their union. The map view is
-fit tightly to that merged territory only (no suburbs, no extra padding out
-to the full prefecture), computed once and baked into
+of Florești, Mărculești, Vărvăreuca, and Lunga — with a few deliberate real
+adjustments on top:
+
+- **Mărculești** absorbs the real Mărculești International Airport (OSM
+  aerodrome `LUBM`), which administratively falls just outside the town's
+  own boundary but is literally named after it and matches its own "Airport
+  District". It's carved out of Lunga's territory, which happens to contain
+  it in the real data.
+- **Vărvăreuca** is trimmed inward from its full rural comuna boundary
+  toward its built-up core, so it doesn't dominate the map with a long thin
+  spike of open farmland.
+- All 4 municipalities are joined into one seamless shape with narrow
+  connecting corridors wherever two of them don't already touch for real
+  (Florești Central and Vărvăreuca do, for free) — not a wholesale territory
+  expansion or a synthetic tessellation of the whole area.
+
+Florești Metropole is the union of all four. The map view is fit tightly to
+that merged territory only (no suburbs, no extra padding out to the full
+prefecture), computed once and baked into
 `data/floresti_municipalities.geojson`. Inaugurated municipalities render
 with a bright fill; the rest stay muted. Suburbs (Ghindești, Gura Camencii,
 Prajila) are listed in the app but not drawn on the map, keeping its extent
