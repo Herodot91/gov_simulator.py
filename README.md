@@ -25,3 +25,20 @@ streamlit run streamlit_app.py
   single event manually with "Trigger next event now".
 - History (scores per month) and the full event log can be exported at any
   point as CSV / JSON, even mid-run.
+
+## Governance model — mixed decentralization
+
+Choosing **B) Decentralize to regions** in Scenario 1 activates an
+Istanbul/Budapest-style two-tier governance structure over the real Florești
+District, Moldova:
+
+- **Florești Metropole** — the metropolitan tier.
+- 4 **municipalities**, each with real local government once inaugurated
+  (budget cost + a small Governance/Stability boost), each with 4 named
+  districts: Florești Central, Mărculești, Vărvăreuca, Lunga.
+- 3 **suburbs** (Ghindești, Gura Camencii, Prajila) — administratively
+  dependent on the metropole, no local government of their own.
+
+The structure is shown two ways: a glowing schematic diagram (metropole →
+municipalities → districts) and a real Leaflet map built from OpenStreetMap
+data (district boundary + all 73 real towns/villages).
