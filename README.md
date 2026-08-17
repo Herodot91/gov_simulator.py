@@ -53,27 +53,30 @@ adjustments on top:
   original town boundary — its territory *is* the real Mărculești
   International Airport (OSM aerodrome `LUBM`), matching its own "Airport
   District". The airport's real admin boundary sits fully inside Lunga's
-  territory (not just adjacent to it), so Mărculești gets a short real-world
-  "driveway" — a narrow corridor cut straight from the airport out to
-  Lunga's true southern edge, the shortest path to the outside — instead of
-  being left as a landlocked enclave inside Lunga with no border touching
-  anything but Lunga itself. The original tiny town (real area a mere
-  0.0004 deg², which already touched Lunga for real) folds into Lunga
-  instead of staying a stranded second lobe of Mărculești.
+  territory (not just adjacent to it): a thin connecting corridor still read
+  as "running through" Lunga even with zero real overlap, so instead the
+  original (original Lunga + airport) footprint is split with a clean,
+  full-width horizontal line just north of the airport — Mărculești gets
+  everything south of it (airport plus whatever real Lunga land is closest
+  to it), Lunga gets everything north (toward Florești Central). One solid,
+  unambiguous shared border, not a thin thread. The original tiny town (real
+  area a mere 0.0004 deg², which already touched Lunga for real) folds into
+  Lunga instead of staying a stranded second lobe of Mărculești.
 - **Lunga sits between Florești Central and Mărculești**: it borders
-  Mărculești for free (sharing the corridor's edge) and gets a narrow
-  real-gap corridor to Florești Central. Florești Central and Mărculești are
-  *not* linked directly — Lunga is the only path between them, same as the
-  real geography (Mărculești/the airport sit well southwest of both).
+  Mărculești along that clean split line and gets a narrow real-gap corridor
+  to Florești Central. Florești Central and Mărculești are *not* linked
+  directly — Lunga is the only path between them, same as the real geography
+  (Mărculești/the airport sit well southwest of both).
 - **Vărvăreuca** is trimmed inward from its full rural comuna boundary
   toward its built-up core, so it doesn't dominate the map with a long thin
   spike of open farmland, and still borders Florești Central directly.
 
 Florești Metropole is the union of all four — verified hole-free and
-enclave-free (every municipality's territory reaches the true outer edge of
-the merged shape, not just a border shared entirely with one neighbor). The
-map view is fit tightly to that merged territory only (no suburbs, no extra
-padding out to the full prefecture), computed once and baked into
+enclave-free (Mărculești and Lunga share roughly a third of Mărculești's
+boundary as a real, solid border, not the whole thing — genuine access to
+the outside, not a landlocked pocket). The map view is fit tightly to that
+merged territory only (no suburbs, no extra padding out to the full
+prefecture), computed once and baked into
 `data/floresti_municipalities.geojson`. Inaugurated municipalities render
 with a bright fill; the rest stay muted. Suburbs (Ghindești, Gura Camencii,
 Prajila) are listed in the app but not drawn on the map, keeping its extent
