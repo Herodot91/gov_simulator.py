@@ -39,6 +39,9 @@ District, Moldova:
 - 3 **suburbs** (Ghindești, Gura Camencii, Prajila) — administratively
   dependent on the metropole, no local government of their own.
 
-The structure is shown two ways: a glowing schematic diagram (metropole →
-municipalities → districts) and a real Leaflet map built from OpenStreetMap
-data (district boundary + all 73 real towns/villages).
+The structure is shown as a real Leaflet map, not a schematic diagram: each
+municipality and suburb is rendered as its actual merged territory — a
+Voronoi tessellation seeded at each anchor locality, clipped to the
+metropole's own footprint within the real Florești District boundary
+(OpenStreetMap data). Inaugurated municipalities render with a bright fill;
+un-inaugurated ones and suburbs stay muted.

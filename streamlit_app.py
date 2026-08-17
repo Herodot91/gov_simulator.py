@@ -1,6 +1,5 @@
 # app.py (real-time)
 import os
-import math
 import random
 import time
 import json
@@ -9,8 +8,11 @@ from copy import deepcopy
 import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 import folium
 from streamlit_folium import st_folium
+from scipy.spatial import Voronoi
+from shapely.geometry import Polygon, MultiPoint, shape, mapping
 
 st.set_page_config(page_title="Florești Metropole — CivicTech Simulator", layout="wide")
 
@@ -22,31 +24,27 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 # dependent suburbs with no independent government of their own.
 METRO_STRUCTURE = {
     "Florești Central": {
-        "anchor": "Florești", "angle": 270,
+        "anchor": "Florești",
         "districts": ["Civic District", "Central Market District",
                       "Răut Riverside District", "University District"],
     },
     "Mărculești": {
-        "anchor": "Mărculești", "angle": 0,
+        "anchor": "Mărculești",
         "districts": ["Airport District", "Industrial District",
                       "Logistics District", "Mărculești Residential District"],
     },
     "Vărvăreuca": {
-        "anchor": "Vărvăreuca", "angle": 90,
+        "anchor": "Vărvăreuca",
         "districts": ["Vărvăreuca Residential District", "Agricultural District",
                       "Forestry District", "Heritage Quarter"],
     },
     "Lunga": {
-        "anchor": "Lunga", "angle": 180,
+        "anchor": "Lunga",
         "districts": ["Lunga Residential District", "Orchard District",
                       "Green Belt District", "Artisan Quarter"],
     },
 }
-SUBURBS = [
-    {"name": "Ghindești", "angle": 45},
-    {"name": "Gura Camencii", "angle": 135},
-    {"name": "Prajila", "angle": 225},
-]
+SUBURBS = [{"name": "Ghindești"}, {"name": "Gura Camencii"}, {"name": "Prajila"}]
 MUNICIPALITY_COLORS = {"Florești Central": "#4cc9f0", "Mărculești": "#f4a261",
                         "Vărvăreuca": "#8ab17d", "Lunga": "#e76f51"}
 INAUGURATION_COST = 15
@@ -62,7 +60,6 @@ def load_geo_data():
 
 
 LOCALITIES, DISTRICT_BOUNDARY = load_geo_data()
-LOCALITIES_BY_ID = {loc["id"]: loc for loc in LOCALITIES}
 
 
 def find_locality(name):
@@ -70,6 +67,77 @@ def find_locality(name):
     matches = [loc for loc in LOCALITIES if loc["name"] == name]
     towns = [loc for loc in matches if loc["type"] == "town"]
     return (towns or matches)[0]
+
+
+def _voronoi_finite_polygons_2d(vor, radius):
+    """Reconstruct infinite Voronoi regions as finite polygons by extending
+    unbounded ridges out past the given radius. Standard recipe: unbounded
+    Voronoi cells (for seed points on the convex hull) have no far vertex, so
+    each open ridge is projected outward before the region can be closed."""
+    new_regions = []
+    new_vertices = vor.vertices.tolist()
+    center = vor.points.mean(axis=0)
+
+    all_ridges = {}
+    for (p1, p2), (v1, v2) in zip(vor.ridge_points, vor.ridge_vertices):
+        all_ridges.setdefault(p1, []).append((p2, v1, v2))
+        all_ridges.setdefault(p2, []).append((p1, v1, v2))
+
+    for p1, region_index in enumerate(vor.point_region):
+        vertices = vor.regions[region_index]
+        if all(v >= 0 for v in vertices):
+            new_regions.append(vertices)
+            continue
+        ridges = all_ridges[p1]
+        new_region = [v for v in vertices if v >= 0]
+        for p2, v1, v2 in ridges:
+            if v2 < 0:
+                v1, v2 = v2, v1
+            if v1 >= 0:
+                continue
+            t = vor.points[p2] - vor.points[p1]
+            t = t / np.linalg.norm(t)
+            n = np.array([-t[1], t[0]])
+            midpoint = vor.points[[p1, p2]].mean(axis=0)
+            direction = np.sign(np.dot(midpoint - center, n)) * n
+            far_point = vor.vertices[v2] + direction * radius
+            new_region.append(len(new_vertices))
+            new_vertices.append(far_point.tolist())
+        vs = np.asarray([new_vertices[v] for v in new_region])
+        c = vs.mean(axis=0)
+        angles = np.arctan2(vs[:, 1] - c[1], vs[:, 0] - c[0])
+        new_region = np.array(new_region)[np.argsort(angles)]
+        new_regions.append(new_region.tolist())
+    return new_regions, np.asarray(new_vertices)
+
+
+@st.cache_data
+def compute_metro_polygons():
+    """Real, non-overlapping territory for each municipality/suburb: a Voronoi
+    tessellation seeded at each anchor locality, clipped to the metropole's own
+    footprint — a buffered hull around its 7 constituent localities, not the
+    entire (much larger) Florești District. A metropole is a compact urban
+    agglomeration carved out of the raion, not the raion itself; clipping to
+    the full district would let the more isolated suburbs balloon across
+    unrelated parts of it well beyond the actual urban area."""
+    labels = list(METRO_STRUCTURE.keys()) + [s["name"] for s in SUBURBS]
+    seeds = [(find_locality(info["anchor"])["lon"], find_locality(info["anchor"])["lat"])
+             for info in METRO_STRUCTURE.values()]
+    seeds += [(find_locality(s["name"])["lon"], find_locality(s["name"])["lat"]) for s in SUBURBS]
+
+    points = np.array(seeds)
+    vor = Voronoi(points)
+    radius = np.ptp(points, axis=0).max() * 4
+    regions, vertices = _voronoi_finite_polygons_2d(vor, radius)
+
+    district_poly = shape(DISTRICT_BOUNDARY["geometry"]).buffer(0)
+    metro_boundary = MultiPoint(seeds).convex_hull.buffer(0.035).intersection(district_poly)
+
+    polygons = {}
+    for label, region in zip(labels, regions):
+        raw = Polygon(vertices[region]).buffer(0)
+        polygons[label] = raw.intersection(metro_boundary)
+    return polygons, metro_boundary
 
 SCENARIOS = [
     {"title": "Decentralization of Customs & Border Police",
@@ -210,6 +278,9 @@ def apply_random_tick():
 
 
 def build_map():
+    """Real map of Florești District. Once the metropole is active, each
+    municipality/suburb is drawn as its actual merged territory (a clipped
+    Voronoi cell around its anchor locality) — not a point or a circle."""
     m = folium.Map(location=[47.90, 28.35], zoom_start=10, tiles="CartoDB positron")
     folium.GeoJson(
         DISTRICT_BOUNDARY,
@@ -217,32 +288,62 @@ def build_map():
         style_function=lambda f: {"color": "#333333", "weight": 2, "dashArray": "6,4", "fillOpacity": 0},
     ).add_to(m)
 
-    for name, info in METRO_STRUCTURE.items():
-        loc = find_locality(info["anchor"])
-        color = MUNICIPALITY_COLORS[name]
-        active = name in st.session_state.inaugurated
-        folium.CircleMarker(
-            location=[loc["lat"], loc["lon"]],
-            radius=11 if active else 8,
-            color=color, fill=True, fill_color=color if active else "#ffffff",
-            fill_opacity=0.95 if active else 0.5, weight=3 if active else 2,
-            popup=f"{name} municipality (anchor: {loc['display_name']}) — "
-                  f"{'inaugurated' if active else 'not yet inaugurated'}",
-            tooltip=f"{name} {'✅' if active else '(not yet inaugurated)'}",
+    if not st.session_state.metro_active:
+        return m
+
+    polygons, metro_boundary = compute_metro_polygons()
+    if not metro_boundary.is_empty:
+        folium.GeoJson(
+            mapping(metro_boundary),
+            style_function=lambda f: {"color": "#e91e8c", "weight": 3, "fillOpacity": 0},
+            tooltip="Florești Metropole boundary",
+        ).add_to(m)
+        min_lon, min_lat, max_lon, max_lat = metro_boundary.bounds
+        m.fit_bounds([[min_lat, min_lon], [max_lat, max_lon]])
+
+    def label(lat, lon, text, color, size=12, weight=700):
+        folium.Marker(
+            location=[lat, lon],
+            icon=folium.DivIcon(html=(
+                f'<div style="font-size:{size}px;font-weight:{weight};color:{color};'
+                f'text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;white-space:nowrap;'
+                f'transform:translate(-50%,-50%);">{text}</div>'
+            )),
         ).add_to(m)
 
-    for suburb in SUBURBS:
-        loc = find_locality(suburb["name"])
-        folium.CircleMarker(
-            location=[loc["lat"], loc["lon"]],
-            radius=5, color="#8a8f98", fill=True, fill_color="#c9ccd1", fill_opacity=0.8, weight=1,
-            popup=f"{loc['display_name']} — dependent suburb of Florești Metropole",
-            tooltip=f"{loc['display_name']} (suburb)",
+    for name in METRO_STRUCTURE:
+        poly = polygons.get(name)
+        if poly is None or poly.is_empty:
+            continue
+        color = MUNICIPALITY_COLORS[name]
+        active = name in st.session_state.inaugurated
+        folium.GeoJson(
+            mapping(poly),
+            style_function=lambda f, color=color, active=active: {
+                "color": color, "weight": 2.5,
+                "fillColor": color, "fillOpacity": 0.5 if active else 0.15,
+            },
+            tooltip=f"{name} {'✅ inaugurated' if active else '(not yet inaugurated)'}",
         ).add_to(m)
+        c = poly.centroid
+        label(c.y, c.x, f"{name}{' ✅' if active else ''}", "#111111" if active else "#555555")
+
+    for suburb in SUBURBS:
+        poly = polygons.get(suburb["name"])
+        if poly is None or poly.is_empty:
+            continue
+        folium.GeoJson(
+            mapping(poly),
+            style_function=lambda f: {"color": "#6b7280", "weight": 1.5, "dashArray": "4,4",
+                                       "fillColor": "#9ca3af", "fillOpacity": 0.18},
+            tooltip=f"{suburb['name']} — dependent suburb, no local government",
+        ).add_to(m)
+        c = poly.centroid
+        label(c.y, c.x, suburb["name"], "#555555", size=11, weight=500)
 
     legend_rows = "".join(
         f'<div style="display:flex;align-items:center;gap:6px;margin:2px 0;">'
-        f'<span style="width:12px;height:12px;border-radius:50%;background:{MUNICIPALITY_COLORS[n]};'
+        f'<span style="width:12px;height:12px;border-radius:3px;background:{MUNICIPALITY_COLORS[n]};'
         f'display:inline-block;opacity:{1 if n in st.session_state.inaugurated else 0.35};"></span>'
         f'<span style="font-size:12px;">{n} {"✅" if n in st.session_state.inaugurated else ""}</span></div>'
         for n in METRO_STRUCTURE
@@ -251,7 +352,7 @@ def build_map():
         '<div style="margin-top:4px;font-weight:700;font-size:11px;">Suburbs</div>'
         + "".join(
             f'<div style="display:flex;align-items:center;gap:6px;margin:2px 0;">'
-            f'<span style="width:10px;height:10px;border-radius:50%;background:#c9ccd1;display:inline-block;"></span>'
+            f'<span style="width:10px;height:10px;border-radius:3px;background:#9ca3af;display:inline-block;"></span>'
             f'<span style="font-size:12px;">{s["name"]}</span></div>'
             for s in SUBURBS
         )
@@ -266,110 +367,6 @@ def build_map():
     '''
     m.get_root().html.add_child(folium.Element(legend_html))
     return m
-
-
-def build_metro_diagram():
-    """Schematic Istanbul+Budapest-style hierarchy: metropole core -> municipalities -> districts,
-    plus dependent suburbs, rendered as a glowing radial diagram."""
-    cx, cy = 320, 320
-    muni_r, dist_r, suburb_r = 190, 46, 260
-    svg_parts = []
-
-    def pt(radius, angle_deg, origin=(cx, cy)):
-        rad = math.radians(angle_deg)
-        return origin[0] + radius * math.cos(rad), origin[1] + radius * math.sin(rad)
-
-    # metropole -> municipality lines + district fans
-    for name, info in METRO_STRUCTURE.items():
-        active = name in st.session_state.inaugurated
-        color = MUNICIPALITY_COLORS[name] if active else "#4a5568"
-        mx, my = pt(muni_r, info["angle"])
-        svg_parts.append(
-            f'<line x1="{cx}" y1="{cy}" x2="{mx:.1f}" y2="{my:.1f}" stroke="{color}" '
-            f'stroke-width="{3 if active else 1.5}" opacity="{0.95 if active else 0.4}" '
-            f'filter="{"url(#glow)" if active else ""}" />'
-        )
-        if active:
-            for i, dname in enumerate(info["districts"]):
-                d_angle = info["angle"] + (i - 1.5) * 22
-                dx, dy = pt(dist_r, d_angle, origin=(mx, my))
-                svg_parts.append(
-                    f'<line x1="{mx:.1f}" y1="{my:.1f}" x2="{dx:.1f}" y2="{dy:.1f}" '
-                    f'stroke="{color}" stroke-width="1.2" opacity="0.7" />'
-                )
-                svg_parts.append(
-                    f'<circle cx="{dx:.1f}" cy="{dy:.1f}" r="6" fill="{color}" opacity="0.9">'
-                    f'<title>{dname} ({name})</title></circle>'
-                )
-        svg_parts.append(
-            f'<circle cx="{mx:.1f}" cy="{my:.1f}" r="22" fill="{color if active else "#1a2332"}" '
-            f'stroke="{color}" stroke-width="2.5" filter="{"url(#glow)" if active else ""}">'
-            f'<title>{name}{" ✅ inaugurated" if active else " — not yet inaugurated"}</title></circle>'
-        )
-        angle = info["angle"] % 360
-        anchor = "middle"
-        lx, ly = mx, my
-        if angle == 270:
-            ly -= 32
-        elif angle == 90:
-            ly += 40
-        elif angle == 0:
-            lx += 14
-            anchor = "start"
-        elif angle == 180:
-            lx -= 14
-            anchor = "end"
-        svg_parts.append(
-            f'<text x="{lx:.1f}" y="{ly:.1f}" fill="#eaf4ff" font-size="14" font-weight="700" '
-            f'text-anchor="{anchor}">{name}</text>'
-        )
-
-    # metropole -> suburb dashed lines
-    for suburb in SUBURBS:
-        sx, sy = pt(suburb_r, suburb["angle"])
-        svg_parts.append(
-            f'<line x1="{cx}" y1="{cy}" x2="{sx:.1f}" y2="{sy:.1f}" stroke="#5a6472" '
-            f'stroke-width="1.5" stroke-dasharray="5,5" opacity="0.6" />'
-        )
-        svg_parts.append(
-            f'<circle cx="{sx:.1f}" cy="{sy:.1f}" r="10" fill="#3a4252" stroke="#8a94a6" stroke-width="2">'
-            f'<title>{suburb["name"]} — dependent suburb, no independent government</title></circle>'
-        )
-        angle = suburb["angle"]
-        anchor = "start" if angle in (45,) else "end"
-        dy = 22 if angle == 45 else (22 if angle == 135 else -18)
-        svg_parts.append(
-            f'<text x="{sx + (16 if anchor == "start" else -16):.1f}" y="{sy + dy:.1f}" fill="#9aa5b8" '
-            f'font-size="11" text-anchor="{anchor}">{suburb["name"]}</text>'
-        )
-
-    # metropole core, drawn last so it sits on top
-    svg_parts.append(
-        f'<circle cx="{cx}" cy="{cy}" r="38" fill="#e91e8c" opacity="0.9" filter="url(#glow)" />'
-        f'<circle cx="{cx}" cy="{cy}" r="38" fill="none" stroke="#ffb3e6" stroke-width="2" />'
-        f'<text x="{cx}" y="{cy - 4}" fill="#fff" font-size="13" font-weight="800" '
-        f'text-anchor="middle">Florești</text>'
-        f'<text x="{cx}" y="{cy + 12}" fill="#fff" font-size="13" font-weight="800" '
-        f'text-anchor="middle">Metropole</text>'
-    )
-
-    svg = f'''
-    <div style="background:linear-gradient(160deg,#0b1220 0%,#0a1830 100%);border:1px solid rgba(255,255,255,.08);
-                border-radius:16px;padding:8px;box-shadow:0 8px 30px rgba(2,62,138,.25);">
-      <svg viewBox="0 0 640 640" style="width:100%;height:auto;display:block;">
-        <defs>
-          <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" /><feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-        {"".join(svg_parts)}
-      </svg>
-    </div>
-    '''
-    return svg
 
 
 # ---------- Sidebar ----------
@@ -516,16 +513,12 @@ if not st.session_state.metro_active:
             "governance: a metropolitan tier (Istanbul/Budapest-style) over 4 municipalities, each "
             "with its own local government and districts.")
 else:
-    st.caption("Mixed decentralization is in effect — each municipality below has real local "
-               "government once inaugurated. Suburbs stay administratively dependent on the metropole.")
+    st.caption("Mixed decentralization is in effect — the map below shows each municipality's "
+               "real merged territory. Suburbs stay administratively dependent on the metropole.")
+
+st_folium(build_map(), height=520, use_container_width=True, key="metro_map")
 
 if st.session_state.metro_active:
-    diagram_col, map_col = st.columns([1, 1], gap="large")
-    with diagram_col:
-        st.markdown(build_metro_diagram(), unsafe_allow_html=True)
-    with map_col:
-        st_folium(build_map(), height=460, use_container_width=True, key="metro_map")
-
     muni_cols = st.columns(4)
     for col, (name, info) in zip(muni_cols, METRO_STRUCTURE.items()):
         active = name in st.session_state.inaugurated
@@ -547,8 +540,6 @@ if st.session_state.metro_active:
         for suburb in SUBURBS:
             loc = find_locality(suburb["name"])
             st.markdown(f"- **{loc['display_name']}** ({loc['type']})")
-else:
-    st_folium(build_map(), height=420, use_container_width=True, key="metro_map")
 
 # ---------- Real-time clock loop ----------
 # While auto-play is on, the app sleeps for one tick then reruns itself,
