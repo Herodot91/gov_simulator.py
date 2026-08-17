@@ -54,12 +54,15 @@ INAUGURATION_COST = 15
 def load_geo_data():
     with open(os.path.join(DATA_DIR, "floresti_localities.json"), encoding="utf-8") as f:
         localities = json.load(f)
+    # Real OSM boundary of "Raionul Florești" (the Moldovan raion) — reused
+    # here as the outer footprint for the fictional French-style "Florești
+    # Prefecture" this simulation models instead of the raion system.
     with open(os.path.join(DATA_DIR, "floresti_district.geojson"), encoding="utf-8") as f:
         boundary = json.load(f)
     return localities, boundary
 
 
-LOCALITIES, DISTRICT_BOUNDARY = load_geo_data()
+LOCALITIES, PREFECTURE_BOUNDARY = load_geo_data()
 
 
 def find_locality(name):
@@ -116,10 +119,10 @@ def compute_metro_polygons():
     """Real, non-overlapping territory for each municipality/suburb: a Voronoi
     tessellation seeded at each anchor locality, clipped to the metropole's own
     footprint — a buffered hull around its 7 constituent localities, not the
-    entire (much larger) Florești District. A metropole is a compact urban
-    agglomeration carved out of the raion, not the raion itself; clipping to
-    the full district would let the more isolated suburbs balloon across
-    unrelated parts of it well beyond the actual urban area."""
+    entire (much larger) Florești Prefecture. A metropole is a compact urban
+    agglomeration carved out of the prefecture, not the prefecture itself;
+    clipping to the full prefecture would let the more isolated suburbs
+    balloon across unrelated parts of it well beyond the actual urban area."""
     labels = list(METRO_STRUCTURE.keys()) + [s["name"] for s in SUBURBS]
     seeds = [(find_locality(info["anchor"])["lon"], find_locality(info["anchor"])["lat"])
              for info in METRO_STRUCTURE.values()]
@@ -130,8 +133,8 @@ def compute_metro_polygons():
     radius = np.ptp(points, axis=0).max() * 4
     regions, vertices = _voronoi_finite_polygons_2d(vor, radius)
 
-    district_poly = shape(DISTRICT_BOUNDARY["geometry"]).buffer(0)
-    metro_boundary = MultiPoint(seeds).convex_hull.buffer(0.035).intersection(district_poly)
+    prefecture_poly = shape(PREFECTURE_BOUNDARY["geometry"]).buffer(0)
+    metro_boundary = MultiPoint(seeds).convex_hull.buffer(0.035).intersection(prefecture_poly)
 
     polygons = {}
     for label, region in zip(labels, regions):
@@ -140,10 +143,11 @@ def compute_metro_polygons():
     return polygons, metro_boundary
 
 SCENARIOS = [
-    {"title": "Decentralization of Customs & Border Police",
-     "options": {"A": ("Centralize for control", {"Governance": -5, "Risk": +5}, 10),
-                 "B": ("Decentralize to regions", {"Governance": +10, "Stability": +5}, 20)},
-     "intl": "EU encourages decentralization."},
+    {"title": "Florești Metropole Administration Reform",
+     "options": {"A": ("Keep centralized prefecture control", {"Governance": -5, "Risk": +5}, 10),
+                 "B": ("Establish Florești Metropole (mixed decentralization)",
+                        {"Governance": +10, "Stability": +5}, 20)},
+     "intl": "France's Ministry of the Interior offers a prefecture-partnership model."},
     {"title": "Create Technical University in Bender",
      "options": {"A": ("Skip investment", {"Economy": -5}, 0),
                  "B": ("IT faculty only", {"Economy": +5}, 15),
@@ -278,14 +282,21 @@ def apply_random_tick():
 
 
 def build_map():
-    """Real map of Florești District. Once the metropole is active, each
+    """Real map of Florești Prefecture. Once the metropole is active, each
     municipality/suburb is drawn as its actual merged territory (a clipped
     Voronoi cell around its anchor locality) — not a point or a circle."""
-    m = folium.Map(location=[47.90, 28.35], zoom_start=10, tiles="CartoDB positron")
+    m = folium.Map(location=[47.90, 28.35], zoom_start=10, tiles=None)
+    folium.TileLayer(
+        tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
+             'contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        name="Streets",
+    ).add_to(m)
     folium.GeoJson(
-        DISTRICT_BOUNDARY,
-        name="Florești District boundary",
+        PREFECTURE_BOUNDARY,
+        name="Florești Prefecture boundary",
         style_function=lambda f: {"color": "#333333", "weight": 2, "dashArray": "6,4", "fillOpacity": 0},
+        tooltip="Florești Prefecture boundary",
     ).add_to(m)
 
     if not st.session_state.metro_active:
@@ -509,9 +520,9 @@ with right:
 # ---------- Governance structure: metropole, municipalities, districts ----------
 st.subheader("🏙️ Florești Metropole — Governance Structure")
 if not st.session_state.metro_active:
-    st.info("Choose **B) Decentralize to regions** in Scenario 1 to activate mixed-decentralization "
-            "governance: a metropolitan tier (Istanbul/Budapest-style) over 4 municipalities, each "
-            "with its own local government and districts.")
+    st.info("Choose **B) Establish Florești Metropole** in Scenario 1 to activate mixed-decentralization "
+            "governance: a metropolitan tier (Istanbul/Budapest-style) carved out of the French-style "
+            "Florești Prefecture, over 4 municipalities, each with its own local government and districts.")
 else:
     st.caption("Mixed decentralization is in effect — the map below shows each municipality's "
                "real merged territory. Suburbs stay administratively dependent on the metropole.")

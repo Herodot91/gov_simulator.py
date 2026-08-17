@@ -2,10 +2,10 @@
 Simulation of Moldova — Florești Metropole CivicTech Simulator.
 
 A Streamlit app where you make a handful of scripted policy decisions
-(customs, education, procurement reform, green tech, universities), then the
-simulation keeps running live: random world events (investment, protests,
-grants, cyberattacks, ...) fire on their own and shift Governance, Economy,
-Stability, and Risk in real time.
+(metropole administration reform, education, procurement reform, green tech,
+universities), then the simulation keeps running live: random world events
+(investment, protests, grants, cyberattacks, ...) fire on their own and shift
+Governance, Economy, Stability, and Risk in real time.
 
 ## Run it
 
@@ -28,20 +28,24 @@ streamlit run streamlit_app.py
 
 ## Governance model — mixed decentralization
 
-Choosing **B) Decentralize to regions** in Scenario 1 activates an
-Istanbul/Budapest-style two-tier governance structure over the real Florești
-District, Moldova:
+Choosing **B) Establish Florești Metropole** in Scenario 1 ("Florești
+Metropole Administration Reform") activates an Istanbul/Budapest-style
+two-tier governance structure, carved out of a fictional French-style
+**Florești Prefecture** (standing in for the real Moldovan raion) instead of
+the raion system itself:
 
-- **Florești Metropole** — the metropolitan tier.
+- **Florești Prefecture** — the outer, French-style administrative region
+  (real OpenStreetMap boundary of Raionul Florești, reframed for this sim).
+- **Florești Metropole** — the metropolitan tier carved out within it.
 - 4 **municipalities**, each with real local government once inaugurated
   (budget cost + a small Governance/Stability boost), each with 4 named
   districts: Florești Central, Mărculești, Vărvăreuca, Lunga.
 - 3 **suburbs** (Ghindești, Gura Camencii, Prajila) — administratively
   dependent on the metropole, no local government of their own.
 
-The structure is shown as a real Leaflet map, not a schematic diagram: each
-municipality and suburb is rendered as its actual merged territory — a
-Voronoi tessellation seeded at each anchor locality, clipped to the
-metropole's own footprint within the real Florești District boundary
+The structure is shown as a real street-level Leaflet map, not a schematic
+diagram: each municipality and suburb is rendered as its actual merged
+territory — a Voronoi tessellation seeded at each anchor locality, clipped to
+the metropole's own footprint within the real Florești Prefecture boundary
 (OpenStreetMap data). Inaugurated municipalities render with a bright fill;
 un-inaugurated ones and suburbs stay muted.
