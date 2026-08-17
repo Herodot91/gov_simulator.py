@@ -1,5 +1,6 @@
 # app.py (real-time)
 import os
+import math
 import random
 import time
 import json
@@ -8,11 +9,9 @@ from copy import deepcopy
 import streamlit as st
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
 import folium
 from streamlit_folium import st_folium
-from scipy.spatial import Voronoi
-from shapely.geometry import Polygon, MultiPoint, shape, mapping
+from shapely.geometry import shape, mapping
 
 st.set_page_config(page_title="Florești Metropole — CivicTech Simulator", layout="wide")
 
@@ -59,10 +58,16 @@ def load_geo_data():
     # Prefecture" this simulation models instead of the raion system.
     with open(os.path.join(DATA_DIR, "floresti_district.geojson"), encoding="utf-8") as f:
         boundary = json.load(f)
-    return localities, boundary
+    # Real OSM administrative boundaries (admin_level=8, "current territory")
+    # for the 4 municipalities, plus their pre-merged union as one feature
+    # named "Florești Metropole" — built once from the actual OSM relations,
+    # not approximated at runtime.
+    with open(os.path.join(DATA_DIR, "floresti_municipalities.geojson"), encoding="utf-8") as f:
+        municipalities = json.load(f)
+    return localities, boundary, municipalities
 
 
-LOCALITIES, PREFECTURE_BOUNDARY = load_geo_data()
+LOCALITIES, PREFECTURE_BOUNDARY, MUNICIPALITY_GEOJSON = load_geo_data()
 
 
 def find_locality(name):
@@ -72,74 +77,17 @@ def find_locality(name):
     return (towns or matches)[0]
 
 
-def _voronoi_finite_polygons_2d(vor, radius):
-    """Reconstruct infinite Voronoi regions as finite polygons by extending
-    unbounded ridges out past the given radius. Standard recipe: unbounded
-    Voronoi cells (for seed points on the convex hull) have no far vertex, so
-    each open ridge is projected outward before the region can be closed."""
-    new_regions = []
-    new_vertices = vor.vertices.tolist()
-    center = vor.points.mean(axis=0)
-
-    all_ridges = {}
-    for (p1, p2), (v1, v2) in zip(vor.ridge_points, vor.ridge_vertices):
-        all_ridges.setdefault(p1, []).append((p2, v1, v2))
-        all_ridges.setdefault(p2, []).append((p1, v1, v2))
-
-    for p1, region_index in enumerate(vor.point_region):
-        vertices = vor.regions[region_index]
-        if all(v >= 0 for v in vertices):
-            new_regions.append(vertices)
-            continue
-        ridges = all_ridges[p1]
-        new_region = [v for v in vertices if v >= 0]
-        for p2, v1, v2 in ridges:
-            if v2 < 0:
-                v1, v2 = v2, v1
-            if v1 >= 0:
-                continue
-            t = vor.points[p2] - vor.points[p1]
-            t = t / np.linalg.norm(t)
-            n = np.array([-t[1], t[0]])
-            midpoint = vor.points[[p1, p2]].mean(axis=0)
-            direction = np.sign(np.dot(midpoint - center, n)) * n
-            far_point = vor.vertices[v2] + direction * radius
-            new_region.append(len(new_vertices))
-            new_vertices.append(far_point.tolist())
-        vs = np.asarray([new_vertices[v] for v in new_region])
-        c = vs.mean(axis=0)
-        angles = np.arctan2(vs[:, 1] - c[1], vs[:, 0] - c[0])
-        new_region = np.array(new_region)[np.argsort(angles)]
-        new_regions.append(new_region.tolist())
-    return new_regions, np.asarray(new_vertices)
-
-
 @st.cache_data
 def compute_metro_polygons():
-    """Real, non-overlapping territory for each municipality/suburb: a Voronoi
-    tessellation seeded at each anchor locality, clipped to the metropole's own
-    footprint — a buffered hull around its 7 constituent localities, not the
-    entire (much larger) Florești Prefecture. A metropole is a compact urban
-    agglomeration carved out of the prefecture, not the prefecture itself;
-    clipping to the full prefecture would let the more isolated suburbs
-    balloon across unrelated parts of it well beyond the actual urban area."""
-    labels = list(METRO_STRUCTURE.keys()) + [s["name"] for s in SUBURBS]
-    seeds = [(find_locality(info["anchor"])["lon"], find_locality(info["anchor"])["lat"])
-             for info in METRO_STRUCTURE.values()]
-    seeds += [(find_locality(s["name"])["lon"], find_locality(s["name"])["lat"]) for s in SUBURBS]
-
-    points = np.array(seeds)
-    vor = Voronoi(points)
-    radius = np.ptp(points, axis=0).max() * 4
-    regions, vertices = _voronoi_finite_polygons_2d(vor, radius)
-
-    prefecture_poly = shape(PREFECTURE_BOUNDARY["geometry"]).buffer(0)
-    metro_boundary = MultiPoint(seeds).convex_hull.buffer(0.035).intersection(prefecture_poly)
-
-    polygons = {}
-    for label, region in zip(labels, regions):
-        raw = Polygon(vertices[region]).buffer(0)
-        polygons[label] = raw.intersection(metro_boundary)
+    """The real current territory of each municipality, and their union as
+    the overall Florești Metropole outline — both loaded from actual OSM
+    administrative boundaries (admin_level=8), not approximated. Merging
+    Florești + Mărculești + Vărvăreuca + Lunga is exactly this union; nothing
+    else (no suburbs, no synthetic buffer) is added to keep the map's extent
+    to just those 4 real territories."""
+    polygons = {f["properties"]["name"]: shape(f["geometry"]).buffer(0)
+                for f in MUNICIPALITY_GEOJSON["features"]}
+    metro_boundary = polygons.pop("Florești Metropole")
     return polygons, metro_boundary
 
 SCENARIOS = [
@@ -281,11 +229,48 @@ def apply_random_tick():
     record(f"Month {st.session_state.sim_month}: 🌍 {title} — {blurb} | Scores {st.session_state.scores}")
 
 
+def _zoom_for_bounds(bounds, width_px, height_px, padding=0.2):
+    """Compute a static Leaflet zoom level that fits `bounds` in a
+    width_px x height_px viewport. Baked in at map-construction time instead
+    of relying on client-side fitBounds(), which (inside the nested Streamlit
+    component iframe) can run before Leaflet has measured the container and
+    silently no-op, leaving the map stuck at its initial zoom."""
+    min_lon, min_lat, max_lon, max_lat = bounds
+    dlon = (max_lon - min_lon) * padding
+    dlat = (max_lat - min_lat) * padding
+    min_lon, max_lon = min_lon - dlon, max_lon + dlon
+    min_lat, max_lat = min_lat - dlat, max_lat + dlat
+
+    def merc_y(lat):
+        rad = math.radians(max(min(lat, 89.9), -89.9))
+        return math.log(math.tan(math.pi / 4 + rad / 2))
+
+    world_px = 256
+    lon_diff = max(max_lon - min_lon, 1e-9)
+    zoom_lon = math.log2(width_px * 360 / (lon_diff * world_px))
+    lat_diff = max(abs(merc_y(max_lat) - merc_y(min_lat)), 1e-9)
+    zoom_lat = math.log2(height_px * (2 * math.pi) / (lat_diff * world_px))
+    return max(3, min(18, int(math.floor(min(zoom_lon, zoom_lat)))))
+
+
 def build_map():
     """Real map of Florești Prefecture. Once the metropole is active, each
-    municipality/suburb is drawn as its actual merged territory (a clipped
-    Voronoi cell around its anchor locality) — not a point or a circle."""
-    m = folium.Map(location=[47.90, 28.35], zoom_start=10, tiles=None)
+    municipality is drawn as its actual current territory (real OSM
+    administrative boundary) — not a point or a circle — and the view is
+    fit tightly to their merged extent, not the whole prefecture."""
+    polygons, metro_boundary = (None, None)
+    if st.session_state.metro_active:
+        polygons, metro_boundary = compute_metro_polygons()
+
+    if metro_boundary is not None and not metro_boundary.is_empty:
+        min_lon, min_lat, max_lon, max_lat = metro_boundary.bounds
+        center = [(min_lat + max_lat) / 2, (min_lon + max_lon) / 2]
+        zoom = _zoom_for_bounds((min_lon, min_lat, max_lon, max_lat), 600, 500)
+    else:
+        center = [47.90, 28.35]
+        zoom = 10
+
+    m = folium.Map(location=center, zoom_start=zoom, tiles=None)
     folium.TileLayer(
         tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
         attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
@@ -302,15 +287,12 @@ def build_map():
     if not st.session_state.metro_active:
         return m
 
-    polygons, metro_boundary = compute_metro_polygons()
     if not metro_boundary.is_empty:
         folium.GeoJson(
             mapping(metro_boundary),
             style_function=lambda f: {"color": "#e91e8c", "weight": 3, "fillOpacity": 0},
             tooltip="Florești Metropole boundary",
         ).add_to(m)
-        min_lon, min_lat, max_lon, max_lat = metro_boundary.bounds
-        m.fit_bounds([[min_lat, min_lon], [max_lat, max_lon]])
 
     def label(lat, lon, text, color, size=12, weight=700):
         folium.Marker(
@@ -339,34 +321,12 @@ def build_map():
         c = poly.centroid
         label(c.y, c.x, f"{name}{' ✅' if active else ''}", "#111111" if active else "#555555")
 
-    for suburb in SUBURBS:
-        poly = polygons.get(suburb["name"])
-        if poly is None or poly.is_empty:
-            continue
-        folium.GeoJson(
-            mapping(poly),
-            style_function=lambda f: {"color": "#6b7280", "weight": 1.5, "dashArray": "4,4",
-                                       "fillColor": "#9ca3af", "fillOpacity": 0.18},
-            tooltip=f"{suburb['name']} — dependent suburb, no local government",
-        ).add_to(m)
-        c = poly.centroid
-        label(c.y, c.x, suburb["name"], "#555555", size=11, weight=500)
-
     legend_rows = "".join(
         f'<div style="display:flex;align-items:center;gap:6px;margin:2px 0;">'
         f'<span style="width:12px;height:12px;border-radius:3px;background:{MUNICIPALITY_COLORS[n]};'
         f'display:inline-block;opacity:{1 if n in st.session_state.inaugurated else 0.35};"></span>'
         f'<span style="font-size:12px;">{n} {"✅" if n in st.session_state.inaugurated else ""}</span></div>'
         for n in METRO_STRUCTURE
-    )
-    legend_rows += (
-        '<div style="margin-top:4px;font-weight:700;font-size:11px;">Suburbs</div>'
-        + "".join(
-            f'<div style="display:flex;align-items:center;gap:6px;margin:2px 0;">'
-            f'<span style="width:10px;height:10px;border-radius:3px;background:#9ca3af;display:inline-block;"></span>'
-            f'<span style="font-size:12px;">{s["name"]}</span></div>'
-            for s in SUBURBS
-        )
     )
     legend_html = f'''
     <div style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; background: white;
@@ -527,7 +487,8 @@ else:
     st.caption("Mixed decentralization is in effect — the map below shows each municipality's "
                "real merged territory. Suburbs stay administratively dependent on the metropole.")
 
-st_folium(build_map(), height=520, use_container_width=True, key="metro_map")
+map_key = "metro_map_active" if st.session_state.metro_active else "metro_map_inactive"
+st_folium(build_map(), height=520, use_container_width=True, key=map_key)
 
 if st.session_state.metro_active:
     muni_cols = st.columns(4)
