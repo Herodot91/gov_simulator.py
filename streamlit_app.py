@@ -24,13 +24,13 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 METRO_STRUCTURE = {
     "Florești Central": {
         "anchor": "Florești",
-        "districts": ["Civic District", "Central Market District",
-                      "Răut Riverside District", "University District"],
+        "districts": ["Centrul Civic", "Central Market District",
+                      "Răut Riverside District", "Politeh"],
     },
     "Mărculești": {
         "anchor": "Mărculești",
-        "districts": ["Airport District", "Industrial District",
-                      "Logistics District", "Mărculești Residential District"],
+        "districts": ["Airport District", "Aviagorodok",
+                      "Industrial District", "Mărculești Residential District"],
     },
     "Vărvăreuca": {
         "anchor": "Vărvăreuca",
