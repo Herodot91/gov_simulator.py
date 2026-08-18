@@ -157,6 +157,8 @@ def reset_simulation(start_budget):
     st.session_state.autoplay = False
     st.session_state.metro_active = False
     st.session_state.inaugurated = []
+    st.session_state.selected_municipality = None
+    st.session_state.selected_district = None
 
 
 if "scores" not in st.session_state:
@@ -511,34 +513,89 @@ if not st.session_state.metro_active:
             "governance: a metropolitan tier (Istanbul/Budapest-style) carved out of the French-style "
             "Florești Prefecture, over 4 municipalities, each with its own local government and districts.")
 else:
-    st.caption("Mixed decentralization is in effect — the map below shows each municipality's "
-               "real merged territory. Suburbs stay administratively dependent on the metropole.")
+    st.caption("Mixed decentralization is in effect — click a municipality on the map (or below) to "
+               "drill down into its districts. Suburbs stay administratively dependent on the metropole.")
 
 map_key = "metro_map_active" if st.session_state.metro_active else "metro_map_inactive"
-st_folium(build_map(), height=520, use_container_width=True, key=map_key)
+map_state = st_folium(build_map(), height=520, use_container_width=True, key=map_key)
+
+# Clicking a municipality's shape on the map drills down into it, same as
+# clicking its name below — folium reports the click via the tooltip text we
+# already set on each polygon ("<name> ✅ inaugurated" / "<name> (not yet...)").
+if st.session_state.metro_active and map_state and map_state.get("last_object_clicked_tooltip"):
+    clicked_tooltip = map_state["last_object_clicked_tooltip"]
+    for muni_name in METRO_STRUCTURE:
+        if clicked_tooltip.startswith(muni_name) and st.session_state.selected_municipality != muni_name:
+            st.session_state.selected_municipality = muni_name
+            st.session_state.selected_district = None
+            st.rerun()
 
 if st.session_state.metro_active:
-    muni_cols = st.columns(4)
-    for col, (name, info) in zip(muni_cols, METRO_STRUCTURE.items()):
-        active = name in st.session_state.inaugurated
+    sel_muni = st.session_state.selected_municipality
+    sel_dist = st.session_state.selected_district
+
+    if sel_muni is None:
+        # ---------- Layer 1: Metropole -> pick a municipality ----------
+        st.caption("👆 Click a municipality to see its 4 districts.")
+        muni_cols = st.columns(4)
+        for col, name in zip(muni_cols, METRO_STRUCTURE):
+            active = name in st.session_state.inaugurated
+            with col:
+                if st.button(f"{name} {'✅' if active else ''}", key=f"select_{name}", use_container_width=True):
+                    st.session_state.selected_municipality = name
+                    st.session_state.selected_district = None
+                    st.rerun()
+
+        with st.expander(f"🏘️ Suburbs ({len(SUBURBS)}) — dependent on the metropole, no local government"):
+            for suburb in SUBURBS:
+                loc = find_locality(suburb["name"])
+                st.markdown(f"- **{loc['display_name']}** ({loc['type']})")
+
+    else:
+        info = METRO_STRUCTURE[sel_muni]
+        active = sel_muni in st.session_state.inaugurated
         anchor = find_locality(info["anchor"])
-        with col:
-            st.markdown(f"**{name}** {'✅' if active else ''}")
+
+        if sel_dist is None:
+            # ---------- Layer 2: Municipality -> pick a district ----------
+            if st.button("← Back to Metropole", key="back_to_metro"):
+                st.session_state.selected_municipality = None
+                st.rerun()
+            st.markdown(f"### {sel_muni} {'✅ inaugurated' if active else ''}")
             st.caption(f"Anchor: {anchor['display_name']}")
-            for d in info["districts"]:
-                st.markdown(f"- {d}")
+
+            st.write("👆 Click a district for details:")
+            dist_cols = st.columns(4)
+            for col, d in zip(dist_cols, info["districts"]):
+                with col:
+                    if st.button(d, key=f"select_district_{sel_muni}_{d}", use_container_width=True):
+                        st.session_state.selected_district = d
+                        st.rerun()
+
             if active:
                 st.success("Inaugurated")
             else:
-                if st.button(f"Inaugurate ({INAUGURATION_COST})", key=f"inaugurate_{name}",
+                if st.button(f"Inaugurate ({INAUGURATION_COST})", key=f"inaugurate_{sel_muni}",
                               disabled=st.session_state.budget < INAUGURATION_COST):
-                    inaugurate_municipality(name)
+                    inaugurate_municipality(sel_muni)
                     st.rerun()
-
-    with st.expander(f"🏘️ Suburbs ({len(SUBURBS)}) — dependent on the metropole, no local government"):
-        for suburb in SUBURBS:
-            loc = find_locality(suburb["name"])
-            st.markdown(f"- **{loc['display_name']}** ({loc['type']})")
+        else:
+            # ---------- Layer 3: District detail ----------
+            if st.button(f"← Back to {sel_muni}", key="back_to_muni"):
+                st.session_state.selected_district = None
+                st.rerun()
+            st.markdown(f"### {sel_dist}")
+            st.caption(f"District of **{sel_muni}**, Florești Metropole.")
+            if active:
+                st.info("This district shares in its municipality's local government, "
+                        "inaugurated as part of the mixed-decentralization reform.")
+            else:
+                st.warning(f"{sel_muni} hasn't been inaugurated yet — inaugurate it to activate "
+                           "local government here, including this district.")
+                if st.button(f"Inaugurate {sel_muni} ({INAUGURATION_COST})", key=f"inaugurate_from_district_{sel_muni}",
+                              disabled=st.session_state.budget < INAUGURATION_COST):
+                    inaugurate_municipality(sel_muni)
+                    st.rerun()
 
 # ---------- Real-time clock loop ----------
 # While auto-play is on, the app sleeps for one tick then reruns itself,

@@ -26,6 +26,19 @@ streamlit run streamlit_app.py
 - History (scores per month) and the full event log can be exported at any
   point as CSV / JSON, even mid-run.
 
+## Governance structure UI — drill-down navigation
+
+The governance section follows the model's own layers, one screen at a
+time: **Metropole → Municipality → District**.
+
+- At the Metropole layer, the map shows all 4 municipalities at once.
+  Click a municipality's shape on the map, or its name below the map, to
+  drill into it.
+- At the Municipality layer, its 4 districts are listed as buttons —
+  click one to open it. Inauguration happens here too.
+- At the District layer, you see which municipality it belongs to and
+  its inauguration status. "← Back" always returns one layer up.
+
 ## Governance model — mixed decentralization
 
 Choosing **B) Establish Florești Metropole** in Scenario 1 ("Florești
