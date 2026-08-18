@@ -115,6 +115,56 @@ SCENARIOS = [
      "intl": "Foreign students show interest in Moldova."},
 ]
 
+# Layer-scoped development projects — same interactive shape as SCENARIOS
+# (options with Cost + score effects), but each project lives at exactly one
+# governance layer and only unlocks once that layer is active: metropole
+# projects once the metropole is established, municipal/district projects
+# once their municipality is inaugurated (districts don't inaugurate
+# separately, they ride on their municipality's status).
+METRO_PROJECTS = [
+    {"id": "ring_road", "title": "Florești Ring Road",
+     "options": {"A": ("Build the full ring road", {"Economy": +10, "Stability": +5}, 30),
+                 "B": ("Partial bypass only", {"Economy": +5}, 15)},
+     "intl": "The EU regional development fund shows interest in cross-border logistics."},
+    {"id": "metro_line1", "title": "Metro Line 1",
+     "options": {"A": ("Build the light-rail line", {"Economy": +8, "Governance": +5, "Stability": +5}, 35),
+                 "B": ("Feasibility study only", {"Governance": +3}, 10)},
+     "intl": "Investors eye Florești as a regional transit hub."},
+    {"id": "rail_airport_link", "title": "Railway Station – Airport Link",
+     "options": {"A": ("Build a direct rail link to Mărculești Airport", {"Economy": +10, "Risk": -3}, 25),
+                 "B": ("Shuttle bus service only", {"Economy": +3}, 8)},
+     "intl": "Aeroportul Internațional Mărculești pushes for better ground transit."},
+]
+
+MUNICIPALITY_PROJECTS = {
+    "Florești Central": [
+        {"id": "raut_plaza", "title": "Răut Plaza",
+         "options": {"A": ("Full plaza redevelopment", {"Stability": +5, "Economy": +5}, 20),
+                     "B": ("Basic renovation", {"Stability": +2}, 10)},
+         "intl": "Residents petition for a new riverside public space."},
+    ],
+    "Vărvăreuca": [
+        {"id": "new_avenue", "title": "New Avenue",
+         "options": {"A": ("Build a new avenue toward Florești", {"Economy": +7, "Stability": +3}, 22),
+                     "B": ("Minor road upgrade", {"Economy": +3}, 10)},
+         "intl": "Vărvăreuca residents demand better connectivity."},
+    ],
+}
+
+DISTRICT_PROJECTS = {
+    ("Lunga", "Green Belt District"): [
+        {"id": "community_park", "title": "Community Park",
+         "options": {"A": ("Build the park", {"Stability": +5, "Governance": +2}, 12)},
+         "intl": "Environmental groups praise the green-space initiative."},
+    ],
+    ("Lunga", "Lunga Residential District"): [
+        {"id": "school_reconstruction", "title": "School Reconstruction",
+         "options": {"A": ("Full reconstruction", {"Governance": +5, "Stability": +3, "Economy": +2}, 18),
+                     "B": ("Partial repairs", {"Stability": +1}, 8)},
+         "intl": "The Ministry of Education monitors rural school conditions."},
+    ],
+}
+
 # Ambient events that fire on their own once the clock is live, independent of
 # the scripted policy decisions above — this is what makes the world keep
 # moving in real time even while the player is deliberating.
@@ -159,6 +209,7 @@ def reset_simulation(start_budget):
     st.session_state.inaugurated = []
     st.session_state.selected_municipality = None
     st.session_state.selected_district = None
+    st.session_state.resolved_projects = {}
 
 
 if "scores" not in st.session_state:
@@ -221,6 +272,30 @@ def inaugurate_municipality(name):
     record(f"Month {st.session_state.sim_month}: 🏛️ {name} municipality inaugurated — "
            f"districts: {districts} | Cost {INAUGURATION_COST} "
            f"| Scores {st.session_state.scores} | Budget {st.session_state.budget}")
+
+
+def resolve_project(project, key, scope_label):
+    """Resolve a metropole/municipal/district development project — same
+    Cost + effects shape as resolve_choice, but keyed by project id so each
+    one can be resolved independently of the others, from wherever in the
+    Metropole -> Municipality -> District drill-down it's shown."""
+    st.session_state.sim_month += 1
+    if key is None:
+        st.session_state.resolved_projects[project["id"]] = {"choice": None, "label": "Skipped"}
+        record(f"Month {st.session_state.sim_month}: Skipped — {project['title']} ({scope_label}).")
+        return
+    desc, effects, cost = project["options"][key]
+    if st.session_state.budget < cost:
+        record(f"Month {st.session_state.sim_month}: Not enough budget for {key}) {desc} "
+               f"on '{project['title']}'. Skipped.")
+        return
+    st.session_state.budget -= cost
+    apply_effects(effects)
+    st.session_state.last_intl = project["intl"]
+    st.session_state.resolved_projects[project["id"]] = {"choice": key, "label": desc}
+    record(f"Month {st.session_state.sim_month}: {project['title']} ({scope_label}) → {key}) {desc} "
+           f"| Cost {cost} | Intl: {project['intl']} | Scores {st.session_state.scores} "
+           f"| Budget {st.session_state.budget}")
 
 
 def apply_random_tick():
@@ -470,6 +545,34 @@ def risk_badge(val: int):
             'border:1px solid rgba(230,57,70,.35);color:#8a1b23;font-weight:700;font-size:12px;">HIGH RISK</span>')
 
 
+def render_project(project, scope_label, key_prefix):
+    """One project's UI at whichever governance layer it's shown: its
+    options as buttons (mirrors the top-level SCENARIOS buttons) before
+    it's resolved, or the outcome once it is."""
+    resolved = st.session_state.resolved_projects.get(project["id"])
+    st.markdown(f"**{project['title']}**")
+    if resolved:
+        if resolved["choice"] is None:
+            st.caption("⏭️ Skipped")
+        else:
+            st.success(f"{resolved['choice']}) {resolved['label']}")
+    else:
+        opt_items = list(project["options"].items())
+        cols = st.columns(len(opt_items) + 1)
+        for col, (key, (desc, effects, cost)) in zip(cols, opt_items):
+            with col:
+                if st.button(f"{key}) {desc} | Cost {cost} | {fmt_effects(effects)}",
+                             key=f"{key_prefix}_{project['id']}_{key}",
+                             disabled=st.session_state.budget < cost,
+                             use_container_width=True):
+                    resolve_project(project, key, scope_label)
+                    st.rerun()
+        with cols[-1]:
+            if st.button("Skip", key=f"{key_prefix}_{project['id']}_skip", use_container_width=True):
+                resolve_project(project, None, scope_label)
+                st.rerun()
+
+
 def bar_html(value, color):
     return f'''
       <div style="height:10px;background:#e9eef5;border-radius:999px;overflow:hidden;">
@@ -551,6 +654,10 @@ if st.session_state.metro_active:
                 loc = find_locality(suburb["name"])
                 st.markdown(f"- **{loc['display_name']}** ({loc['type']})")
 
+        st.markdown("#### 🏗️ Metropolitan Projects")
+        for project in METRO_PROJECTS:
+            render_project(project, "Metropolitan", "metro_project")
+
     else:
         info = METRO_STRUCTURE[sel_muni]
         active = sel_muni in st.session_state.inaugurated
@@ -579,6 +686,15 @@ if st.session_state.metro_active:
                               disabled=st.session_state.budget < INAUGURATION_COST):
                     inaugurate_municipality(sel_muni)
                     st.rerun()
+
+            muni_projects = MUNICIPALITY_PROJECTS.get(sel_muni, [])
+            if muni_projects:
+                st.markdown("#### 🏗️ Municipal Projects")
+                if active:
+                    for project in muni_projects:
+                        render_project(project, f"{sel_muni} municipal", "muni_project")
+                else:
+                    st.caption(f"Inaugurate {sel_muni} to unlock its municipal projects.")
         else:
             # ---------- Layer 3: District detail ----------
             if st.button(f"← Back to {sel_muni}", key="back_to_muni"):
@@ -596,6 +712,15 @@ if st.session_state.metro_active:
                               disabled=st.session_state.budget < INAUGURATION_COST):
                     inaugurate_municipality(sel_muni)
                     st.rerun()
+
+            dist_projects = DISTRICT_PROJECTS.get((sel_muni, sel_dist), [])
+            if dist_projects:
+                st.markdown("#### 🏗️ District Projects")
+                if active:
+                    for project in dist_projects:
+                        render_project(project, f"{sel_dist} district", "district_project")
+                else:
+                    st.caption(f"Inaugurate {sel_muni} to unlock projects in this district.")
 
 # ---------- Real-time clock loop ----------
 # While auto-play is on, the app sleeps for one tick then reruns itself,

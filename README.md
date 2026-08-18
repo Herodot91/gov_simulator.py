@@ -1,6 +1,11 @@
 # gov_simulator.py
 Simulation of Moldova — Florești Metropole CivicTech Simulator.
 
+A governance-simulation proof of concept aimed at policy makers, political
+analysts, and staff at each tier of the metropole's own administration —
+metropolitan city hall, a municipal council, or a district office — to
+explore mixed-decentralization tradeoffs interactively rather than on paper.
+
 A Streamlit app where you make a handful of scripted policy decisions
 (metropole administration reform, education, procurement reform, green tech,
 universities), then the simulation keeps running live: random world events
@@ -38,6 +43,26 @@ time: **Metropole → Municipality → District**.
   click one to open it. Inauguration happens here too.
 - At the District layer, you see which municipality it belongs to and
   its inauguration status. "← Back" always returns one layer up.
+
+## Development projects — one set per governance layer
+
+Beyond the 5 scripted top-level scenarios, each layer of the drill-down has
+its own real development projects to decide on, same interactive shape as
+the scenarios (pick an option — Cost + Governance/Economy/Stability/Risk
+effects — or Skip):
+
+- **Metropolitan Projects** (shown at the Metropole layer, once the
+  metropole is established): Florești Ring Road, Metro Line 1, and the
+  Railway Station – Airport Link.
+- **Municipal Projects** (shown at each Municipality layer, once that
+  municipality is inaugurated): Răut Plaza in Florești Central, a New
+  Avenue in Vărvăreuca.
+- **District Projects** (shown at each District layer, once the parent
+  municipality is inaugurated): a Community Park (Lunga's Green Belt
+  District) and School Reconstruction (Lunga's Lunga Residential District).
+
+A municipality's/district's projects stay locked with a note to inaugurate
+first — same gate as the district detail view itself.
 
 ## Governance model — mixed decentralization
 
