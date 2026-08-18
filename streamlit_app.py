@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
-from shapely.geometry import shape, mapping
+from shapely.geometry import shape, mapping, Point
 
 st.set_page_config(page_title="Florești Metropole — CivicTech Simulator", layout="wide")
 
@@ -324,16 +324,29 @@ def build_map():
             },
             tooltip=f"{name} {'✅ inaugurated' if active else '(not yet inaugurated)'}",
         ).add_to(m)
-        # representative_point() (unlike centroid) is guaranteed to fall
-        # inside the polygon even for an irregular/concave shape -- a
-        # centroid can land outside and visually read as a neighbor's label.
-        # A municipality can be a MultiPolygon (e.g. a real village plus a
-        # real facility like an airport that isn't adjacent to it) -- label
-        # every part so none of them look unexplained/orphaned on the map.
-        parts = poly.geoms if poly.geom_type == "MultiPolygon" else [poly]
-        for part in parts:
-            c = part.representative_point()
-            label(c.y, c.x, f"{name}{' ✅' if active else ''}", "#111111" if active else "#333333")
+        # Anchor the label at the real named locality (its actual OSM town/
+        # village point) whenever that point actually falls inside this
+        # municipality's territory -- otherwise a generic representative_point()
+        # can land far from where the real place sits (e.g. deep in a large
+        # rural comuna), reading as if the label were misplaced relative to
+        # real maps. representative_point() (unlike centroid, which can land
+        # outside a concave shape) is the fallback, and covers every part for
+        # a MultiPolygon (e.g. a village plus a detached facility).
+        real_pt = None
+        try:
+            loc = find_locality(METRO_STRUCTURE[name]["anchor"])
+            candidate = Point(loc["lon"], loc["lat"])
+            if poly.contains(candidate):
+                real_pt = candidate
+        except (IndexError, KeyError):
+            pass
+        if real_pt is not None:
+            label(real_pt.y, real_pt.x, f"{name}{' ✅' if active else ''}", "#111111" if active else "#333333")
+        else:
+            parts = poly.geoms if poly.geom_type == "MultiPolygon" else [poly]
+            for part in parts:
+                c = part.representative_point()
+                label(c.y, c.x, f"{name}{' ✅' if active else ''}", "#111111" if active else "#333333")
 
     legend_rows = "".join(
         f'<div style="display:flex;align-items:center;gap:6px;margin:2px 0;">'
