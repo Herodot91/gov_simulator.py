@@ -68,13 +68,17 @@ adjustments on top:
   touching the corridor that only Lunga uses.
 - **Lunga comprises the real Lunga village**, including its own real
   named locality, minus only the small piece ceded to Mărculești's
-  village-hull edge above, plus its narrow real-gap corridor out to
-  Florești Central. Florești Central and Mărculești are *not* linked
-  directly — Lunga is the only path between them, same as the real
-  geography (Mărculești/the airport sit well southwest of both).
+  village-hull edge above, plus its real-gap corridor out to Florești
+  Central — widened beyond its literal narrow real-world width so the
+  connection reads as an unmistakable, solid merge at normal map zoom
+  instead of a thin, easy-to-miss sliver. Florești Central and Mărculești
+  are *not* linked directly — Lunga is the only path between them, same
+  as the real geography (Mărculești/the airport sit well southwest of
+  both).
 - **Vărvăreuca** is trimmed inward from its full rural comuna boundary
   toward its built-up core, so it doesn't dominate the map with a long thin
-  spike of open farmland, and still borders Florești Central directly.
+  spike of open farmland, and still borders Florești Central directly —
+  that border is likewise widened for a clearly visible merge.
 
 Florești Metropole is the union of all four — verified hole-free, with zero
 overlap between any two municipalities that aren't directly bridged (bridged
