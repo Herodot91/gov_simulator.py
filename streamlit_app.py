@@ -165,6 +165,29 @@ DISTRICT_PROJECTS = {
     ],
 }
 
+# Real-world reference points used to place resolved projects on the map --
+# same coordinates as each municipality's real anchor locality (see
+# floresti_localities.json), plus the real Mărculești airport's approximate
+# centroid, since the app doesn't otherwise load the airport as its own
+# feature (it's merged into Mărculești's territory).
+_FLORESTI_PT = (47.8938318, 28.2996474)
+_MARCULESTI_PT = (47.8693441, 28.2415422)
+_VARVAREUCA_PT = (47.8798617, 28.3113869)
+_LUNGA_PT = (47.8617078, 28.231765)
+_MARCULESTI_AIRPORT_PT = (47.8597, 28.2130)
+
+# How each resolved project is drawn on the map: a single "point" marker, or
+# a "line" between two reference points for corridor-shaped infrastructure.
+PROJECT_MAP_LOCATIONS = {
+    "ring_road": {"type": "point", "coord": (47.9095, 28.3105)},
+    "metro_line1": {"type": "point", "coord": _FLORESTI_PT},
+    "rail_airport_link": {"type": "line", "points": [_FLORESTI_PT, _MARCULESTI_AIRPORT_PT]},
+    "raut_plaza": {"type": "point", "coord": (47.8918, 28.2946)},
+    "new_avenue": {"type": "line", "points": [_VARVAREUCA_PT, _FLORESTI_PT]},
+    "community_park": {"type": "point", "coord": (_LUNGA_PT[0] + 0.0035, _LUNGA_PT[1] - 0.003)},
+    "school_reconstruction": {"type": "point", "coord": (_LUNGA_PT[0] - 0.0035, _LUNGA_PT[1] + 0.003)},
+}
+
 # Ambient events that fire on their own once the clock is live, independent of
 # the scripted policy decisions above — this is what makes the world keep
 # moving in real time even while the player is deliberating.
@@ -424,6 +447,33 @@ def build_map():
             for part in parts:
                 c = part.representative_point()
                 label(c.y, c.x, f"{name}{' ✅' if active else ''}", "#111111" if active else "#333333")
+
+    # Resolved projects (any layer) get a marker/line on the map — only ones
+    # actually decided on (not skipped), so the map reflects real choices.
+    all_projects = (
+        [(p, "Metropolitan") for p in METRO_PROJECTS]
+        + [(p, f"{muni} municipal") for muni, plist in MUNICIPALITY_PROJECTS.items() for p in plist]
+        + [(p, f"{dist} district") for (muni, dist), plist in DISTRICT_PROJECTS.items() for p in plist]
+    )
+    for project, scope_label in all_projects:
+        resolved = st.session_state.resolved_projects.get(project["id"])
+        if not resolved or resolved["choice"] is None:
+            continue
+        loc = PROJECT_MAP_LOCATIONS.get(project["id"])
+        if loc is None:
+            continue
+        tooltip_text = f"🏗️ {project['title']} ({scope_label}) — {resolved['choice']}) {resolved['label']}"
+        icon_html = ('<div style="font-size:20px;line-height:1;'
+                     'transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🏗️</div>')
+        if loc["type"] == "point":
+            folium.Marker(location=list(loc["coord"]), icon=folium.DivIcon(html=icon_html),
+                          tooltip=tooltip_text).add_to(m)
+        elif loc["type"] == "line":
+            pts = loc["points"]
+            folium.PolyLine(locations=[list(p) for p in pts], color="#5a3921", weight=4,
+                            opacity=0.85, dash_array="8,6", tooltip=tooltip_text).add_to(m)
+            mid = [(pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2]
+            folium.Marker(location=mid, icon=folium.DivIcon(html=icon_html), tooltip=tooltip_text).add_to(m)
 
     legend_rows = "".join(
         f'<div style="display:flex;align-items:center;gap:6px;margin:2px 0;">'

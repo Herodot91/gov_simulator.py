@@ -61,6 +61,14 @@ effects — or Skip):
   municipality is inaugurated): a Community Park (Lunga's Green Belt
   District) and School Reconstruction (Lunga's Lunga Residential District).
 
+Once you pick a real option for a project (not Skip), it shows up on the
+metropole map itself: point projects get a 🏗️ marker near their real
+location, corridor-shaped ones (the Railway Station – Airport Link, the
+New Avenue) are drawn as a line between their two endpoints with a marker
+at the midpoint. Hover any of them for the project name and the choice
+made. Markers persist across the whole map regardless of which layer
+you're currently viewing.
+
 A municipality's/district's projects stay locked with a note to inaugurate
 first — same gate as the district detail view itself.
 
