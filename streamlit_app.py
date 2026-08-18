@@ -327,8 +327,13 @@ def build_map():
         # representative_point() (unlike centroid) is guaranteed to fall
         # inside the polygon even for an irregular/concave shape -- a
         # centroid can land outside and visually read as a neighbor's label.
-        c = poly.representative_point()
-        label(c.y, c.x, f"{name}{' ✅' if active else ''}", "#111111" if active else "#333333")
+        # A municipality can be a MultiPolygon (e.g. a real village plus a
+        # real facility like an airport that isn't adjacent to it) -- label
+        # every part so none of them look unexplained/orphaned on the map.
+        parts = poly.geoms if poly.geom_type == "MultiPolygon" else [poly]
+        for part in parts:
+            c = part.representative_point()
+            label(c.y, c.x, f"{name}{' ✅' if active else ''}", "#111111" if active else "#333333")
 
     legend_rows = "".join(
         f'<div style="display:flex;align-items:center;gap:6px;margin:2px 0;">'
