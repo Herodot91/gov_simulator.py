@@ -49,23 +49,21 @@ territory — the real OpenStreetMap administrative boundary (admin_level=8)
 of Florești, Mărculești, Vărvăreuca, and Lunga — with a few deliberate real
 adjustments on top:
 
-- **Mărculești comprises its own whole real village *and* the whole real
-  airport** — the actual "orașul Mărculești" admin boundary, plus the real
-  Mărculești International Airport (OSM aerodrome `LUBM`), matching its own
-  "Airport District". These two real places sit about 120m apart with a
-  strip of Lunga's real land between them, and connecting them would require
-  a corridor that cuts straight through Lunga's middle and splits it in two
-  — so Mărculești is a two-part territory instead (both parts real, both
-  clearly bordering Lunga, no fake bridge). Realistic rather than forced:
-  there genuinely is a gap between the village and the airport.
-- **Lunga comprises the whole real Lunga village**, minus only the airport
-  itself (which the real Lunga boundary happens to contain) and a short exit
-  corridor cut from the airport out to Lunga's true edge — the shortest real
-  path out (only ~3m at the nearest point), not a long thread across empty
-  land. Lunga still gets a narrow real-gap corridor out to Florești Central.
-  Florești Central and Mărculești are *not* linked directly — Lunga is the
-  only path between them, same as the real geography (Mărculești/the airport
-  sit well southwest of both).
+- **Mărculești is one unified territory comprising its own whole real
+  village *and* the whole real airport** — the actual "orașul Mărculești"
+  admin boundary, plus the real Mărculești International Airport (OSM
+  aerodrome `LUBM`), matching its own "Airport District", joined by a
+  ~120m corridor across the strip of Lunga's real land between them (the
+  real village already reaches its own open exterior, so this corridor
+  gives the whole shape genuine outside access without a separate hole to
+  patch).
+- **Lunga comprises the whole real Lunga village** minus only the sliver
+  needed for that corridor. When the village-airport corridor is cut out,
+  Lunga's real boundary happens to stay in one connected piece (no need to
+  fold any part of it elsewhere) and still keeps its narrow real-gap
+  corridor out to Florești Central. Florești Central and Mărculești are
+  *not* linked directly — Lunga is the only path between them, same as the
+  real geography (Mărculești/the airport sit well southwest of both).
 - **Vărvăreuca** is trimmed inward from its full rural comuna boundary
   toward its built-up core, so it doesn't dominate the map with a long thin
   spike of open farmland, and still borders Florești Central directly.
