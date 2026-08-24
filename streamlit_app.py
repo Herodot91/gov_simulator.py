@@ -634,14 +634,21 @@ def build_map():
 
     # FlorTech campuses -- point markers, not territory (a campus isn't its
     # own governance unit). Clicking one drills into its faculties, same as
-    # clicking a municipality's shape drills into its districts.
-    campus_icon_html = ('<div style="font-size:18px;line-height:1;'
-                         'transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🎓</div>')
+    # clicking a municipality's shape drills into its districts. Icon gets
+    # an explicit size/anchor (a round badge, no CSS transform) so the
+    # actual clickable hit-box lines up with the visible glyph -- without
+    # icon_size, DivIcon falls back to Leaflet's 12x12 default box while the
+    # transform paints the emoji outside it, so it looks clickable but isn't.
+    campus_icon_html = (
+        '<div style="width:28px;height:28px;border-radius:50%;background:#1d3557;'
+        'display:flex;align-items:center;justify-content:center;font-size:15px;'
+        'box-shadow:0 1px 4px rgba(0,0,0,.45);border:2px solid #fff;">🎓</div>'
+    )
     for campus in FLORTECH["campuses"]:
         lat, lon = FLORTECH_CAMPUS_LOCATIONS[campus["id"]]
         folium.Marker(
             location=[lat, lon],
-            icon=folium.DivIcon(html=campus_icon_html),
+            icon=folium.DivIcon(html=campus_icon_html, icon_size=(28, 28), icon_anchor=(14, 14)),
             tooltip=f"🎓 {campus['name']} — FlorTech campus",
         ).add_to(m)
 

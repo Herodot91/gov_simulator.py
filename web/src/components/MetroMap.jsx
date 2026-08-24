@@ -27,10 +27,22 @@ function projectIcon() {
   );
 }
 
+// Explicit size + anchor (a round badge, no CSS transform) so the actual
+// clickable hit-box lines up with the visible glyph -- the shared divIcon()
+// helper leaves iconSize null (fine for the non-interactive labels it's
+// used for), which would otherwise auto-size the hit-box to the untransformed
+// layout box while the transform paints the emoji outside it: looks
+// clickable, isn't.
 function campusIcon() {
-  return divIcon(
-    '<div style="font-size:18px;line-height:1;transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🎓</div>'
-  );
+  return L.divIcon({
+    html:
+      '<div style="width:28px;height:28px;border-radius:50%;background:#1d3557;' +
+      "display:flex;align-items:center;justify-content:center;font-size:15px;" +
+      'box-shadow:0 1px 4px rgba(0,0,0,.45);border:2px solid #fff;">🎓</div>',
+    className: "map-divicon",
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+  });
 }
 
 // Imperatively sets the map's view once, whenever the target center/zoom
