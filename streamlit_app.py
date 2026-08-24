@@ -447,6 +447,55 @@ AGROFLOR_CAMPUS_LOCATIONS = {
     "guracamencii": (_GURACAMENCII_PT[0] + 0.003, _GURACAMENCII_PT[1] - 0.003),
 }
 
+# Public transit network -- structural world-building like the Technopolis
+# Okrugs/FlorTech/AgroFlor above: no cost, no score effects, always shown
+# on the map once the metropole is active. The metro system runs on trams,
+# not heavy rail; a BRT corridor (biogas/electric buses) covers what trams
+# don't; two commuter rail lines reach past the metropole's own territory
+# to Gura Căinarului and to the Prajila Technopolis Okrug.
+_GURA_CAINARULUI_PT = (47.8627915, 28.1831829)
+STOP_COORDS = {
+    "Ghindești": _GHINDESTI_PT,
+    "Florești Central": _FLORESTI_PT,
+    "Vărvăreuca": _VARVAREUCA_PT,
+    "Lunga": _LUNGA_PT,
+    "Mărculești": _MARCULESTI_PT,
+    "Mărculești Airport": _MARCULESTI_AIRPORT_PT,
+    "Gura Camencii": _GURACAMENCII_PT,
+    "Gura Căinarului": _GURA_CAINARULUI_PT,
+    "Prajila": _PRAJILA_PT,
+}
+TRANSIT_LINES = [
+    {"id": "tram_m1", "name": "Tram M1", "mode": "tram", "color": "#c0392b",
+     "stops": ["Vărvăreuca", "Florești Central", "Lunga", "Mărculești"]},
+    {"id": "tram_m2", "name": "Tram M2", "mode": "tram", "color": "#8e44ad",
+     "stops": ["Ghindești", "Florești Central", "Vărvăreuca"]},
+    {"id": "brt1", "name": "BRT 1 (biogas/electric)", "mode": "brt", "color": "#16a085",
+     "stops": ["Gura Camencii", "Florești Central", "Mărculești Airport"]},
+    {"id": "commuter_c1", "name": "Commuter C1", "mode": "commuter", "color": "#2c3e50",
+     "stops": ["Ghindești", "Florești Central", "Lunga", "Mărculești Airport", "Gura Căinarului"]},
+    {"id": "commuter_c2", "name": "Commuter C2", "mode": "commuter", "color": "#34495e",
+     "stops": ["Gura Camencii", "Florești Central", "Lunga", "Prajila"]},
+]
+# Line styling by mode: trams (the metro system) run solid, BRT dashed
+# (it's a bus corridor, not rail), commuter rail dash-dotted.
+TRANSIT_MODE_STYLE = {
+    "tram": {"weight": 5, "dash_array": None},
+    "brt": {"weight": 4, "dash_array": "10,6"},
+    "commuter": {"weight": 4, "dash_array": "2,6"},
+}
+
+
+def transit_interchanges():
+    """Stops served by 2+ transit lines -- where trams interchange with
+    each other, the BRT line, and the commuter lines."""
+    by_stop = {}
+    for line in TRANSIT_LINES:
+        for stop in line["stops"]:
+            by_stop.setdefault(stop, []).append(line["name"])
+    return {stop: lines for stop, lines in by_stop.items() if len(lines) >= 2}
+
+
 # Ambient events that fire on their own once the clock is live, independent of
 # the scripted policy decisions above — this is what makes the world keep
 # moving in real time even while the player is deliberating.
@@ -633,6 +682,12 @@ def build_map():
             loc = find_locality(okrug["name"])
             min_lon, max_lon = min(min_lon, loc["lon"]), max(max_lon, loc["lon"])
             min_lat, max_lat = min(min_lat, loc["lat"]), max(max_lat, loc["lat"])
+        # The commuter rail lines reach past the okrugs too (Gura Căinarului,
+        # west of Prajila) -- widen further to keep the whole transit network
+        # in view.
+        for lat, lon in STOP_COORDS.values():
+            min_lon, max_lon = min(min_lon, lon), max(max_lon, lon)
+            min_lat, max_lat = min(min_lat, lat), max(max_lat, lat)
         center = [(min_lat + max_lat) / 2, (min_lon + max_lon) / 2]
         zoom = _zoom_for_bounds((min_lon, min_lat, max_lon, max_lat), 600, 500)
     else:
@@ -767,6 +822,31 @@ def build_map():
             location=[lat, lon],
             icon=folium.DivIcon(html=agro_icon_html, icon_size=(28, 28), icon_anchor=(14, 14)),
             tooltip=f"🌾 {campus['name']} — AgroFlor campus",
+        ).add_to(m)
+
+    # Public transit network -- trams (the metro system), a BRT corridor,
+    # and two commuter rail lines. Always shown once the metropole is
+    # active, no click interaction (structural, not a project to resolve).
+    for line in TRANSIT_LINES:
+        style = TRANSIT_MODE_STYLE[line["mode"]]
+        points = [STOP_COORDS[s] for s in line["stops"]]
+        folium.PolyLine(
+            locations=[list(p) for p in points],
+            color=line["color"], weight=style["weight"], opacity=0.85,
+            dash_array=style["dash_array"],
+            tooltip=f"{line['name']} ({line['mode'].upper()}): {' → '.join(line['stops'])}",
+        ).add_to(m)
+
+    interchange_icon_html = (
+        '<div style="width:16px;height:16px;border-radius:50%;background:#fff;'
+        'border:3px solid #222;box-shadow:0 1px 3px rgba(0,0,0,.5);"></div>'
+    )
+    for stop, lines in transit_interchanges().items():
+        lat, lon = STOP_COORDS[stop]
+        folium.Marker(
+            location=[lat, lon],
+            icon=folium.DivIcon(html=interchange_icon_html, icon_size=(16, 16), icon_anchor=(8, 8)),
+            tooltip=f"⇄ {stop} interchange — {', '.join(lines)}",
         ).add_to(m)
 
     # Resolved projects (any layer) get a marker/line on the map — only ones
@@ -1057,6 +1137,19 @@ if st.session_state.metro_active:
                 with st.expander(f"🔧 {okrug['company']} — product line ({len(products)})"):
                     for p in products:
                         st.markdown(f"- **{p['model']}** — {p['category']} · {p['spec']}")
+
+        with st.expander(f"🚊 Public Transit Network ({len(TRANSIT_LINES)} lines)"):
+            st.caption(
+                "The metropole's metro system runs on trams, not heavy rail. A BRT corridor "
+                "(biogas/electric buses) covers what the trams don't, and two commuter rail lines "
+                "reach past the metropole's own territory."
+            )
+            for line in TRANSIT_LINES:
+                mode_label = {"tram": "🚋 Tram", "brt": "🚌 BRT", "commuter": "🚆 Commuter"}[line["mode"]]
+                st.markdown(f"**{line['name']}** — {mode_label} · {' → '.join(line['stops'])}")
+            st.markdown("**⇄ Interchanges**")
+            for stop, lines in transit_interchanges().items():
+                st.markdown(f"- **{stop}** — {', '.join(lines)}")
 
         st.markdown("#### 🏗️ Metropolitan Projects")
         for project in METRO_PROJECTS:

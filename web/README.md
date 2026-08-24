@@ -6,7 +6,8 @@ Metropole → Municipality → District governance drill-down (map click or
 list click), layer-scoped development projects with map markers, the
 Zelenograd-model Technopolis Okrugs with browsable company product
 catalogs, the FlorTech and AgroFlor university campus/faculty/department
-drill-downs, and CSV/JSON export. Vanilla CSS throughout — no UI
+drill-downs, the public transit network (trams, BRT, commuter rail) with
+interchange markers, and CSV/JSON export. Vanilla CSS throughout — no UI
 framework. See the [root README](../README.md) for the full rationale
 behind each feature.
 
@@ -39,18 +40,21 @@ src/
                     Zelenograd-model Technopolis Okrugs), development projects,
                     companies.js (Technopolis Okrug product catalogs),
                     flortech.js (FlorTech campuses/faculties/vocational tracks),
-                    agroflor.js (AgroFlor campuses/faculties/research centers)
+                    agroflor.js (AgroFlor campuses/faculties/research centers),
+                    transit.js (tram/BRT/commuter lines, interchange computation)
   state/           SimulationContext.jsx — the whole game state as a reducer
   components/      Sidebar, ScenarioPanel, ScoreChart (hand-rolled SVG),
                     CitizenProgressCard, MetroMap (react-leaflet, incl. the
-                    FlorTech/AgroFlor campus markers), GovernanceStructure
-                    (the drill-down, incl. the Technopolis Okrugs' nested
-                    product-line expanders), ProjectCard, CbdMasterplan
-                    (fetches public/data/cbd_masterplan.svg — the same
-                    concept CBD site plan the Streamlit app embeds),
-                    FlorTechSection (campus grid → campus detail drill-down,
-                    Vocational Institutes expander), AgroFlorSection (same
-                    shape, plus a Research Centers & Labs list per campus)
+                    FlorTech/AgroFlor campus markers and the transit lines/
+                    interchange markers), GovernanceStructure (the drill-down,
+                    incl. the Technopolis Okrugs' nested product-line
+                    expanders and the Public Transit Network expander),
+                    ProjectCard, CbdMasterplan (fetches
+                    public/data/cbd_masterplan.svg — the same concept CBD
+                    site plan the Streamlit app embeds), FlorTechSection
+                    (campus grid → campus detail drill-down, Vocational
+                    Institutes expander), AgroFlorSection (same shape, plus
+                    a Research Centers & Labs list per campus)
   utils/           geo.js (point-in-polygon, zoom-fit — small manual
                     replacements for the Python app's shapely calls),
                     export.js (CSV/JSON download)

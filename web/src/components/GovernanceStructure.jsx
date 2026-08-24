@@ -3,6 +3,7 @@ import { useSimState, useSimActions } from "../state/SimulationContext.jsx";
 import { METRO_STRUCTURE, SUBURBS, INAUGURATION_COST, TECHNOPOLIS_OKRUGS } from "../data/metroStructure.js";
 import { METRO_PROJECTS, MUNICIPALITY_PROJECTS, DISTRICT_PROJECTS, districtProjectKey } from "../data/projects.js";
 import { COMPANY_PRODUCTS } from "../data/companies.js";
+import { TRANSIT_LINES, transitInterchanges } from "../data/transit.js";
 import MetroMap, { findLocality } from "./MetroMap.jsx";
 import ProjectCard from "./ProjectCard.jsx";
 import CbdMasterplan from "./CbdMasterplan.jsx";
@@ -67,6 +68,7 @@ function DrillDown({ localities }) {
 
         <SuburbsExpander localities={localities} />
         <TechnopolisExpander localities={localities} />
+        <TransitExpander />
 
         <h4>🏗️ Metropolitan Projects</h4>
         {METRO_PROJECTS.map((p) => (
@@ -205,6 +207,44 @@ function CompanyProducts({ company }) {
             </li>
           ))}
         </ul>
+      )}
+    </div>
+  );
+}
+
+const TRANSIT_MODE_LABELS = { tram: "🚋 Tram", brt: "🚌 BRT", commuter: "🚆 Commuter" };
+
+function TransitExpander() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="expander">
+      <button className="expander-toggle" onClick={() => setOpen((o) => !o)}>
+        <span className={`expander-caret ${open ? "open" : ""}`}>›</span>
+        🚊 Public Transit Network ({TRANSIT_LINES.length} lines)
+      </button>
+      {open && (
+        <div className="technopolis-body">
+          <p className="caption">
+            The metropole's metro system runs on trams, not heavy rail. A BRT corridor (biogas/electric
+            buses) covers what the trams don't, and two commuter rail lines reach past the metropole's
+            own territory.
+          </p>
+          <ul className="suburb-list">
+            {TRANSIT_LINES.map((line) => (
+              <li key={line.id}>
+                <strong>{line.name}</strong> — {TRANSIT_MODE_LABELS[line.mode]} · {line.stops.join(" → ")}
+              </li>
+            ))}
+          </ul>
+          <p className="caption"><strong>⇄ Interchanges</strong></p>
+          <ul className="suburb-list">
+            {Object.entries(transitInterchanges()).map(([stop, lines]) => (
+              <li key={stop}>
+                <strong>{stop}</strong> — {lines.join(", ")}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

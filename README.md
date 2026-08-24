@@ -289,3 +289,38 @@ the metropole being established.
   campuses read apart at a glance, even where both have a campus in the
   same municipality (e.g. Florești Central). Click the marker to drill
   straight into that campus's detail, same as FlorTech's markers.
+
+## Public Transit Network
+
+A third piece of structural world-building shown on the metropole map:
+the network of tram, bus, and commuter rail lines that actually move
+people around. No cost, no score effects — always drawn once the
+metropole is established, alongside its own **🚊 Public Transit Network**
+expander (next to Suburbs and Technopolis Okrugs) listing every line's
+stops in order.
+
+- **The metro system runs on trams**, not heavy rail: **Tram M1**
+  (Vărvăreuca → Florești Central → Lunga → Mărculești) is the backbone,
+  tracing the same real municipal corridors the map's own territory is
+  built from (Mărculești is only ever reachable via Lunga); **Tram M2**
+  (Ghindești → Florești Central → Vărvăreuca) extends tram service out to
+  the Ghindești suburb.
+- **BRT 1** (biogas/electric buses) covers what the trams don't: Gura
+  Camencii → Florești Central → Mărculești Airport.
+- **Two commuter rail lines** reach past the metropole's own territory —
+  **Commuter C1**: Ghindești → Florești Central → Lunga → Mărculești
+  Airport → Gura Căinarului (a real village further west); **Commuter
+  C2**: Gura Camencii → Florești Central → Lunga → Prajila, reaching the
+  Prajila Technopolis Okrug.
+- Each line is drawn on the map in its own color, styled by mode — trams
+  solid, BRT dashed (it's a bus corridor, not rail), commuter rail
+  dash-dotted — with a hover tooltip listing its full stop sequence.
+- **Interchanges** — any stop served by 2+ lines — get a white-on-black
+  ring marker (⇄), computed from the lines' own stop lists rather than
+  hardcoded: Florești Central is the 5-way hub (both trams, BRT, both
+  commuter lines); Vărvăreuca (both trams), Lunga, Ghindești, Gura
+  Camencii, and Mărculești Airport are each 2–3-way interchanges between
+  trams, the BRT line, and the commuter lines.
+- The map's auto-fit view widens once more (past the Technopolis Okrugs)
+  to keep the whole network in frame, including Gura Căinarului out past
+  Prajila to the west.

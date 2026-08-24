@@ -6,6 +6,7 @@ import { METRO_STRUCTURE, MUNICIPALITY_COLORS, TECHNOPOLIS_OKRUGS } from "../dat
 import { allProjectsWithScope, PROJECT_MAP_LOCATIONS } from "../data/projects.js";
 import { FLORTECH, FLORTECH_CAMPUS_LOCATIONS } from "../data/flortech.js";
 import { AGROFLOR, AGROFLOR_CAMPUS_LOCATIONS } from "../data/agroflor.js";
+import { STOP_COORDS, TRANSIT_LINES, TRANSIT_MODE_STYLE, transitInterchanges } from "../data/transit.js";
 import { pointInGeometry, geometryBounds, representativePoint, geometryParts, zoomForBounds, toLatLng } from "../utils/geo.js";
 
 const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png";
@@ -57,6 +58,17 @@ function agroCampusIcon() {
     className: "map-divicon",
     iconSize: [28, 28],
     iconAnchor: [14, 14],
+  });
+}
+
+function interchangeIcon() {
+  return L.divIcon({
+    html:
+      '<div style="width:16px;height:16px;border-radius:50%;background:#fff;' +
+      'border:3px solid #222;box-shadow:0 1px 3px rgba(0,0,0,.5);"></div>',
+    className: "map-divicon",
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
   });
 }
 
@@ -129,6 +141,15 @@ export default function MetroMap() {
         maxLon = Math.max(maxLon, loc.lon);
         minLat = Math.min(minLat, loc.lat);
         maxLat = Math.max(maxLat, loc.lat);
+      }
+      // The commuter rail lines reach past the okrugs too (Gura Căinarului,
+      // west of Prajila) -- widen further to keep the whole transit network
+      // in view.
+      for (const [lat, lon] of Object.values(STOP_COORDS)) {
+        minLon = Math.min(minLon, lon);
+        maxLon = Math.max(maxLon, lon);
+        minLat = Math.min(minLat, lat);
+        maxLat = Math.max(maxLat, lat);
       }
       const bounds = [minLon, minLat, maxLon, maxLat];
       return {
@@ -261,6 +282,36 @@ export default function MetroMap() {
               />
             );
           })}
+
+        {state.metroActive &&
+          TRANSIT_LINES.map((line) => {
+            const style = TRANSIT_MODE_STYLE[line.mode];
+            const positions = line.stops.map((s) => STOP_COORDS[s]);
+            const tooltipText = `${line.name} (${line.mode.toUpperCase()}): ${line.stops.join(" → ")}`;
+            return (
+              <Polyline
+                key={line.id}
+                positions={positions}
+                pathOptions={{
+                  color: line.color,
+                  weight: style.weight,
+                  opacity: 0.85,
+                  dashArray: style.dashArray,
+                }}
+                eventHandlers={{ add: (e) => e.target.bindTooltip(tooltipText) }}
+              />
+            );
+          })}
+
+        {state.metroActive &&
+          Object.entries(transitInterchanges()).map(([stop, lines]) => (
+            <Marker
+              key={stop}
+              position={STOP_COORDS[stop]}
+              icon={interchangeIcon()}
+              eventHandlers={{ add: (e) => e.target.bindTooltip(`⇄ ${stop} interchange — ${lines.join(", ")}`) }}
+            />
+          ))}
 
         {state.metroActive &&
           projectEntries.map(([project, scopeLabel]) => {
