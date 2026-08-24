@@ -67,6 +67,12 @@ def load_geo_data():
     return localities, boundary, municipalities
 
 
+@st.cache_data
+def load_cbd_masterplan_svg():
+    with open(os.path.join(DATA_DIR, "cbd_masterplan.svg"), encoding="utf-8") as f:
+        return f.read()
+
+
 LOCALITIES, PREFECTURE_BOUNDARY, MUNICIPALITY_GEOJSON = load_geo_data()
 
 
@@ -745,6 +751,15 @@ if st.session_state.metro_active:
                         render_project(project, f"{sel_muni} municipal", "muni_project")
                 else:
                     st.caption(f"Inaugurate {sel_muni} to unlock its municipal projects.")
+
+            if sel_muni == "Florești Central":
+                with st.expander("📐 View CBD Masterplan — concept site plan for Răut Plaza's district"):
+                    st.caption(
+                        "A mixed-use business district proposed for the riverside land between Centrul "
+                        "Civic and the Răut, built around the Metro Line 1 station and Răut Plaza as its "
+                        "civic anchor. Concept only — not an adopted plan."
+                    )
+                    st.markdown(load_cbd_masterplan_svg(), unsafe_allow_html=True)
         else:
             # ---------- Layer 3: District detail ----------
             if st.button(f"← Back to {sel_muni}", key="back_to_muni"):

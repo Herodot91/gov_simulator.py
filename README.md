@@ -79,6 +79,15 @@ you're currently viewing.
 A municipality's/district's projects stay locked with a note to inaugurate
 first — same gate as the district detail view itself.
 
+### CBD masterplan
+
+Florești Central's municipal view also has a **📐 View CBD Masterplan**
+expander — a concept site plan (`data/cbd_masterplan.svg`) for a new
+central business district on the riverside land between Centrul Civic and
+the Răut, anchored on the Metro Line 1 station and the Răut Plaza project.
+It's illustrative context, not tied to any score effects or budget cost of
+its own.
+
 ## Governance model — mixed decentralization
 
 Choosing **B) Establish Florești Metropole** in Scenario 1 ("Florești

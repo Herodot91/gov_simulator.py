@@ -1,0 +1,129 @@
+<svg viewBox="0 0 1000 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Site plan diagram of the proposed Florești CBD" style="width:100%;height:auto;display:block;">
+<defs>
+<pattern id="graph" width="20" height="20" patternUnits="userSpaceOnUse">
+<path d="M20 0H0V20" fill="none" stroke="#c4cabb" stroke-width="0.6" opacity="0.55"/>
+</pattern>
+<pattern id="hatch-res" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+<rect width="7" height="7" fill="#f1c9ab"/>
+<line x1="0" y1="0" x2="0" y2="7" stroke="#d5581f" stroke-width="1" opacity="0.5"/>
+</pattern>
+</defs>
+
+<rect x="0" y="0" width="1000" height="660" fill="url(#graph)"/>
+
+<!-- proposed CBD boundary -->
+<rect x="330" y="60" width="470" height="470" fill="none" stroke="#d5581f" stroke-width="2" stroke-dasharray="9 6" rx="2"/>
+<text x="340" y="48" class="label" font-size="13" fill="#d5581f">PROPOSED CBD BOUNDARY — 18.4 HA</text>
+
+<!-- river -->
+<path d="M1000,660 L1000,430 C 880,360 760,470 690,430 C 640,404 610,470 560,530 L 560,660 Z" fill="#cfe1e8"/>
+<path d="M1000,430 C 880,360 760,470 690,430 C 640,404 610,470 560,530" fill="none" stroke="#4a7a94" stroke-width="2"/>
+<text x="905" y="600" class="label" font-size="12.5" fill="#4a7a94" transform="rotate(-32 905 600)">RÂUL RĂUT</text>
+
+<!-- riverside promenade -->
+<path d="M1000,455 C 890,390 770,495 700,455 C 655,431 620,490 578,540" fill="none" stroke="#6f8f5c" stroke-width="5" stroke-linecap="round" stroke-dasharray="1 10"/>
+<text x="700" y="500" class="label" font-size="10.5" fill="#6f8f5c">RIVERSIDE PROMENADE</text>
+
+<!-- existing Centrul Civic -->
+<rect x="70" y="60" width="220" height="150" fill="#d8d3c6" stroke="#8a8073" stroke-width="1.5"/>
+<text x="180" y="130" text-anchor="middle" class="label" font-size="12" fill="#8a8073">CENTRUL CIVIC</text>
+<text x="180" y="146" text-anchor="middle" font-size="10" fill="#5b6b62">(existing)</text>
+
+<!-- streets -->
+<rect x="315" y="30" width="26" height="600" fill="#eef1ea" stroke="#c4cabb"/>
+<text x="328" y="640" text-anchor="middle" class="label mono" font-size="10" fill="#5b6b62" transform="rotate(-90 328 640)">BD. VICTORIEI</text>
+
+<rect x="330" y="248" width="470" height="22" fill="#eef1ea" stroke="#c4cabb"/>
+<text x="565" y="263" text-anchor="middle" class="label mono" font-size="10" fill="#5b6b62">STR. METROPOLEI</text>
+
+<rect x="330" y="420" width="470" height="20" fill="#eef1ea" stroke="#c4cabb"/>
+<text x="470" y="434" text-anchor="middle" class="label mono" font-size="10" fill="#5b6b62">STR. RĂUT</text>
+
+<!-- metro plaza -->
+<ellipse cx="465" cy="330" rx="55" ry="56" fill="#dbe6d1" stroke="#6f8f5c" stroke-width="1.5"/>
+<g stroke="#6f8f5c" stroke-width="3" stroke-linecap="round">
+<line x1="440" y1="315" x2="490" y2="315"/>
+<line x1="440" y1="330" x2="490" y2="330"/>
+<line x1="440" y1="345" x2="490" y2="345"/>
+</g>
+<text x="465" y="368" text-anchor="middle" class="label" font-size="10.5" fill="#6f8f5c">METRO LINE 1</text>
+<text x="465" y="380" text-anchor="middle" font-size="9.5" fill="#5b6b62">Central Station</text>
+
+<!-- retail podium -->
+<rect x="520" y="300" width="220" height="150" fill="#e8b592" stroke="#d5581f" stroke-width="1.2"/>
+<text x="630" y="380" text-anchor="middle" class="label" font-size="10" fill="#d5581f">RETAIL PODIUM</text>
+<text x="630" y="393" text-anchor="middle" font-size="9" fill="#5b6b62">GF–2F</text>
+
+<!-- towers -->
+<g stroke="#d5581f" stroke-width="1.4">
+<rect x="540" y="120" width="80" height="150" fill="#f1c9ab"/>
+<rect x="640" y="150" width="66" height="120" fill="#f1c9ab"/>
+<rect x="530" y="470" width="76" height="110" fill="#f1c9ab"/>
+<rect x="630" y="470" width="90" height="90" fill="#f1c9ab"/>
+</g>
+
+<text x="580" y="150" text-anchor="middle" class="label" font-size="11" fill="#1c2420">B1</text>
+<text x="580" y="164" text-anchor="middle" font-size="9" fill="#5b6b62">Signature Tower</text>
+<text x="580" y="176" text-anchor="middle" font-size="9" class="mono" fill="#5b6b62">30F / 118m</text>
+
+<text x="673" y="185" text-anchor="middle" class="label" font-size="11" fill="#1c2420">B2</text>
+<text x="673" y="199" text-anchor="middle" font-size="9" fill="#5b6b62">Office</text>
+<text x="673" y="211" text-anchor="middle" font-size="9" class="mono" fill="#5b6b62">22F / 86m</text>
+
+<text x="568" y="500" text-anchor="middle" class="label" font-size="11" fill="#1c2420">B3</text>
+<text x="568" y="514" text-anchor="middle" font-size="9" fill="#5b6b62">Office</text>
+<text x="568" y="526" text-anchor="middle" font-size="9" class="mono" fill="#5b6b62">16F / 64m</text>
+
+<text x="675" y="500" text-anchor="middle" class="label" font-size="11" fill="#1c2420">B4</text>
+<text x="675" y="514" text-anchor="middle" font-size="9" fill="#5b6b62">Mixed-Use</text>
+<text x="675" y="526" text-anchor="middle" font-size="9" class="mono" fill="#5b6b62">14F / 55m</text>
+
+<!-- civic green -->
+<rect x="330" y="290" width="62" height="140" fill="#dbe6d1" stroke="#6f8f5c" stroke-width="1.2"/>
+<text x="361" y="360" text-anchor="middle" class="label" font-size="9.5" fill="#6f8f5c" transform="rotate(-90 361 360)">CIVIC GREEN</text>
+
+<!-- perimeter residential -->
+<g stroke="#d5581f" stroke-width="1.2">
+<rect x="760" y="120" width="70" height="90" fill="url(#hatch-res)"/>
+<rect x="760" y="230" width="70" height="80" fill="url(#hatch-res)"/>
+</g>
+<text x="795" y="163" text-anchor="middle" class="label" font-size="9.5" fill="#1c2420">R1</text>
+<text x="795" y="176" text-anchor="middle" font-size="8.5" class="mono" fill="#5b6b62">9F res.</text>
+<text x="795" y="268" text-anchor="middle" class="label" font-size="9.5" fill="#1c2420">R2</text>
+<text x="795" y="281" text-anchor="middle" font-size="8.5" class="mono" fill="#5b6b62">8F res.</text>
+
+<!-- Raut Plaza -->
+<circle cx="430" cy="470" r="34" fill="#e8b592" stroke="#d5581f" stroke-width="1.5"/>
+<text x="430" y="474" text-anchor="middle" class="label" font-size="9.5" fill="#d5581f">RĂUT</text>
+<text x="430" y="486" text-anchor="middle" class="label" font-size="9.5" fill="#d5581f">PLAZA</text>
+
+<!-- north arrow -->
+<g transform="translate(930,90)">
+<polygon points="0,-26 9,10 0,2 -9,10" fill="#1c2420"/>
+<text x="0" y="26" text-anchor="middle" class="label" font-size="13" fill="#1c2420">N</text>
+</g>
+
+<!-- scale bar -->
+<g transform="translate(70,610)">
+<line x1="0" y1="0" x2="150" y2="0" stroke="#1c2420" stroke-width="1.5"/>
+<line x1="0" y1="-5" x2="0" y2="5" stroke="#1c2420" stroke-width="1.5"/>
+<line x1="75" y1="-5" x2="75" y2="5" stroke="#1c2420" stroke-width="1.5"/>
+<line x1="150" y1="-5" x2="150" y2="5" stroke="#1c2420" stroke-width="1.5"/>
+<text x="0" y="18" font-size="9" class="mono" fill="#5b6b62">0</text>
+<text x="75" y="18" text-anchor="middle" font-size="9" class="mono" fill="#5b6b62">100</text>
+<text x="150" y="18" text-anchor="end" font-size="9" class="mono" fill="#5b6b62">200 M</text>
+</g>
+
+<!-- locator inset -->
+<g transform="translate(70,380)">
+<rect x="-10" y="-10" width="200" height="150" fill="#eef1ea" stroke="#c4cabb"/>
+<text x="90" y="8" text-anchor="middle" class="label" font-size="9" fill="#5b6b62">LOCATION WITHIN THE METROPOLE</text>
+<path d="M20,30 L75,20 L95,55 L70,85 L25,80 Z" fill="#4cc9f0" opacity="0.55"/>
+<path d="M75,20 L130,35 L120,60 L95,55 Z" fill="#8ab17d" opacity="0.55"/>
+<path d="M20,80 L25,80 L70,85 L60,120 L15,110 Z" fill="#8338ec" opacity="0.55"/>
+<path d="M15,110 L60,120 L50,130 L10,128 Z" fill="#e76f51" opacity="0.55"/>
+<circle cx="60" cy="55" r="5" fill="#d5581f" stroke="#eef1ea" stroke-width="1.5"/>
+<text x="60" y="45" text-anchor="middle" font-size="8" class="label" fill="#d5581f">SITE</text>
+<text x="90" y="135" text-anchor="middle" font-size="7.5" fill="#5b6b62">Florești Central · Mărculești · Vărvăreuca · Lunga</text>
+</g>
+</svg>

@@ -526,6 +526,28 @@
   font-size: 14px;
 }
 
+.masterplan-expander {
+  margin-top: 18px;
+}
+
+.masterplan-body {
+  padding: 14px 18px 18px;
+}
+
+.masterplan-svg {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #e4e8de;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.masterplan-svg svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 .project-card {
   border: 1px solid var(--border);
   border-radius: var(--radius);

@@ -4,6 +4,7 @@ import { METRO_STRUCTURE, SUBURBS, INAUGURATION_COST } from "../data/metroStruct
 import { METRO_PROJECTS, MUNICIPALITY_PROJECTS, DISTRICT_PROJECTS, districtProjectKey } from "../data/projects.js";
 import MetroMap, { findLocality } from "./MetroMap.jsx";
 import ProjectCard from "./ProjectCard.jsx";
+import CbdMasterplan from "./CbdMasterplan.jsx";
 
 function useLocalities() {
   const [localities, setLocalities] = useState(null);
@@ -114,6 +115,8 @@ function DrillDown({ localities }) {
             )}
           </>
         )}
+
+        {selMuni === "Florești Central" && <CbdMasterplan />}
       </>
     );
   }

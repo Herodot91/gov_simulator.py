@@ -35,7 +35,9 @@ src/
   state/           SimulationContext.jsx — the whole game state as a reducer
   components/      Sidebar, ScenarioPanel, ScoreChart (hand-rolled SVG),
                     CitizenProgressCard, MetroMap (react-leaflet),
-                    GovernanceStructure (the drill-down), ProjectCard
+                    GovernanceStructure (the drill-down), ProjectCard,
+                    CbdMasterplan (fetches public/data/cbd_masterplan.svg —
+                    the same concept CBD site plan the Streamlit app embeds)
   utils/           geo.js (point-in-polygon, zoom-fit — small manual
                     replacements for the Python app's shapely calls),
                     export.js (CSV/JSON download)
