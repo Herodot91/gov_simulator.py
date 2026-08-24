@@ -7,12 +7,13 @@ list click), layer-scoped development projects with map markers, the
 Zelenograd-model Technopolis Okrugs with browsable company product
 catalogs, the FlorTech and AgroFlor university campus/faculty/department
 drill-downs, the public transit network (trams, BRT, commuter rail) with
-interchange markers, each governance tier's own directorates/departments
-org chart (plus interactive Prefecture Policies and a Current Policies
-review panel), on-map district boundaries once a municipality is
-selected, and CSV/JSON export. Vanilla CSS throughout — no UI framework.
-See the [root README](../README.md) for the full rationale behind each
-feature.
+named-street routes and interchange markers, the Metropolitan Ring Road
+and Technopolis Expressway, the Coach Terminal/Centrul Civic/CBD zone map
+sites, each governance tier's own directorates/departments org chart
+(plus interactive Prefecture Policies and a Current Policies review
+panel), on-map district boundaries once a municipality is selected, and
+CSV/JSON export. Vanilla CSS throughout — no UI framework. See the
+[root README](../README.md) for the full rationale behind each feature.
 
 The map uses [react-leaflet](https://react-leaflet.js.org/) over the same
 real OpenStreetMap-derived territory data as the Streamlit app
@@ -44,7 +45,9 @@ src/
                     companies.js (Technopolis Okrug product catalogs),
                     flortech.js (FlorTech campuses/faculties/vocational tracks),
                     agroflor.js (AgroFlor campuses/faculties/research centers),
-                    transit.js (tram/BRT/commuter lines, interchange computation),
+                    transit.js (tram/BRT/commuter lines with named-street
+                    routes, interchange computation, the Ring Road/Expressway,
+                    Coach Terminal, Civic District, and CBD zone),
                     directorates.js (Prefecture/Metro Council directorates,
                     Prefecture Policies, per-municipality departments,
                     per-district civic offices)
@@ -53,12 +56,15 @@ src/
   components/      Sidebar, ScenarioPanel, ScoreChart (hand-rolled SVG),
                     CitizenProgressCard, MetroMap (react-leaflet, incl. the
                     FlorTech/AgroFlor campus markers, the transit lines/
-                    interchange markers, and the on-map district quadrant
-                    overlay), GovernanceStructure (the drill-down, incl. the
+                    interchange markers, the Ring Road/Expressway, the
+                    Coach Terminal/Centrul Civic markers and CBD zone
+                    rectangle, and the on-map district quadrant overlay),
+                    GovernanceStructure (the drill-down, incl. the
                     Technopolis Okrugs' nested product-line expanders, the
-                    Public Transit Network expander, the Prefecture/Metro
-                    Council/municipal/district directorate panels, Prefecture
-                    Policies, and the Current Policies review panel),
+                    Public Transit Network expander, the Roads & Key Sites
+                    expander, the Prefecture/Metro Council/municipal/district
+                    directorate panels, Prefecture Policies, and the Current
+                    Policies review panel),
                     ProjectCard, CbdMasterplan (fetches
                     public/data/cbd_masterplan.svg — the same concept CBD
                     site plan the Streamlit app embeds), FlorTechSection

@@ -4,7 +4,13 @@ import { METRO_STRUCTURE, SUBURBS, INAUGURATION_COST, TECHNOPOLIS_OKRUGS } from 
 import { METRO_PROJECTS, MUNICIPALITY_PROJECTS, DISTRICT_PROJECTS, districtProjectKey } from "../data/projects.js";
 import { SCENARIOS } from "../data/scenarios.js";
 import { COMPANY_PRODUCTS } from "../data/companies.js";
-import { TRANSIT_LINES, transitInterchanges } from "../data/transit.js";
+import {
+  TRANSIT_LINES,
+  transitInterchanges,
+  transitRouteLabel,
+  ROAD_NETWORK,
+  roadRouteLabel,
+} from "../data/transit.js";
 import {
   PREFECTURE_DIRECTORATES,
   PREFECTURE_POLICIES,
@@ -80,6 +86,7 @@ function DrillDown({ localities }) {
         <SuburbsExpander localities={localities} />
         <TechnopolisExpander localities={localities} />
         <TransitExpander />
+        <RoadsExpander />
         <MetroCouncilExpander />
         <CurrentPolicies />
 
@@ -359,14 +366,18 @@ function TransitExpander() {
       {open && (
         <div className="technopolis-body">
           <p className="caption">
-            The metropole's metro system runs on trams, not heavy rail. A BRT corridor (biogas/electric
-            buses) covers what the trams don't, and two commuter rail lines reach past the metropole's
-            own territory.
+            The metropole's metro system runs on trams, not heavy rail, and stays within the 4
+            municipalities — unlike the BRT and commuter lines, it doesn't reach the suburbs. A BRT
+            corridor (biogas/electric buses) covers what the trams don't, and two commuter rail lines
+            reach past the metropole's own territory. Routes below are proposed street-level
+            alignments, not a surveyed plan.
           </p>
           <ul className="suburb-list">
             {TRANSIT_LINES.map((line) => (
               <li key={line.id}>
-                <strong>{line.name}</strong> — {TRANSIT_MODE_LABELS[line.mode]} · {line.stops.join(" → ")}
+                <strong>{line.name}</strong> — {TRANSIT_MODE_LABELS[line.mode]}
+                <br />
+                <span className="caption">{transitRouteLabel(line)}</span>
               </li>
             ))}
           </ul>
@@ -377,6 +388,48 @@ function TransitExpander() {
                 <strong>{stop}</strong> — {lines.join(", ")}
               </li>
             ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RoadsExpander() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="expander">
+      <button className="expander-toggle" onClick={() => setOpen((o) => !o)}>
+        <span className={`expander-caret ${open ? "open" : ""}`}>›</span>
+        🛣️ Roads & Key Sites ({ROAD_NETWORK.length} roads)
+      </button>
+      {open && (
+        <div className="technopolis-body">
+          <p className="caption">
+            Committed infrastructure shown on the map itself, not a development-project decision to
+            resolve.
+          </p>
+          <ul className="suburb-list">
+            {ROAD_NETWORK.map((road) => (
+              <li key={road.id}>
+                <strong>{road.name}</strong>
+                <br />
+                <span className="caption">{roadRouteLabel(road)}</span>
+              </li>
+            ))}
+            <li>
+              <strong>🚌 Autogara Metropolitană (Coach Terminal)</strong> — Vărvăreuca's periphery, on
+              the Metropolitan Ring Road, Tram M2's terminus.
+            </li>
+            <li>
+              <strong>🏛️ Centrul Civic</strong> — Florești Central's civic district, seat of the
+              Metropolitan Council, the Florești Prefecture, and their directorates.
+            </li>
+            <li>
+              <strong>📐 Proposed CBD</strong> — the riverside zone shown on the map between Centrul
+              Civic and the Răut; see the full concept masterplan in Florești Central's own municipal
+              view.
+            </li>
           </ul>
         </div>
       )}

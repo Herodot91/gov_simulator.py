@@ -306,31 +306,60 @@ metropole is established, alongside its own **🚊 Public Transit Network**
 expander (next to Suburbs and Technopolis Okrugs) listing every line's
 stops in order.
 
-- **The metro system runs on trams**, not heavy rail: **Tram M1**
-  (Vărvăreuca → Florești Central → Lunga → Mărculești) is the backbone,
-  tracing the same real municipal corridors the map's own territory is
-  built from (Mărculești is only ever reachable via Lunga); **Tram M2**
-  (Ghindești → Florești Central → Vărvăreuca) extends tram service out to
-  the Ghindești suburb.
-- **BRT 1** (biogas/electric buses) covers what the trams don't: Gura
-  Camencii → Florești Central → Mărculești Airport.
+- **The metro system runs on trams**, not heavy rail, and stays inside
+  the 4 municipalities — unlike the BRT and commuter lines below, it
+  never reaches the suburbs. **Tram M1** (Vărvăreuca → Florești Central →
+  Lunga → Mărculești) is the backbone, tracing the same real municipal
+  corridors the map's own territory is built from (Mărculești is only
+  ever reachable via Lunga). **Tram M2** (Florești Central North →
+  Florești Central → Coach Terminal) runs from the municipality's own
+  northern edge, through Centrul Civic, out to the Coach Terminal at
+  Vărvăreuca's periphery.
+- **BRT 1** (biogas/electric buses) covers what the trams don't, reaching
+  a suburb: Gura Camencii → Florești Central → Mărculești Airport.
 - **Two commuter rail lines** reach past the metropole's own territory —
   **Commuter C1**: Ghindești → Florești Central → Lunga → Mărculești
   Airport → Gura Căinarului (a real village further west); **Commuter
   C2**: Gura Camencii → Florești Central → Lunga → Prajila, reaching the
   Prajila Technopolis Okrug.
+- Every line's stops carry a proposed street/avenue name too (e.g. Tram
+  M1's Florești Central stop sits on "Bulevardul Unirii, Centrul Civic") —
+  concept alignments, not a surveyed plan, in the same spirit as the CBD
+  masterplan below.
 - Each line is drawn on the map in its own color, styled by mode — trams
   solid, BRT dashed (it's a bus corridor, not rail), commuter rail
-  dash-dotted — with a hover tooltip listing its full stop sequence.
+  dash-dotted — with a hover tooltip listing its full named-street route.
 - **Interchanges** — any stop served by 2+ lines — get a white-on-black
   ring marker (⇄), computed from the lines' own stop lists rather than
   hardcoded: Florești Central is the 5-way hub (both trams, BRT, both
-  commuter lines); Vărvăreuca (both trams), Lunga, Ghindești, Gura
-  Camencii, and Mărculești Airport are each 2–3-way interchanges between
-  trams, the BRT line, and the commuter lines.
+  commuter lines); Lunga, Gura Camencii, and Mărculești Airport are each
+  2–3-way interchanges between trams, the BRT line, and the commuter
+  lines.
 - The map's auto-fit view widens once more (past the Technopolis Okrugs)
   to keep the whole network in frame, including Gura Căinarului out past
   Prajila to the west.
+
+## Roads & Key Sites
+
+A further layer of committed infrastructure, shown directly on the map —
+distinct from the interactive `METRO_PROJECTS` "Florești Ring Road"
+decision, this is a fixed route, not a Cost/effects choice.
+
+- **Metropolitan Ring Road** — Ghindești → Coach Terminal (Vărvăreuca's
+  periphery) → a southern bypass past Lunga → Mărculești Airport → Gura
+  Căinarului, tracing the metro's own southern perimeter.
+- **Technopolis Expressway** — Prajila → Mărculești Airport → Ciripcău,
+  linking the two Technopolis Okrugs via the airport.
+- **🚌 Autogara Metropolitană (Coach Terminal)** — at Vărvăreuca's
+  periphery, sitting on the Ring Road and doubling as Tram M2's terminus.
+- **🏛️ Centrul Civic** — Florești Central's own civic district (see
+  `METRO_STRUCTURE`) is marked on the map as the seat of the Metropolitan
+  Council, the Florești Prefecture, and their directorates, tying the
+  Directorates & Departments section below to an actual place.
+- **📐 Proposed CBD** — the CBD masterplan's own riverside footprint
+  (between Centrul Civic and the Răut) is now drawn as a dashed blue zone
+  on the map itself, not just linked from Florești Central's municipal
+  expander.
 
 ## Directorates & Departments
 

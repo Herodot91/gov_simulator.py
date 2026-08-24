@@ -1,12 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, GeoJSON, Marker, Polyline, Circle, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, Marker, Polyline, Circle, Rectangle, useMap } from "react-leaflet";
 import L from "leaflet";
 import { useSimState, useSimActions } from "../state/SimulationContext.jsx";
 import { METRO_STRUCTURE, MUNICIPALITY_COLORS, TECHNOPOLIS_OKRUGS } from "../data/metroStructure.js";
 import { allProjectsWithScope, PROJECT_MAP_LOCATIONS } from "../data/projects.js";
 import { FLORTECH, FLORTECH_CAMPUS_LOCATIONS } from "../data/flortech.js";
 import { AGROFLOR, AGROFLOR_CAMPUS_LOCATIONS } from "../data/agroflor.js";
-import { STOP_COORDS, TRANSIT_LINES, TRANSIT_MODE_STYLE, transitInterchanges } from "../data/transit.js";
+import {
+  STOP_COORDS,
+  TRANSIT_LINES,
+  TRANSIT_MODE_STYLE,
+  transitInterchanges,
+  transitRouteLabel,
+  ROAD_NETWORK,
+  ROAD_KIND_STYLE,
+  roadRouteLabel,
+  CIVIC_DISTRICT_PT,
+  CBD_ZONE_BOUNDS,
+} from "../data/transit.js";
 import {
   pointInGeometry,
   geometryBounds,
@@ -201,6 +212,15 @@ export default function MetroMap() {
         minLat = Math.min(minLat, lat);
         maxLat = Math.max(maxLat, lat);
       }
+      // The ring road dips south of Lunga, past the built-up stops above.
+      for (const road of ROAD_NETWORK) {
+        for (const [, [lat, lon]] of road.route) {
+          minLon = Math.min(minLon, lon);
+          maxLon = Math.max(maxLon, lon);
+          minLat = Math.min(minLat, lat);
+          maxLat = Math.max(maxLat, lat);
+        }
+      }
       const bounds = [minLon, minLat, maxLon, maxLat];
       return {
         center: [(minLat + maxLat) / 2, (minLon + maxLon) / 2],
@@ -345,7 +365,7 @@ export default function MetroMap() {
           TRANSIT_LINES.map((line) => {
             const style = TRANSIT_MODE_STYLE[line.mode];
             const positions = line.stops.map((s) => STOP_COORDS[s]);
-            const tooltipText = `${line.name} (${line.mode.toUpperCase()}): ${line.stops.join(" → ")}`;
+            const tooltipText = `${line.name} (${line.mode.toUpperCase()}): ${transitRouteLabel(line)}`;
             return (
               <Polyline
                 key={line.id}
@@ -360,6 +380,69 @@ export default function MetroMap() {
               />
             );
           })}
+
+        {state.metroActive &&
+          ROAD_NETWORK.map((road) => {
+            const style = ROAD_KIND_STYLE[road.kind];
+            const positions = road.route.map(([, pt]) => pt);
+            const tooltipText = `${road.name}: ${roadRouteLabel(road)}`;
+            return (
+              <Polyline
+                key={road.id}
+                positions={positions}
+                pathOptions={{
+                  color: road.color,
+                  weight: style.weight,
+                  opacity: 0.75,
+                  dashArray: style.dashArray,
+                }}
+                eventHandlers={{ add: (e) => e.target.bindTooltip(tooltipText) }}
+              />
+            );
+          })}
+
+        {state.metroActive && (
+          <Marker
+            position={STOP_COORDS["Coach Terminal"]}
+            icon={divIcon(
+              '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🚌</div>'
+            )}
+            eventHandlers={{
+              add: (e) =>
+                e.target.bindTooltip(
+                  "Autogara Metropolitană — Coach Terminal, Tram M2 terminus, on the Metropolitan Ring Road"
+                ),
+            }}
+          />
+        )}
+
+        {state.metroActive && (
+          <Marker
+            position={CIVIC_DISTRICT_PT}
+            icon={divIcon(
+              '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🏛️</div>'
+            )}
+            eventHandlers={{
+              add: (e) =>
+                e.target.bindTooltip(
+                  "Centrul Civic — seat of the Metropolitan Council, the Florești Prefecture, and their directorates"
+                ),
+            }}
+          />
+        )}
+
+        {state.metroActive && (
+          <Rectangle
+            bounds={CBD_ZONE_BOUNDS}
+            pathOptions={{ color: "#1d4ed8", weight: 2, dashArray: "6 4", fillColor: "#60a5fa", fillOpacity: 0.2 }}
+            eventHandlers={{
+              add: (e) =>
+                e.target.bindTooltip(
+                  "📐 Proposed CBD — concept masterplan for the riverside land between Centrul Civic and the Răut"
+                ),
+            }}
+          />
+        )}
 
         {state.metroActive &&
           Object.entries(transitInterchanges()).map(([stop, lines]) => (
