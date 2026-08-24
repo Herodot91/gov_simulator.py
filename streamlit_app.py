@@ -43,10 +43,32 @@ METRO_STRUCTURE = {
                       "Green Belt District", "Artisan Quarter"],
     },
 }
-SUBURBS = [{"name": "Ghindești"}, {"name": "Gura Camencii"}, {"name": "Prajila"}]
+SUBURBS = [{"name": "Ghindești"}, {"name": "Gura Camencii"}]
 MUNICIPALITY_COLORS = {"Florești Central": "#4cc9f0", "Mărculești": "#8338ec",
                         "Vărvăreuca": "#8ab17d", "Lunga": "#e76f51"}
 INAUGURATION_COST = 15
+
+# A second, non-interactive governance layer sitting alongside the French
+# prefecture model: a Moscow-style detached satellite okrug, after Zelenograd
+# (Moscow's own physically separate single-industry administrative okrug).
+# Real villages, well outside the metropole's own territory, each sponsored
+# as a single-company technopolis rather than folded into ordinary municipal
+# structure. Structural world-building, not a scenario -- no cost, no score
+# effects, nothing to click through.
+TECHNOPOLIS_OKRUGS = [
+    {
+        "name": "Prajila",
+        "company": "PHI — Prajila Heavy Industry",
+        "sector": "Heavy machinery & construction equipment",
+        "note": "An alternative to Hitachi, Caterpillar, Komatsu, and Hyundai's construction arm.",
+    },
+    {
+        "name": "Ciripcău",
+        "company": "Sigma Motors",
+        "sector": "Hybrid & electric vehicles",
+        "note": "Coupé, hatchback, and urban SUV lines built for the domestic and regional market.",
+    },
+]
 
 
 @st.cache_data
@@ -709,6 +731,21 @@ if st.session_state.metro_active:
             for suburb in SUBURBS:
                 loc = find_locality(suburb["name"])
                 st.markdown(f"- **{loc['display_name']}** ({loc['type']})")
+
+        with st.expander(f"🏭 Technopolis Okrugs ({len(TECHNOPOLIS_OKRUGS)}) — Zelenograd model"):
+            st.caption(
+                "Alongside the French-style prefecture, the metropole borrows a second model from "
+                "Moscow: a detached, single-industry administrative okrug, after Zelenograd — Moscow's "
+                "own physically separate microelectronics okrug. These two villages sit outside the "
+                "metropole's own territory but are administratively sponsored by it, each built around "
+                "one flagship company rather than ordinary municipal government."
+            )
+            for okrug in TECHNOPOLIS_OKRUGS:
+                loc = find_locality(okrug["name"])
+                st.markdown(
+                    f"**{loc['display_name']}** ({loc['type']}) — {okrug['company']}  \n"
+                    f"*{okrug['sector']}.* {okrug['note']}"
+                )
 
         st.markdown("#### 🏗️ Metropolitan Projects")
         for project in METRO_PROJECTS:

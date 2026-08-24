@@ -102,8 +102,31 @@ the raion system itself:
 - 4 **municipalities**, each with real local government once inaugurated
   (budget cost + a small Governance/Stability boost), each with 4 named
   districts: Florești Central, Mărculești, Vărvăreuca, Lunga.
-- 3 **suburbs** (Ghindești, Gura Camencii, Prajila) — administratively
-  dependent on the metropole, no local government of their own.
+- 2 **suburbs** (Ghindești, Gura Camencii) — administratively dependent on
+  the metropole, no local government of their own.
+- 2 **Technopolis Okrugs** (Prajila, Ciripcău) — see below.
+
+### A second model, alongside the French one: Zelenograd-style okrugs
+
+The French-prefecture reframing covers the raion-to-prefecture and
+metropole/municipality/district layers. A separate, second borrowing —
+from Moscow this time — covers two real villages that sit **outside** the
+metropole's own territory: **Prajila** and **Ciripcău**, after
+**Zelenograd**, Moscow's own physically detached, single-industry
+administrative okrug (real-world Russia's microelectronics hub). Each is
+sponsored by the metropole as a one-company technopolis rather than folded
+into ordinary municipal government:
+
+- **Prajila** — home to **PHI (Prajila Heavy Industry)**, a fictional
+  heavy-machinery and construction-equipment maker (an alternative to
+  Hitachi, Caterpillar, Komatsu, Hyundai's construction arm).
+- **Ciripcău** — home to **Sigma Motors**, a fictional hybrid/EV automaker
+  (coupé, hatchback, urban SUV lines).
+
+This is structural world-building, not a scenario: it's shown as a plain
+info panel (🏭 Technopolis Okrugs, next to the 🏘️ Suburbs panel at the
+Metropole layer) with no budget cost, no score effects, and nothing to
+click through.
 
 The structure is shown as a real street-level Leaflet map, not a schematic
 diagram: each of the 4 municipalities starts from its actual current

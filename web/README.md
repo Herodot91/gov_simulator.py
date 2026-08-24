@@ -31,7 +31,8 @@ entirely client-side: no Python backend, no server-side session state.
 
 ```
 src/
-  data/            scenarios, metro/district structure, development projects
+  data/            scenarios, metro/district structure (incl. the two
+                    Zelenograd-model Technopolis Okrugs), development projects
   state/           SimulationContext.jsx — the whole game state as a reducer
   components/      Sidebar, ScenarioPanel, ScoreChart (hand-rolled SVG),
                     CitizenProgressCard, MetroMap (react-leaflet),

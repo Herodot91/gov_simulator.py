@@ -526,6 +526,18 @@
   font-size: 14px;
 }
 
+.suburb-list li {
+  margin-bottom: 10px;
+}
+
+.technopolis-body {
+  padding: 4px 18px 6px;
+}
+
+.technopolis-body .suburb-list {
+  padding: 0 4px 14px;
+}
+
 .masterplan-expander {
   margin-top: 18px;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSimState, useSimActions } from "../state/SimulationContext.jsx";
-import { METRO_STRUCTURE, SUBURBS, INAUGURATION_COST } from "../data/metroStructure.js";
+import { METRO_STRUCTURE, SUBURBS, INAUGURATION_COST, TECHNOPOLIS_OKRUGS } from "../data/metroStructure.js";
 import { METRO_PROJECTS, MUNICIPALITY_PROJECTS, DISTRICT_PROJECTS, districtProjectKey } from "../data/projects.js";
 import MetroMap, { findLocality } from "./MetroMap.jsx";
 import ProjectCard from "./ProjectCard.jsx";
@@ -65,6 +65,7 @@ function DrillDown({ localities }) {
         </div>
 
         <SuburbsExpander localities={localities} />
+        <TechnopolisExpander localities={localities} />
 
         <h4>🏗️ Metropolitan Projects</h4>
         {METRO_PROJECTS.map((p) => (
@@ -181,6 +182,43 @@ function SuburbsExpander({ localities }) {
             );
           })}
         </ul>
+      )}
+    </div>
+  );
+}
+
+function TechnopolisExpander({ localities }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="expander">
+      <button className="expander-toggle" onClick={() => setOpen((o) => !o)}>
+        <span className={`expander-caret ${open ? "open" : ""}`}>›</span>
+        🏭 Technopolis Okrugs ({TECHNOPOLIS_OKRUGS.length}) — Zelenograd model
+      </button>
+      {open && localities && (
+        <div className="technopolis-body">
+          <p className="caption">
+            Alongside the French-style prefecture, the metropole borrows a second model from Moscow: a
+            detached, single-industry administrative okrug, after Zelenograd — Moscow's own physically
+            separate microelectronics okrug. These two villages sit outside the metropole's own territory
+            but are administratively sponsored by it, each built around one flagship company rather than
+            ordinary municipal government.
+          </p>
+          <ul className="suburb-list">
+            {TECHNOPOLIS_OKRUGS.map((okrug) => {
+              const loc = findLocality(localities, okrug.name);
+              return (
+                <li key={okrug.name}>
+                  <strong>{loc.display_name}</strong> ({loc.type}) — {okrug.company}
+                  <br />
+                  <span className="caption">
+                    <em>{okrug.sector}.</em> {okrug.note}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
     </div>
   );
