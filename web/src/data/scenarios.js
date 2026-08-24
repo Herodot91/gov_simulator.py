@@ -1,5 +1,6 @@
 export const SCENARIOS = [
   {
+    id: "metro_reform",
     title: "Florești Metropole Administration Reform",
     options: {
       A: ["Keep centralized prefecture control", { Governance: -5, Risk: +5 }, 10],
@@ -8,6 +9,7 @@ export const SCENARIOS = [
     intl: "France's Ministry of the Interior offers a prefecture-partnership model.",
   },
   {
+    id: "flortech_investment",
     title: "Technical University Investment in Florești",
     options: {
       A: ["Skip investment", { Economy: -5 }, 0],
@@ -18,6 +20,7 @@ export const SCENARIOS = [
       "technical university — the seed of what will grow into FlorTech.",
   },
   {
+    id: "digital_justice",
     title: "Digital Justice & Procurement Reform",
     options: {
       A: ["Delay reform", { Governance: -5 }, 0],
@@ -26,6 +29,7 @@ export const SCENARIOS = [
     intl: "EU praises Moldova's rule of law improvement.",
   },
   {
+    id: "green_tech",
     title: "Budget Allocation: Green Tech Factories",
     options: {
       A: ["One per region", { Economy: +5 }, 20],
@@ -34,6 +38,7 @@ export const SCENARIOS = [
     intl: "UN welcomes clean tech expansion.",
   },
   {
+    id: "agroflor_investment",
     title: "Education: New Agricultural College in Vărvăreuca",
     options: {
       A: ["Build it, EU model", { Economy: +5, Stability: +5 }, 25],

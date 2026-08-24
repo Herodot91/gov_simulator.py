@@ -112,3 +112,91 @@ export function zoomForBounds(bounds, widthPx, heightPx, padding = 0.2) {
 
 // [lon,lat] GeoJSON order -> [lat,lon] Leaflet order.
 export const toLatLng = ([lon, lat]) => [lat, lon];
+
+// Sutherland-Hodgman: clip a single polygon ring (array of [lon,lat],
+// closed or not) against an axis-aligned rectangle. Mirrors what
+// shapely's polygon.intersection(box(...)) does in the Python app, without
+// a full geometry-library dependency -- the municipality shapes are simple
+// enough (no self-intersections) for this to be exact, not approximate.
+function clipRingToRect(ring, minLon, minLat, maxLon, maxLat) {
+  const edges = [
+    { inside: (p) => p[0] >= minLon, x: (p, q) => intersectVertical(p, q, minLon) },
+    { inside: (p) => p[0] <= maxLon, x: (p, q) => intersectVertical(p, q, maxLon) },
+    { inside: (p) => p[1] >= minLat, x: (p, q) => intersectHorizontal(p, q, minLat) },
+    { inside: (p) => p[1] <= maxLat, x: (p, q) => intersectHorizontal(p, q, maxLat) },
+  ];
+  const intersectVertical = (p, q, x) => [x, p[1] + ((q[1] - p[1]) * (x - p[0])) / (q[0] - p[0])];
+  const intersectHorizontal = (p, q, y) => [p[0] + ((q[0] - p[0]) * (y - p[1])) / (q[1] - p[1]), y];
+
+  let output = ring;
+  for (const edge of edges) {
+    const input = output;
+    output = [];
+    if (input.length === 0) break;
+    for (let i = 0; i < input.length; i++) {
+      const curr = input[i];
+      const prev = input[(i - 1 + input.length) % input.length];
+      const currIn = edge.inside(curr);
+      const prevIn = edge.inside(prev);
+      if (currIn) {
+        if (!prevIn) output.push(edge.x(prev, curr));
+        output.push(curr);
+      } else if (prevIn) {
+        output.push(edge.x(prev, curr));
+      }
+    }
+  }
+  return output;
+}
+
+function ringArea(ring) {
+  let a = 0;
+  for (let i = 0; i < ring.length; i++) {
+    const [x1, y1] = ring[i];
+    const [x2, y2] = ring[(i + 1) % ring.length];
+    a += x1 * y2 - x2 * y1;
+  }
+  return Math.abs(a) / 2;
+}
+
+// Clip a Polygon/MultiPolygon geometry's outer rings (holes ignored -- none
+// of this app's municipality shapes have any) against a quadrant rectangle,
+// returning a single-part GeoJSON Polygon (the largest piece, if the clip
+// produced more than one -- mirrors compute_district_polygons() in
+// streamlit_app.py, which reduces to one Polygon for the same reason: a
+// MultiPolygon here trips a streamlit-folium click-tracking bug on the
+// Python side, so both apps keep district geometry single-part for
+// consistency), or null if the quadrant doesn't overlap the shape at all.
+export function clipGeometryToRect(geometry, minLon, minLat, maxLon, maxLat) {
+  const parts = geometryParts(geometry)
+    .map((part) => clipRingToRect(part.coordinates[0], minLon, minLat, maxLon, maxLat))
+    .filter((ring) => ring.length >= 3);
+  if (parts.length === 0) return null;
+  const largest = parts.reduce((a, b) => (ringArea(b) > ringArea(a) ? b : a));
+  return { type: "Polygon", coordinates: [[...largest, largest[0]]] };
+}
+
+// Approximate district sub-boundaries for a municipality: split its real
+// territory into a 2x2 grid (NW/NE/SW/SE) and assign the municipality's 4
+// named districts to the quadrants in order. Florești's districts aren't
+// real cadastral units (invented for this sim, like the districts
+// themselves), so this is a legible approximation, not a survey -- mirrors
+// compute_district_polygons() in streamlit_app.py.
+export function computeDistrictGeometries(geometry, districtNames) {
+  const [minLon, minLat, maxLon, maxLat] = geometryBounds(geometry);
+  const midLon = (minLon + maxLon) / 2;
+  const midLat = (minLat + maxLat) / 2;
+  const quadrants = [
+    [minLon, midLat, midLon, maxLat],
+    [midLon, midLat, maxLon, maxLat],
+    [minLon, minLat, midLon, midLat],
+    [midLon, minLat, maxLon, midLat],
+  ];
+  const result = {};
+  districtNames.forEach((name, i) => {
+    const [qMinLon, qMinLat, qMaxLon, qMaxLat] = quadrants[i];
+    const clipped = clipGeometryToRect(geometry, qMinLon, qMinLat, qMaxLon, qMaxLat);
+    if (clipped) result[name] = clipped;
+  });
+  return result;
+}

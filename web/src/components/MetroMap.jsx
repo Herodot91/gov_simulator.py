@@ -7,7 +7,17 @@ import { allProjectsWithScope, PROJECT_MAP_LOCATIONS } from "../data/projects.js
 import { FLORTECH, FLORTECH_CAMPUS_LOCATIONS } from "../data/flortech.js";
 import { AGROFLOR, AGROFLOR_CAMPUS_LOCATIONS } from "../data/agroflor.js";
 import { STOP_COORDS, TRANSIT_LINES, TRANSIT_MODE_STYLE, transitInterchanges } from "../data/transit.js";
-import { pointInGeometry, geometryBounds, representativePoint, geometryParts, zoomForBounds, toLatLng } from "../utils/geo.js";
+import {
+  pointInGeometry,
+  geometryBounds,
+  representativePoint,
+  geometryParts,
+  zoomForBounds,
+  toLatLng,
+  computeDistrictGeometries,
+} from "../utils/geo.js";
+
+const DISTRICT_COLORS = ["#e63946", "#2a9d8f", "#e9c46a", "#457b9d"];
 
 const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png";
 const TILE_ATTR =
@@ -99,6 +109,46 @@ function useGeoData() {
     };
   }, []);
   return data;
+}
+
+// Once a municipality is selected, split its territory into its 4
+// districts (approximate quadrants -- see computeDistrictGeometries) so
+// zooming into a municipality shows its own sub-structure, not just a flat
+// color fill. Clicking a district's region drills into it, same as
+// clicking a municipality's shape drills into its districts.
+function DistrictOverlay({ municipality, feature, onSelectDistrict }) {
+  const districtNames = METRO_STRUCTURE[municipality].districts;
+  const geometries = useMemo(
+    () => computeDistrictGeometries(feature.geometry, districtNames),
+    [feature, districtNames]
+  );
+  return (
+    <>
+      {Object.entries(geometries).map(([name, geometry], i) => {
+        const color = DISTRICT_COLORS[i % DISTRICT_COLORS.length];
+        const tooltipText = `${name} — district of ${municipality}`;
+        const labelPoints = geometryParts(geometry).map((part) => {
+          const [lon, lat] = representativePoint(part);
+          return [lat, lon];
+        });
+        return (
+          <div key={name}>
+            <GeoJSON
+              data={{ type: "Feature", geometry, properties: {} }}
+              style={{ color, weight: 2, dashArray: "4 3", fillColor: color, fillOpacity: 0.15 }}
+              onEachFeature={(_f, layer) => {
+                layer.bindTooltip(tooltipText);
+                layer.on("click", () => onSelectDistrict(name));
+              }}
+            />
+            {labelPoints.map((pt, j) => (
+              <Marker key={j} position={pt} icon={labelIcon(name, color)} interactive={false} />
+            ))}
+          </div>
+        );
+      })}
+    </>
+  );
 }
 
 export function findLocality(localities, name) {
@@ -223,6 +273,14 @@ export default function MetroMap() {
               </div>
             );
           })}
+
+        {state.metroActive && state.selectedMunicipality && municipalityFeatures[state.selectedMunicipality] && (
+          <DistrictOverlay
+            municipality={state.selectedMunicipality}
+            feature={municipalityFeatures[state.selectedMunicipality]}
+            onSelectDistrict={actions.selectDistrict}
+          />
+        )}
 
         {state.metroActive &&
           TECHNOPOLIS_OKRUGS.map((okrug) => {

@@ -37,6 +37,7 @@ function initialState(startBudget) {
     selectedMunicipality: null,
     selectedDistrict: null,
     resolvedProjects: {},
+    resolvedScenarios: {},
     mode: "Democracy",
     tickInterval: 3,
     selectedCampus: null,
@@ -93,6 +94,7 @@ function reducer(state, action) {
         return {
           ...record({ ...state, simMonth }, `Month ${simMonth}: Skipped — ${scenario.title}.`, state.scores),
           turn: state.turn + 1,
+          resolvedScenarios: { ...state.resolvedScenarios, [scenario.id]: { choice: null, label: "Skipped" } },
         };
       }
       const [desc, effects, cost] = scenario.options[key];
@@ -124,6 +126,7 @@ function reducer(state, action) {
         ...record({ ...state, simMonth, budget: state.budget - cost, lastIntl: scenario.intl }, note, scores),
         turn: state.turn + 1,
         metroActive,
+        resolvedScenarios: { ...state.resolvedScenarios, [scenario.id]: { choice: key, label: desc } },
       };
     }
 

@@ -6,6 +6,40 @@
 // descriptive world-building, same non-interactive shape as the
 // Technopolis Okrugs/FlorTech/AgroFlor/transit network -- no cost, no
 // score effects.
+// The prefecture is a real decision-making authority too, not just a
+// directorates list -- its own policies, in effect regardless of whether
+// the metropole has been established (same interactive shape as the
+// METRO/MUNICIPALITY/DISTRICT_PROJECTS in projects.js).
+export const PREFECTURE_POLICIES = [
+  {
+    id: "property_tax_reform",
+    title: "Property Tax Reform",
+    options: {
+      A: ["Progressive property tax", { Governance: +5, Economy: +3 }, 10],
+      B: ["Flat-rate property tax", { Economy: +5, Stability: -2 }, 5],
+    },
+    intl: "Ratepayers' associations watch the prefecture's tax-policy choice closely.",
+  },
+  {
+    id: "egovernment",
+    title: "State Digital Services Modernization",
+    options: {
+      A: ["Full e-government rollout", { Governance: +8 }, 20],
+      B: ["Partial digitization", { Governance: +3 }, 8],
+    },
+    intl: "The Civil Registry directorate's paper backlog draws EU digitalization interest.",
+  },
+  {
+    id: "civil_protection",
+    title: "Civil Protection Budget",
+    options: {
+      A: ["Expand civil protection & emergency services", { Risk: -5, Stability: +3 }, 15],
+      B: ["Maintain current staffing levels", {}, 0],
+    },
+    intl: "Regional emergency-response reviews recommend investment.",
+  },
+];
+
 export const PREFECTURE_DIRECTORATES = [
   {
     name: "Directorate of Public Order & Civil Protection",

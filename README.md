@@ -51,6 +51,13 @@ time: **Metropole → Municipality → District**.
 - At the District layer, you see which municipality it belongs to and
   its inauguration status. "← Back" always returns one layer up.
 
+Once a municipality is selected, its own 4 districts are also drawn on the
+map itself — its real territory split into a 2x2 quadrant grid (Florești's
+districts aren't real cadastral units, so this is a legible approximation,
+not a survey), each in its own color with a label, clickable the same way
+municipalities are. This only appears once you've drilled into a
+municipality, keeping the top-level metro map uncluttered.
+
 ## Development projects — one set per governance layer
 
 Beyond the 5 scripted top-level scenarios, each layer of the drill-down has
@@ -357,3 +364,23 @@ score effects), same shape as everything else in this section.
   tier, so each gets a single lightweight office (e.g. "Politeh Civic
   Office") rather than a full directorate roster of its own, framed as a
   first-line liaison to its municipality's council.
+
+### Prefecture Policies — a fourth decision-making layer
+
+Unlike the directorates above, the prefecture also gets real interactive
+policies to decide on — same Cost + Governance/Economy/Stability/Risk
+shape as every other scenario/project in the app, always available
+(the prefecture is in effect with or without the metropole): **Property
+Tax Reform**, **State Digital Services Modernization**, and **Civil
+Protection Budget**. This closes the gap where three of the four
+governance tiers (metropole, municipality, district) already had
+projects to resolve but the prefecture only had a read-only directorates
+list.
+
+### Current Policies — reviewing what's already been decided
+
+The 5 top-level scenarios disappear from the main flow once resolved
+(only the text Log kept a record). A **📋 Current Policies** expander at
+the Metropole layer, next to the Metropolitan Council directorates, now
+lists every resolved scenario with the option actually chosen, so you can
+review past decisions without digging through the log.

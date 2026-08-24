@@ -1,5 +1,6 @@
 # app.py (real-time)
 import os
+import re
 import math
 import random
 import time
@@ -11,7 +12,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
-from shapely.geometry import shape, mapping, Point
+from shapely.geometry import shape, mapping, Point, box
 
 st.set_page_config(page_title="Florești Metropole — CivicTech Simulator", layout="wide")
 
@@ -389,30 +390,77 @@ def compute_metro_polygons():
     metro_boundary = polygons.pop("Florești Metropole")
     return polygons, metro_boundary
 
+
+def compute_district_polygons(muni_name, muni_polygon):
+    """Approximate district sub-boundaries by splitting the municipality's
+    real territory into a 2x2 grid (NW/NE/SW/SE quadrants) and assigning
+    its 4 named districts to them in list order. Florești's districts
+    aren't real cadastral units (invented for this sim, like the districts
+    themselves), so this is a legible approximation, not a survey -- same
+    "concept, not an adopted plan" spirit as the CBD masterplan."""
+    minx, miny, maxx, maxy = muni_polygon.bounds
+    midx, midy = (minx + maxx) / 2, (miny + maxy) / 2
+    quadrants = [box(minx, midy, midx, maxy), box(midx, midy, maxx, maxy),
+                 box(minx, miny, midx, midy), box(midx, miny, maxx, midy)]
+    result = {}
+    for name, quad in zip(METRO_STRUCTURE[muni_name]["districts"], quadrants):
+        clipped = muni_polygon.intersection(quad)
+        if clipped.is_empty:
+            continue
+        if clipped.geom_type == "MultiPolygon":
+            # Keep district geometry as a single Polygon -- a MultiPolygon
+            # feature here trips a bug in streamlit-folium's click-tracking
+            # JS (getTooltip().getContent() throws on some multi-part
+            # features), which silently breaks click detection for the
+            # *whole* map, not just this layer. The largest piece is a fine
+            # approximation anyway, same spirit as the quadrant split itself.
+            clipped = max(clipped.geoms, key=lambda g: g.area)
+        result[name] = clipped
+    return result
+
 SCENARIOS = [
-    {"title": "Florești Metropole Administration Reform",
+    {"id": "metro_reform", "title": "Florești Metropole Administration Reform",
      "options": {"A": ("Keep centralized prefecture control", {"Governance": -5, "Risk": +5}, 10),
                  "B": ("Establish Florești Metropole (mixed decentralization)",
                         {"Governance": +10, "Stability": +5}, 20)},
      "intl": "France's Ministry of the Interior offers a prefecture-partnership model."},
-    {"title": "Technical University Investment in Florești",
+    {"id": "flortech_investment", "title": "Technical University Investment in Florești",
      "options": {"A": ("Skip investment", {"Economy": -5}, 0),
                  "B": ("IT faculty only", {"Economy": +5}, 15),
                  "C": ("Full technical university", {"Economy": +10, "Governance": +5}, 25)},
      "intl": "Local employers and the EU push to expand Școala Profesională into a full "
              "technical university — the seed of what will grow into FlorTech."},
-    {"title": "Digital Justice & Procurement Reform",
+    {"id": "digital_justice", "title": "Digital Justice & Procurement Reform",
      "options": {"A": ("Delay reform", {"Governance": -5}, 0),
                  "B": ("Implement transparency tools", {"Governance": +10, "Risk": -5}, 15)},
      "intl": "EU praises Moldova's rule of law improvement."},
-    {"title": "Budget Allocation: Green Tech Factories",
+    {"id": "green_tech", "title": "Budget Allocation: Green Tech Factories",
      "options": {"A": ("One per region", {"Economy": +5}, 20),
                  "B": ("Ignore sector", {"Economy": -5}, 0)},
      "intl": "UN welcomes clean tech expansion."},
-    {"title": "Education: New Agricultural College in Vărvăreuca",
+    {"id": "agroflor_investment", "title": "Education: New Agricultural College in Vărvăreuca",
      "options": {"A": ("Build it, EU model", {"Economy": +5, "Stability": +5}, 25),
                  "B": ("Keep colleges as-is", {"Economy": -5}, 0)},
      "intl": "Foreign students show interest in Vărvăreuca's Agricultural District."},
+]
+
+# The prefecture is a real decision-making authority too, not just a
+# directorates list -- its own policies, in effect regardless of whether
+# the metropole has been established (same interactive shape as the
+# METRO/MUNICIPALITY/DISTRICT_PROJECTS below).
+PREFECTURE_POLICIES = [
+    {"id": "property_tax_reform", "title": "Property Tax Reform",
+     "options": {"A": ("Progressive property tax", {"Governance": +5, "Economy": +3}, 10),
+                 "B": ("Flat-rate property tax", {"Economy": +5, "Stability": -2}, 5)},
+     "intl": "Ratepayers' associations watch the prefecture's tax-policy choice closely."},
+    {"id": "egovernment", "title": "State Digital Services Modernization",
+     "options": {"A": ("Full e-government rollout", {"Governance": +8}, 20),
+                 "B": ("Partial digitization", {"Governance": +3}, 8)},
+     "intl": "The Civil Registry directorate's paper backlog draws EU digitalization interest."},
+    {"id": "civil_protection", "title": "Civil Protection Budget",
+     "options": {"A": ("Expand civil protection & emergency services", {"Risk": -5, "Stability": +3}, 15),
+                 "B": ("Maintain current staffing levels", {}, 0)},
+     "intl": "Regional emergency-response reviews recommend investment."},
 ]
 
 # Layer-scoped development projects — same interactive shape as SCENARIOS
@@ -612,6 +660,7 @@ def reset_simulation(start_budget):
     st.session_state.selected_municipality = None
     st.session_state.selected_district = None
     st.session_state.resolved_projects = {}
+    st.session_state.resolved_scenarios = {}
     st.session_state.selected_campus = None
     st.session_state.selected_agro_campus = None
 
@@ -634,6 +683,7 @@ def apply_effects(effects):
 def resolve_choice(scenario, key):
     st.session_state.sim_month += 1
     if key is None:
+        st.session_state.resolved_scenarios[scenario["id"]] = {"choice": None, "label": "Skipped"}
         record(f"Month {st.session_state.sim_month}: Skipped — {scenario['title']}.")
         st.session_state.turn += 1
         return
@@ -646,6 +696,7 @@ def resolve_choice(scenario, key):
     st.session_state.budget -= cost
     apply_effects(effects)
     st.session_state.last_intl = scenario["intl"]
+    st.session_state.resolved_scenarios[scenario["id"]] = {"choice": key, "label": desc}
     note = (f"Month {st.session_state.sim_month}: {scenario['title']} → {key}) {desc} "
             f"| Cost {cost} | Intl: {scenario['intl']} | Scores {st.session_state.scores} "
             f"| Budget {st.session_state.budget}")
@@ -796,6 +847,11 @@ def build_map():
         ).add_to(m)
 
     def label(lat, lon, text, color, size=12, weight=700):
+        # Every marker on the map needs a bound tooltip -- one without any
+        # (as these decorative labels had) trips a streamlit-folium
+        # click-tracking bug (getTooltip().getContent() throws on a layer
+        # with no tooltip), which silently breaks click detection for the
+        # *whole* map, not just this layer.
         folium.Marker(
             location=[lat, lon],
             icon=folium.DivIcon(html=(
@@ -803,6 +859,7 @@ def build_map():
                 f'text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;white-space:nowrap;'
                 f'transform:translate(-50%,-50%);">{text}</div>'
             )),
+            tooltip=re.sub("<[^>]+>", " ", text).strip(),
         ).add_to(m)
 
     for name in METRO_STRUCTURE:
@@ -842,6 +899,28 @@ def build_map():
             for part in parts:
                 c = part.representative_point()
                 label(c.y, c.x, f"{name}{' ✅' if active else ''}", "#111111" if active else "#333333")
+
+    # Once a municipality is selected, split its territory into its 4
+    # districts (approximate quadrants -- see compute_district_polygons)
+    # so zooming into a municipality shows its own sub-structure, not just
+    # a flat color fill. Clicking a district's region drills into it, same
+    # as clicking a municipality's shape drills into its districts.
+    sel_muni = st.session_state.get("selected_municipality")
+    if sel_muni and polygons.get(sel_muni) is not None and not polygons[sel_muni].is_empty:
+        dist_colors = ["#e63946", "#2a9d8f", "#e9c46a", "#457b9d"]
+        for i, (dname, dpoly) in enumerate(compute_district_polygons(sel_muni, polygons[sel_muni]).items()):
+            dcolor = dist_colors[i % len(dist_colors)]
+            folium.GeoJson(
+                mapping(dpoly),
+                style_function=lambda f, c=dcolor: {
+                    "color": c, "weight": 2, "dashArray": "4,3", "fillColor": c, "fillOpacity": 0.15,
+                },
+                tooltip=f"{dname} — district of {sel_muni}",
+            ).add_to(m)
+            parts = dpoly.geoms if dpoly.geom_type == "MultiPolygon" else [dpoly]
+            for part in parts:
+                c = part.representative_point()
+                label(c.y, c.x, dname, dcolor, size=10, weight=600)
 
     # Technopolis Okrugs — shown as their own small marked territory, same
     # spirit as how a real Moscow map marks Zelenograd: a real point outside
@@ -1149,33 +1228,59 @@ with st.expander(f"🏛️ Florești Prefecture — Directorates ({len(PREFECTUR
     for d in PREFECTURE_DIRECTORATES:
         st.markdown(f"- **{d['name']}** — {d['mandate']}")
 
+st.markdown("#### 🏛️ Prefecture Policies")
+for policy in PREFECTURE_POLICIES:
+    render_project(policy, "Prefecture", "prefecture_policy")
+
 map_key = "metro_map_active" if st.session_state.metro_active else "metro_map_inactive"
 map_state = st_folium(build_map(), height=520, use_container_width=True, key=map_key)
 
-# Clicking a municipality's shape on the map drills down into it, same as
-# clicking its name below — folium reports the click via the tooltip text we
-# already set on each polygon ("<name> ✅ inaugurated" / "<name> (not yet...)").
-if st.session_state.metro_active and map_state and map_state.get("last_object_clicked_tooltip"):
-    clicked_tooltip = map_state["last_object_clicked_tooltip"]
-    for muni_name in METRO_STRUCTURE:
-        if clicked_tooltip.startswith(muni_name) and st.session_state.selected_municipality != muni_name:
-            st.session_state.selected_municipality = muni_name
-            st.session_state.selected_district = None
-            st.rerun()
-    # Clicking a FlorTech campus marker on the map drills into it, same as
-    # clicking its button below -- the marker's tooltip carries the campus
-    # name, same pattern as municipality clicks above.
-    for campus in FLORTECH["campuses"]:
-        campus_tooltip_prefix = f"🎓 {campus['name']}"
-        if clicked_tooltip.startswith(campus_tooltip_prefix) and st.session_state.selected_campus != campus["id"]:
-            st.session_state.selected_campus = campus["id"]
-            st.rerun()
-    # Same for AgroFlor campus markers.
-    for campus in AGROFLOR["campuses"]:
-        agro_tooltip_prefix = f"🌾 {campus['name']}"
-        if clicked_tooltip.startswith(agro_tooltip_prefix) and st.session_state.selected_agro_campus != campus["id"]:
-            st.session_state.selected_agro_campus = campus["id"]
-            st.rerun()
+def _closest_marker_within(lat, lon, coords_by_id, tolerance=0.004):
+    """Nearest id in a {id: (lat, lon)} dict, if within tolerance (~400m) --
+    used to figure out which marker a map click landed on."""
+    best_id, best_dist = None, tolerance
+    for marker_id, (mlat, mlon) in coords_by_id.items():
+        dist = ((lat - mlat) ** 2 + (lon - mlon) ** 2) ** 0.5
+        if dist < best_dist:
+            best_id, best_dist = marker_id, dist
+    return best_id
+
+
+# Clicking a municipality's shape, a district's quadrant, or a campus marker
+# drills into it, same as clicking its name/button below. streamlit-folium's
+# last_object_clicked_tooltip is unreliable for GeoJson polygon layers (it
+# comes back None even though the layer has a bound tooltip -- a
+# streamlit-folium quirk, not specific to this app's layers), so click
+# detection instead uses last_object_clicked (the real lat/lng clicked) and
+# does its own point-in-polygon / nearest-marker matching, same geometry the
+# map itself was built from.
+if st.session_state.metro_active and map_state and map_state.get("last_object_clicked"):
+    click = map_state["last_object_clicked"]
+    click_pt = Point(click["lng"], click["lat"])
+    polygons, _ = compute_metro_polygons()
+
+    campus_id = _closest_marker_within(click["lat"], click["lng"], FLORTECH_CAMPUS_LOCATIONS)
+    if campus_id and st.session_state.selected_campus != campus_id:
+        st.session_state.selected_campus = campus_id
+        st.rerun()
+
+    agro_campus_id = _closest_marker_within(click["lat"], click["lng"], AGROFLOR_CAMPUS_LOCATIONS)
+    if agro_campus_id and st.session_state.selected_agro_campus != agro_campus_id:
+        st.session_state.selected_agro_campus = agro_campus_id
+        st.rerun()
+
+    sel_muni_click = st.session_state.selected_municipality
+    if sel_muni_click and polygons.get(sel_muni_click) is not None:
+        for dname, dpoly in compute_district_polygons(sel_muni_click, polygons[sel_muni_click]).items():
+            if dpoly.contains(click_pt) and st.session_state.selected_district != dname:
+                st.session_state.selected_district = dname
+                st.rerun()
+    else:
+        for muni_name, poly in polygons.items():
+            if poly.contains(click_pt) and st.session_state.selected_municipality != muni_name:
+                st.session_state.selected_municipality = muni_name
+                st.session_state.selected_district = None
+                st.rerun()
 
 if st.session_state.metro_active:
     sel_muni = st.session_state.selected_municipality
@@ -1233,6 +1338,18 @@ if st.session_state.metro_active:
         with st.expander(f"🏢 Metropolitan Council — Directorates ({len(METRO_COUNCIL_DIRECTORATES)})"):
             for d in METRO_COUNCIL_DIRECTORATES:
                 st.markdown(f"- **{d['name']}** — {d['mandate']}")
+
+        resolved_scenarios = st.session_state.resolved_scenarios
+        if resolved_scenarios:
+            with st.expander(f"📋 Current Policies ({len(resolved_scenarios)} decided)"):
+                for s in SCENARIOS:
+                    r = resolved_scenarios.get(s["id"])
+                    if not r:
+                        continue
+                    if r["choice"] is None:
+                        st.markdown(f"- **{s['title']}** — ⏭️ Skipped")
+                    else:
+                        st.markdown(f"- **{s['title']}** — {r['choice']}) {r['label']}")
 
         st.markdown("#### 🏗️ Metropolitan Projects")
         for project in METRO_PROJECTS:

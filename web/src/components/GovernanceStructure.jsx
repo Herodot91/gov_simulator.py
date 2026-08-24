@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useSimState, useSimActions } from "../state/SimulationContext.jsx";
 import { METRO_STRUCTURE, SUBURBS, INAUGURATION_COST, TECHNOPOLIS_OKRUGS } from "../data/metroStructure.js";
 import { METRO_PROJECTS, MUNICIPALITY_PROJECTS, DISTRICT_PROJECTS, districtProjectKey } from "../data/projects.js";
+import { SCENARIOS } from "../data/scenarios.js";
 import { COMPANY_PRODUCTS } from "../data/companies.js";
 import { TRANSIT_LINES, transitInterchanges } from "../data/transit.js";
 import {
   PREFECTURE_DIRECTORATES,
+  PREFECTURE_POLICIES,
   METRO_COUNCIL_DIRECTORATES,
   MUNICIPALITY_DEPARTMENTS,
   districtOffice,
@@ -45,6 +47,7 @@ export default function GovernanceStructure() {
       )}
 
       <PrefectureExpander />
+      <PrefecturePolicies />
 
       <MetroMap />
 
@@ -78,6 +81,7 @@ function DrillDown({ localities }) {
         <TechnopolisExpander localities={localities} />
         <TransitExpander />
         <MetroCouncilExpander />
+        <CurrentPolicies />
 
         <h4>🏗️ Metropolitan Projects</h4>
         {METRO_PROJECTS.map((p) => (
@@ -249,6 +253,45 @@ function CompanyProducts({ company }) {
               <strong>{p.model}</strong> — {p.category} · {p.spec}
             </li>
           ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function PrefecturePolicies() {
+  return (
+    <>
+      <h4>🏛️ Prefecture Policies</h4>
+      {PREFECTURE_POLICIES.map((policy) => (
+        <ProjectCard key={policy.id} project={policy} scopeLabel="Prefecture" />
+      ))}
+    </>
+  );
+}
+
+function CurrentPolicies() {
+  const state = useSimState();
+  const resolved = Object.entries(state.resolvedScenarios);
+  if (resolved.length === 0) return null;
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="expander">
+      <button className="expander-toggle" onClick={() => setOpen((o) => !o)}>
+        <span className={`expander-caret ${open ? "open" : ""}`}>›</span>
+        📋 Current Policies ({resolved.length} decided)
+      </button>
+      {open && (
+        <ul className="suburb-list">
+          {SCENARIOS.filter((s) => state.resolvedScenarios[s.id]).map((s) => {
+            const r = state.resolvedScenarios[s.id];
+            return (
+              <li key={s.id}>
+                <strong>{s.title}</strong> —{" "}
+                {r.choice === null ? "⏭️ Skipped" : `${r.choice}) ${r.label}`}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
