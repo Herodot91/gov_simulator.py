@@ -575,11 +575,13 @@ AGROFLOR_CAMPUS_LOCATIONS = {
 # reach past the metropole's own territory to Gura Căinarului and to the
 # Prajila Technopolis Okrug.
 _GURA_CAINARULUI_PT = (47.8627915, 28.1831829)
-# Tram M2's own points: a stop north of Florești Central's built-up core,
-# and the Coach Terminal at Vărvăreuca's periphery (also where the
-# Metropolitan Ring Road passes -- see ROAD_NETWORK below).
+# Tram M2's own points: a stop on Florești Central's own northern boundary,
+# and the Coach Terminal on Vărvăreuca's Heritage Quarter boundary (also
+# where the Metropolitan Ring Road passes -- see ROAD_NETWORK below). M2
+# runs strictly between these two municipal boundaries, not into either
+# municipality's own core.
 _FLORESTI_NORTH_PT = (47.8998, 28.2996)
-_COACH_TERMINAL_PT = (47.8735, 28.3210)
+_COACH_TERMINAL_PT = (47.8700, 28.3235)
 STOP_COORDS = {
     "Ghindești": _GHINDESTI_PT,
     "Florești Central": _FLORESTI_PT,
@@ -607,15 +609,16 @@ STOP_STREETS = {
     "Gura Camencii": "Drumul Camencii",
     "Gura Căinarului": "Drumul Căinarului",
     "Prajila": "Strada Uzinei PHI",
-    "Ciripcău": "Bulevardul Sigma Motors",
-    "Coach Terminal": "Autogara Metropolitană, Șoseaua de Centură",
+    "Ciripcău": "Technopolis Expressway, Sigma Motors Okrug",
+    "Coach Terminal": "Autogara Metropolitană, Heritage Quarter boundary",
     "South Lunga Bypass": "Drumul de Centură Sud",
+    "Vărvăreuca Forestry Bypass": "Drumul Ocolitor, Forestry District boundary",
 }
 TRANSIT_LINES = [
     {"id": "tram_m1", "name": "Tram M1", "mode": "tram", "color": "#c0392b",
      "stops": ["Vărvăreuca", "Florești Central", "Lunga", "Mărculești"]},
     {"id": "tram_m2", "name": "Tram M2", "mode": "tram", "color": "#8e44ad",
-     "stops": ["Florești Central North", "Florești Central", "Coach Terminal"]},
+     "stops": ["Coach Terminal", "Florești Central North"]},
     {"id": "brt1", "name": "BRT 1 (biogas/electric)", "mode": "brt", "color": "#16a085",
      "stops": ["Gura Camencii", "Florești Central", "Mărculești Airport"]},
     {"id": "commuter_c1", "name": "Commuter C1", "mode": "commuter", "color": "#2c3e50",
@@ -649,17 +652,21 @@ def transit_route_label(line):
 
 
 # Two major roads, shown on the map as committed infrastructure (not a
-# METRO_PROJECTS decision to resolve) -- the Metropolitan Ring Road, tracing
-# the metro's own southern periphery from Ghindești to Gura Căinarului and
-# passing the Coach Terminal at Vărvăreuca's edge, and the Technopolis
-# Expressway linking the two Technopolis Okrugs via the airport.
+# METRO_PROJECTS decision to resolve) -- the Metropolitan Ring Road stays
+# outside the municipalities' own built territory, tracing the metro's
+# southern periphery close to Vărvăreuca's Heritage Quarter and Forestry
+# District (its own two southernmost districts) rather than cutting through
+# the metropole itself, on its way from Ghindești to Gura Căinarului. The
+# Technopolis Expressway links the two Technopolis Okrugs via the airport.
 _SOUTH_LUNGA_BYPASS_PT = (47.8480, 28.2450)
+_VARVAREUCA_FORESTRY_BYPASS_PT = (47.8630, 28.3010)
 ROAD_NETWORK = [
     {"id": "ring_road_metro", "name": "Metropolitan Ring Road", "kind": "ring_road",
      "color": "#6c757d",
      "route": [
          ("Ghindești", _GHINDESTI_PT),
          ("Coach Terminal", _COACH_TERMINAL_PT),
+         ("Vărvăreuca Forestry Bypass", _VARVAREUCA_FORESTRY_BYPASS_PT),
          ("South Lunga Bypass", _SOUTH_LUNGA_BYPASS_PT),
          ("Mărculești Airport", _MARCULESTI_AIRPORT_PT),
          ("Gura Căinarului", _GURA_CAINARULUI_PT),
@@ -677,12 +684,15 @@ ROAD_KIND_STYLE = {
     "expressway": {"weight": 5, "dash_array": "1,6"},
 }
 
-# The Civic District -- Centrul Civic, Florești Central's own district (see
-# METRO_STRUCTURE) -- is where the Metropolitan Council, the Florești
-# Prefecture, and their directorates are headquartered. Structural
-# world-building, ties the Directorates section to an actual place on the
-# map rather than leaving it placeless.
-CIVIC_DISTRICT_PT = (_FLORESTI_PT[0] + 0.0012, _FLORESTI_PT[1] + 0.0012)
+# The Civic District -- Centrul Civic (the "Civic Center"), the first of
+# Florești Central's 4 districts (see METRO_STRUCTURE and
+# compute_district_polygons' NW/NE/SW/SE quadrant order) -- is where the
+# Metropolitan Council, the Florești Prefecture, and their directorates are
+# headquartered. Positioned inside that district's own NW quadrant rather
+# than at the municipality's plain center, so it reads as sitting inside
+# Centrul Civic once that quadrant is drawn. Structural world-building,
+# ties the Directorates section to an actual place on the map.
+CIVIC_DISTRICT_PT = (_FLORESTI_PT[0] + 0.003, _FLORESTI_PT[1] - 0.003)
 
 # The CBD masterplan's own footprint (see load_cbd_masterplan_svg() and the
 # expander in Florești Central's municipal view) -- shown on the map itself
@@ -1080,14 +1090,26 @@ def build_map():
         ).add_to(m)
 
     # Coach Terminal -- Tram M2's terminus, on the Metropolitan Ring Road at
-    # Vărvăreuca's periphery.
+    # Vărvăreuca's Heritage Quarter boundary.
     folium.Marker(
         location=list(_COACH_TERMINAL_PT),
         icon=folium.DivIcon(html=(
             '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);'
             'filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🚌</div>'
         )),
-        tooltip="Autogara Metropolitană — Coach Terminal, Tram M2 terminus, on the Metropolitan Ring Road",
+        tooltip="Autogara Metropolitană — Coach Terminal, Tram M2 terminus, on the Metropolitan Ring Road "
+                "at Vărvăreuca's Heritage Quarter boundary",
+    ).add_to(m)
+
+    # Mărculești–Florești International Airport -- its own sign, same
+    # treatment as the Coach Terminal.
+    folium.Marker(
+        location=list(_MARCULESTI_AIRPORT_PT),
+        icon=folium.DivIcon(html=(
+            '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);'
+            'filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">✈️</div>'
+        )),
+        tooltip="Mărculești–Florești International Airport",
     ).add_to(m)
 
     # The Civic District (Centrul Civic, Florești Central) -- seat of the
@@ -1448,10 +1470,12 @@ if st.session_state.metro_active:
         with st.expander(f"🚊 Public Transit Network ({len(TRANSIT_LINES)} lines)"):
             st.caption(
                 "The metropole's metro system runs on trams, not heavy rail, and stays within the "
-                "4 municipalities -- unlike the BRT and commuter lines, it doesn't reach the "
-                "suburbs. A BRT corridor (biogas/electric buses) covers what the trams don't, and "
-                "two commuter rail lines reach past the metropole's own territory. Routes below are "
-                "proposed street-level alignments, not a surveyed plan."
+                "4 municipalities' own boundaries -- unlike the BRT and commuter lines, it doesn't "
+                "reach the suburbs. Tram M2 runs strictly between Vărvăreuca's Heritage Quarter "
+                "boundary (the Coach Terminal) and Florești Central's own northern boundary. A BRT "
+                "corridor (biogas/electric buses) covers what the trams don't, and two commuter rail "
+                "lines reach past the metropole's own territory. Routes below are proposed "
+                "street-level alignments, not a surveyed plan."
             )
             for line in TRANSIT_LINES:
                 mode_label = {"tram": "🚋 Tram", "brt": "🚌 BRT", "commuter": "🚆 Commuter"}[line["mode"]]
@@ -1463,18 +1487,24 @@ if st.session_state.metro_active:
         with st.expander(f"🛣️ Roads & Key Sites ({len(ROAD_NETWORK)} roads)"):
             st.caption(
                 "Committed infrastructure shown on the map itself, not a METRO_PROJECTS decision "
-                "to resolve."
+                "to resolve. The Ring Road stays outside the municipalities' own built territory, "
+                "tracing the metro's southern periphery close to Vărvăreuca's Heritage Quarter and "
+                "Forestry District rather than cutting through the metropole itself."
             )
             for road in ROAD_NETWORK:
                 route_label = " → ".join(f"{name} ({STOP_STREETS.get(name, name)})" for name, _ in road["route"])
                 st.markdown(f"**{road['name']}**  \n{route_label}")
             st.markdown(
-                "**🚌 Autogara Metropolitană (Coach Terminal)** — Vărvăreuca's periphery, on the "
-                "Metropolitan Ring Road, Tram M2's terminus."
+                "**🚌 Autogara Metropolitană (Coach Terminal)** — on Vărvăreuca's Heritage Quarter "
+                "boundary, on the Metropolitan Ring Road, Tram M2's terminus."
             )
             st.markdown(
-                "**🏛️ Centrul Civic** — Florești Central's civic district, seat of the Metropolitan "
-                "Council, the Florești Prefecture, and their directorates."
+                "**✈️ Mărculești–Florești International Airport** — its own sign on the map, same "
+                "treatment as the Coach Terminal."
+            )
+            st.markdown(
+                "**🏛️ Centrul Civic (Civic Center)** — Florești Central's own civic district, seat "
+                "of the Metropolitan Council, the Florești Prefecture, and their directorates."
             )
             st.markdown(
                 "**📐 Proposed CBD** — the riverside zone shown on the map between Centrul Civic and "

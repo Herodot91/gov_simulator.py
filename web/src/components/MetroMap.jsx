@@ -410,8 +410,21 @@ export default function MetroMap() {
             eventHandlers={{
               add: (e) =>
                 e.target.bindTooltip(
-                  "Autogara Metropolitană — Coach Terminal, Tram M2 terminus, on the Metropolitan Ring Road"
+                  "Autogara Metropolitană — Coach Terminal, Tram M2 terminus, on the Metropolitan " +
+                    "Ring Road at Vărvăreuca's Heritage Quarter boundary"
                 ),
+            }}
+          />
+        )}
+
+        {state.metroActive && (
+          <Marker
+            position={STOP_COORDS["Mărculești Airport"]}
+            icon={divIcon(
+              '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">✈️</div>'
+            )}
+            eventHandlers={{
+              add: (e) => e.target.bindTooltip("Mărculești–Florești International Airport"),
             }}
           />
         )}

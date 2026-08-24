@@ -367,10 +367,11 @@ function TransitExpander() {
         <div className="technopolis-body">
           <p className="caption">
             The metropole's metro system runs on trams, not heavy rail, and stays within the 4
-            municipalities — unlike the BRT and commuter lines, it doesn't reach the suburbs. A BRT
-            corridor (biogas/electric buses) covers what the trams don't, and two commuter rail lines
-            reach past the metropole's own territory. Routes below are proposed street-level
-            alignments, not a surveyed plan.
+            municipalities' own boundaries — unlike the BRT and commuter lines, it doesn't reach the
+            suburbs. Tram M2 runs strictly between Vărvăreuca's Heritage Quarter boundary (the Coach
+            Terminal) and Florești Central's own northern boundary. A BRT corridor (biogas/electric
+            buses) covers what the trams don't, and two commuter rail lines reach past the metropole's
+            own territory. Routes below are proposed street-level alignments, not a surveyed plan.
           </p>
           <ul className="suburb-list">
             {TRANSIT_LINES.map((line) => (
@@ -407,7 +408,9 @@ function RoadsExpander() {
         <div className="technopolis-body">
           <p className="caption">
             Committed infrastructure shown on the map itself, not a development-project decision to
-            resolve.
+            resolve. The Ring Road stays outside the municipalities' own built territory, tracing the
+            metro's southern periphery close to Vărvăreuca's Heritage Quarter and Forestry District
+            rather than cutting through the metropole itself.
           </p>
           <ul className="suburb-list">
             {ROAD_NETWORK.map((road) => (
@@ -418,12 +421,16 @@ function RoadsExpander() {
               </li>
             ))}
             <li>
-              <strong>🚌 Autogara Metropolitană (Coach Terminal)</strong> — Vărvăreuca's periphery, on
-              the Metropolitan Ring Road, Tram M2's terminus.
+              <strong>🚌 Autogara Metropolitană (Coach Terminal)</strong> — on Vărvăreuca's Heritage
+              Quarter boundary, on the Metropolitan Ring Road, Tram M2's terminus.
             </li>
             <li>
-              <strong>🏛️ Centrul Civic</strong> — Florești Central's civic district, seat of the
-              Metropolitan Council, the Florești Prefecture, and their directorates.
+              <strong>✈️ Mărculești–Florești International Airport</strong> — its own sign on the map,
+              same treatment as the Coach Terminal.
+            </li>
+            <li>
+              <strong>🏛️ Centrul Civic (Civic Center)</strong> — Florești Central's own civic district,
+              seat of the Metropolitan Council, the Florești Prefecture, and their directorates.
             </li>
             <li>
               <strong>📐 Proposed CBD</strong> — the riverside zone shown on the map between Centrul

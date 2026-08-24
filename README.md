@@ -306,15 +306,16 @@ metropole is established, alongside its own **🚊 Public Transit Network**
 expander (next to Suburbs and Technopolis Okrugs) listing every line's
 stops in order.
 
-- **The metro system runs on trams**, not heavy rail, and stays inside
-  the 4 municipalities — unlike the BRT and commuter lines below, it
-  never reaches the suburbs. **Tram M1** (Vărvăreuca → Florești Central →
-  Lunga → Mărculești) is the backbone, tracing the same real municipal
-  corridors the map's own territory is built from (Mărculești is only
-  ever reachable via Lunga). **Tram M2** (Florești Central North →
-  Florești Central → Coach Terminal) runs from the municipality's own
-  northern edge, through Centrul Civic, out to the Coach Terminal at
-  Vărvăreuca's periphery.
+- **The metro system runs on trams**, not heavy rail, and stays within
+  the 4 municipalities' own boundaries — unlike the BRT and commuter
+  lines below, it never reaches the suburbs. **Tram M1** (Vărvăreuca →
+  Florești Central → Lunga → Mărculești) is the backbone, tracing the
+  same real municipal corridors the map's own territory is built from
+  (Mărculești is only ever reachable via Lunga). **Tram M2** (Coach
+  Terminal → Florești Central North) runs strictly between two municipal
+  boundaries — Vărvăreuca's Heritage Quarter boundary at one end, Florești
+  Central's own northern boundary at the other — not into either
+  municipality's built-up core.
 - **BRT 1** (biogas/electric buses) covers what the trams don't, reaching
   a suburb: Gura Camencii → Florești Central → Mărculești Airport.
 - **Two commuter rail lines** reach past the metropole's own territory —
@@ -331,10 +332,10 @@ stops in order.
   dash-dotted — with a hover tooltip listing its full named-street route.
 - **Interchanges** — any stop served by 2+ lines — get a white-on-black
   ring marker (⇄), computed from the lines' own stop lists rather than
-  hardcoded: Florești Central is the 5-way hub (both trams, BRT, both
-  commuter lines); Lunga, Gura Camencii, and Mărculești Airport are each
-  2–3-way interchanges between trams, the BRT line, and the commuter
-  lines.
+  hardcoded: Florești Central (Tram M1, BRT, both commuter lines), Lunga,
+  Gura Camencii, and Mărculești Airport are each 2–4-way interchanges.
+  Tram M2 doesn't share a stop with any other line — it's a standalone
+  boundary-to-boundary connector, not a hub.
 - The map's auto-fit view widens once more (past the Technopolis Okrugs)
   to keep the whole network in frame, including Gura Căinarului out past
   Prajila to the west.
@@ -345,17 +346,27 @@ A further layer of committed infrastructure, shown directly on the map —
 distinct from the interactive `METRO_PROJECTS` "Florești Ring Road"
 decision, this is a fixed route, not a Cost/effects choice.
 
-- **Metropolitan Ring Road** — Ghindești → Coach Terminal (Vărvăreuca's
-  periphery) → a southern bypass past Lunga → Mărculești Airport → Gura
-  Căinarului, tracing the metro's own southern perimeter.
+- **Metropolitan Ring Road** — stays outside the municipalities' own
+  built territory rather than cutting through the metropole: Ghindești →
+  Coach Terminal → a bypass past Vărvăreuca's Forestry District boundary
+  → a bypass south of Lunga → Mărculești Airport → Gura Căinarului,
+  tracing the metro's own southern perimeter close to Vărvăreuca's
+  Heritage Quarter and Forestry District specifically.
 - **Technopolis Expressway** — Prajila → Mărculești Airport → Ciripcău,
-  linking the two Technopolis Okrugs via the airport.
-- **🚌 Autogara Metropolitană (Coach Terminal)** — at Vărvăreuca's
-  periphery, sitting on the Ring Road and doubling as Tram M2's terminus.
-- **🏛️ Centrul Civic** — Florești Central's own civic district (see
-  `METRO_STRUCTURE`) is marked on the map as the seat of the Metropolitan
-  Council, the Florești Prefecture, and their directorates, tying the
-  Directorates & Departments section below to an actual place.
+  linking the two Technopolis Okrugs via the airport (Ciripcău's own
+  connection *is* the expressway, not a separate boulevard).
+- **🚌 Autogara Metropolitană (Coach Terminal)** — on Vărvăreuca's
+  Heritage Quarter boundary, sitting on the Ring Road and doubling as
+  Tram M2's terminus.
+- **✈️ Mărculești–Florești International Airport** — gets its own sign on
+  the map, the same treatment as the Coach Terminal (previously only
+  implied by the transit lines passing through it).
+- **🏛️ Centrul Civic (Civic Center)** — Florești Central's own first
+  district (see `METRO_STRUCTURE`), positioned inside that district's own
+  NW quadrant once the on-map district split (below) is showing, marked
+  as the seat of the Metropolitan Council, the Florești Prefecture, and
+  their directorates — tying the Directorates & Departments section below
+  to an actual place.
 - **📐 Proposed CBD** — the CBD masterplan's own riverside footprint
   (between Centrul Civic and the Răut) is now drawn as a dashed blue zone
   on the map itself, not just linked from Florești Central's municipal

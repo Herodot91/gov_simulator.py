@@ -16,12 +16,15 @@ const GURACAMENCII_PT = [47.8901159, 28.3553067];
 const PRAJILA_PT = [47.84049, 28.2100662];
 const CIRIPCAU_PT = [47.9865655, 28.3838055];
 const GURA_CAINARULUI_PT = [47.8627915, 28.1831829];
-// Tram M2's own points: a stop north of Florești Central's built-up core,
-// and the Coach Terminal at Vărvăreuca's periphery (also where the
-// Metropolitan Ring Road passes -- see ROAD_NETWORK below).
+// Tram M2's own points: a stop on Florești Central's own northern boundary,
+// and the Coach Terminal on Vărvăreuca's Heritage Quarter boundary (also
+// where the Metropolitan Ring Road passes -- see ROAD_NETWORK below). M2
+// runs strictly between these two municipal boundaries, not into either
+// municipality's own core.
 const FLORESTI_NORTH_PT = [47.8998, 28.2996];
-const COACH_TERMINAL_PT = [47.8735, 28.321];
+const COACH_TERMINAL_PT = [47.87, 28.3235];
 const SOUTH_LUNGA_BYPASS_PT = [47.848, 28.245];
+const VARVAREUCA_FORESTRY_BYPASS_PT = [47.863, 28.301];
 
 export const STOP_COORDS = {
   "Ghindești": GHINDESTI_PT,
@@ -51,9 +54,10 @@ export const STOP_STREETS = {
   "Gura Camencii": "Drumul Camencii",
   "Gura Căinarului": "Drumul Căinarului",
   "Prajila": "Strada Uzinei PHI",
-  "Ciripcău": "Bulevardul Sigma Motors",
-  "Coach Terminal": "Autogara Metropolitană, Șoseaua de Centură",
+  "Ciripcău": "Technopolis Expressway, Sigma Motors Okrug",
+  "Coach Terminal": "Autogara Metropolitană, Heritage Quarter boundary",
   "South Lunga Bypass": "Drumul de Centură Sud",
+  "Vărvăreuca Forestry Bypass": "Drumul Ocolitor, Forestry District boundary",
 };
 
 export const TRANSIT_LINES = [
@@ -69,7 +73,7 @@ export const TRANSIT_LINES = [
     name: "Tram M2",
     mode: "tram",
     color: "#8e44ad",
-    stops: ["Florești Central North", "Florești Central", "Coach Terminal"],
+    stops: ["Coach Terminal", "Florești Central North"],
   },
   {
     id: "brt1",
@@ -122,10 +126,12 @@ export function transitRouteLabel(line) {
 }
 
 // Two major roads, shown on the map as committed infrastructure (not a
-// METRO_PROJECTS decision to resolve) -- the Metropolitan Ring Road, tracing
-// the metro's own southern periphery from Ghindești to Gura Căinarului and
-// passing the Coach Terminal at Vărvăreuca's edge, and the Technopolis
-// Expressway linking the two Technopolis Okrugs via the airport.
+// METRO_PROJECTS decision to resolve) -- the Metropolitan Ring Road stays
+// outside the municipalities' own built territory, tracing the metro's
+// southern periphery close to Vărvăreuca's Heritage Quarter and Forestry
+// District (its own two southernmost districts) rather than cutting through
+// the metropole itself, on its way from Ghindești to Gura Căinarului. The
+// Technopolis Expressway links the two Technopolis Okrugs via the airport.
 export const ROAD_NETWORK = [
   {
     id: "ring_road_metro",
@@ -135,6 +141,7 @@ export const ROAD_NETWORK = [
     route: [
       ["Ghindești", GHINDESTI_PT],
       ["Coach Terminal", COACH_TERMINAL_PT],
+      ["Vărvăreuca Forestry Bypass", VARVAREUCA_FORESTRY_BYPASS_PT],
       ["South Lunga Bypass", SOUTH_LUNGA_BYPASS_PT],
       ["Mărculești Airport", MARCULESTI_AIRPORT_PT],
       ["Gura Căinarului", GURA_CAINARULUI_PT],
@@ -162,12 +169,15 @@ export function roadRouteLabel(road) {
   return road.route.map(([name]) => `${name} (${STOP_STREETS[name] || name})`).join(" → ");
 }
 
-// The Civic District -- Centrul Civic, Florești Central's own district (see
-// metroStructure.js) -- is where the Metropolitan Council, the Florești
-// Prefecture, and their directorates are headquartered. Structural
-// world-building, ties the Directorates panels to an actual place on the
-// map rather than leaving it placeless.
-export const CIVIC_DISTRICT_PT = [FLORESTI_PT[0] + 0.0012, FLORESTI_PT[1] + 0.0012];
+// The Civic District -- Centrul Civic (the "Civic Center"), the first of
+// Florești Central's 4 districts (see metroStructure.js and
+// computeDistrictGeometries' NW/NE/SW/SE quadrant order) -- is where the
+// Metropolitan Council, the Florești Prefecture, and their directorates are
+// headquartered. Positioned inside that district's own NW quadrant rather
+// than at the municipality's plain center, so it reads as sitting inside
+// Centrul Civic once that quadrant is drawn. Structural world-building,
+// ties the Directorates panels to an actual place on the map.
+export const CIVIC_DISTRICT_PT = [FLORESTI_PT[0] + 0.003, FLORESTI_PT[1] - 0.003];
 
 // The CBD masterplan's own footprint (see CbdMasterplan.jsx and the
 // expander in Florești Central's municipal view) -- shown on the map itself
