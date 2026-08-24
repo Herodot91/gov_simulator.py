@@ -414,14 +414,16 @@ function TransitExpander() {
       {open && (
         <div className="technopolis-body">
           <p className="caption">
-            Rail runs in two tiers: <strong>Metro M1</strong> is the backbone spanning all 4
-            municipalities; <strong>Tram T1</strong> is a short local connector running strictly
-            between Vărvăreuca's Heritage Quarter boundary (the Coach Terminal) and Florești Central's
-            own northern boundary. Road transit runs in three tiers: <strong>BRT</strong> lines reach
-            further out at commuter-rail-equivalent speed and don't stop as often; plain{" "}
-            <strong>biogas/electric buses</strong> cover local routes with no dedicated lane;{" "}
-            <strong>regional rail</strong> reaches the prefecture's own small towns (Cunicea,
-            Răduleni). Routes below are proposed street-level alignments, not a surveyed plan.
+            <strong>Gara Florești</strong> (the Florești Central stop) is the hub where every mode
+            meets. Rail runs in two tiers: <strong>Metro M1</strong> is the backbone spanning all 4
+            municipalities; <strong>Metro M2</strong> crosses it there, running Coach Terminal ↔ Gara
+            Florești ↔ Florești Central North. <strong>Tram T1</strong> is a short local shuttle from
+            Gara Florești out to Centrul Civic. Road transit runs in three tiers, each with denser
+            stops than the rail lines: <strong>BRT</strong> lines reach further out at commuter-rail-
+            equivalent speed and don't stop as often; plain <strong>biogas/electric buses</strong>{" "}
+            cover local routes with no dedicated lane; <strong>regional rail</strong> reaches the
+            prefecture's own small towns (Cunicea, Răduleni). Routes below are proposed street-level
+            alignments, not a surveyed plan.
           </p>
           <ul className="suburb-list">
             {TRANSIT_LINES.map((line) => (

@@ -49,9 +49,11 @@ export const PREFECTURE_TOWNS = [
   {
     id: "cunicea",
     name: "Cunicea",
+    radius: 1400,
     note:
-      "A real village east of the metropole, its territory expanded into a small town within " +
-      "the prefecture, with its own town council.",
+      "A real village east of the metropole, its territory significantly expanded into a small " +
+      "town within the prefecture, with its own town council. Not mono-industrial, unlike the " +
+      "Technopolis Okrugs -- several factories across different sectors.",
     council: [
       { name: "Department of Local Administration", mandate: "Town council staff, civil records, local permits." },
       { name: "Department of Public Finance", mandate: "Local budget, taxation, procurement." },
@@ -60,9 +62,11 @@ export const PREFECTURE_TOWNS = [
   {
     id: "raduleni",
     name: "Răduleni",
+    radius: 1400,
     note:
-      "A real village north of the metropole, its territory expanded into a small town within " +
-      "the prefecture, with its own town council.",
+      "A real village north of the metropole, its territory significantly expanded into a small " +
+      "town within the prefecture, with its own town council. Not mono-industrial, unlike the " +
+      "Technopolis Okrugs -- several factories across different sectors.",
     council: [
       { name: "Department of Local Administration", mandate: "Town council staff, civil records, local permits." },
       { name: "Department of Public Finance", mandate: "Local budget, taxation, procurement." },
@@ -93,6 +97,84 @@ export const TOWN_POLICIES = {
       intl: "Răduleni's town council petitions the prefecture for infrastructure funding.",
     },
   ],
+};
+
+// Factories across the metropole, the suburbs, and the Prefecture Towns --
+// structural world-building, browsable via the Industries & Schools
+// Dashboard (click a location to see its factories, their products, and
+// their sector). Florești and Cunicea both also host precision-materials/
+// electronics factories; Cunicea and Răduleni each supply components to
+// one of the Technopolis Okrugs' own flagship companies, making them
+// genuinely multi-industry, not mono-industrial like the Okrugs themselves.
+export const FACTORIES = {
+  "Florești Central": [
+    { name: "ProMilk", sector: "Dairy & Food Processing", products: ["Pasteurized milk", "Yogurt", "Butter", "Cheese"] },
+    { name: "FlorPan", sector: "Bakery & Food Processing", products: ["Bread", "Pastries", "Packaged baked goods"] },
+    { name: "Alfa-Nistru Group", sector: "Food Processing", products: ["Packaged foods", "Confectionery", "Preserves"] },
+    {
+      name: "Florești Precision Components",
+      sector: "Precision Materials & Electronics",
+      products: ["Precision-machined parts", "Circuit assemblies", "Sensor housings"],
+    },
+  ],
+  "Cunicea": [
+    {
+      name: "Cunicea AutoParts",
+      sector: "Automotive Components (Sigma Motors supplier)",
+      products: ["EV battery housings", "Chassis components", "Interior trim assemblies"],
+    },
+    {
+      name: "Cunicea Precision Electronics",
+      sector: "Precision Materials & Electronics",
+      products: ["Printed circuit boards", "Sensor modules", "Wiring harnesses"],
+    },
+  ],
+  "Răduleni": [
+    {
+      name: "Răduleni Heavy Components",
+      sector: "Industrial Components (PHI supplier)",
+      products: ["Hydraulic cylinders", "Gearbox housings", "Structural steel weldments"],
+    },
+  ],
+  "Gura Căinarului": [
+    { name: "Gura Căinarului Beverage Works", sector: "Beverages", products: ["Bottled water", "Soft drinks", "Fruit juices"] },
+  ],
+  "Gura Camencii": [
+    { name: "Gura Camencii Bread Factory", sector: "Bakery", products: ["Bread", "Bread rolls", "Crackers"] },
+  ],
+  "Ghindești": [
+    { name: "Ghindești Beer Factory", sector: "Brewing", products: ["Lager", "Craft ale", "Non-alcoholic beer"] },
+    {
+      name: "Ghindești Zahăr S.A.",
+      sector: "Sugar Processing",
+      products: ["Refined sugar", "Sugar beet pulp (animal feed)", "Molasses"],
+    },
+  ],
+};
+
+// Schools across the metropole and the Prefecture Towns -- "current"
+// (locally-rooted) schools per municipality/town, plus a handful of
+// fictional international schools reflecting the metropole's cosmopolitan,
+// industrial/tech-hub character. Giorgetto Giugiaro (the real automotive
+// designer's namesake) sits at Ciripcău deliberately, next to Sigma Motors.
+export const SCHOOLS = {
+  "Florești Central": [
+    "Liceul Teoretic Ștefan cel Mare",
+    "Școala Profesională din Florești",
+    "Tokugawa International Japanese School",
+    "Abdi İpekçi Türk Lisesi",
+    "Fuad Seniora School",
+    "Liceo Español Don Quijote",
+    "Liceo Classico Italiano Giuseppe Verdi",
+  ],
+  "Mărculești": ["Liceul Teoretic Mărculești"],
+  "Vărvăreuca": ["Liceul Agricol Vărvăreuca"],
+  "Lunga": ["Școala de Arte și Meserii Lunga"],
+  "Ghindești": ["Școala Profesională — Ghindești Branch"],
+  "Gura Camencii": ["Școala Profesională — Gura Camencii Branch"],
+  "Cunicea": ["Liceul Teoretic Cunicea"],
+  "Răduleni": ["Liceul Teoretic Răduleni"],
+  "Ciripcău": ["Liceo Tecnico Giorgetto Giugiaro"],
 };
 
 export const PREFECTURE_DIRECTORATES = [

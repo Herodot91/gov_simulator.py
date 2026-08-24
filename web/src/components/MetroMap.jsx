@@ -6,7 +6,7 @@ import { METRO_STRUCTURE, MUNICIPALITY_COLORS, TECHNOPOLIS_OKRUGS } from "../dat
 import { allProjectsWithScope, PROJECT_MAP_LOCATIONS } from "../data/projects.js";
 import { FLORTECH, FLORTECH_CAMPUS_LOCATIONS } from "../data/flortech.js";
 import { AGROFLOR, AGROFLOR_CAMPUS_LOCATIONS } from "../data/agroflor.js";
-import { PREFECTURE_TOWNS } from "../data/directorates.js";
+import { PREFECTURE_TOWNS, FACTORIES } from "../data/directorates.js";
 import {
   STOP_COORDS,
   TRANSIT_LINES,
@@ -446,18 +446,32 @@ export default function MetroMap() {
         )}
 
         {state.metroActive &&
-          PREFECTURE_TOWNS.map((town) => (
-            <Marker
-              key={town.id}
-              position={STOP_COORDS[town.name]}
-              icon={divIcon(
-                '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🏘️</div>'
-              )}
-              eventHandlers={{
-                add: (e) => e.target.bindTooltip(`${town.name} — Prefecture Town, own town council`),
-              }}
-            />
-          ))}
+          PREFECTURE_TOWNS.map((town) => {
+            const pos = STOP_COORDS[town.name];
+            const factoryCount = (FACTORIES[town.name] || []).length;
+            return (
+              <div key={town.id}>
+                <Circle
+                  center={pos}
+                  radius={town.radius}
+                  pathOptions={{ color: "#2e7d32", weight: 2, dashArray: "5 5", fillColor: "#66bb6a", fillOpacity: 0.25 }}
+                  eventHandlers={{
+                    add: (e) =>
+                      e.target.bindTooltip(`${town.name} — Prefecture Town, ${factoryCount} factories, own town council`),
+                  }}
+                />
+                <Marker
+                  position={pos}
+                  icon={divIcon(
+                    '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🏘️</div>'
+                  )}
+                  eventHandlers={{
+                    add: (e) => e.target.bindTooltip(`${town.name} — Prefecture Town, own town council`),
+                  }}
+                />
+              </div>
+            );
+          })}
 
         {state.metroActive && (
           <Rectangle

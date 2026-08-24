@@ -31,11 +31,15 @@ const FLORESTI_NORTH_PT = [47.8998, 28.2996];
 const COACH_TERMINAL_PT = [47.87, 28.3235];
 const SOUTH_LUNGA_BYPASS_PT = [47.848, 28.245];
 const VARVAREUCA_FORESTRY_BYPASS_PT = [47.863, 28.301];
+// Centrul Civic's own point -- reused as CIVIC_DISTRICT_PT below for the
+// 🏛️ map marker, and here as a Tram T1 stop.
+const CENTRUL_CIVIC_PT = [FLORESTI_PT[0] + 0.003, FLORESTI_PT[1] - 0.003];
 
 export const STOP_COORDS = {
   "Ghindești": GHINDESTI_PT,
   "Florești Central": FLORESTI_PT,
   "Florești Central North": FLORESTI_NORTH_PT,
+  "Centrul Civic": CENTRUL_CIVIC_PT,
   "Vărvăreuca": VARVAREUCA_PT,
   "Lunga": LUNGA_PT,
   "Mărculești": MARCULESTI_PT,
@@ -53,8 +57,9 @@ export const STOP_COORDS = {
 // in each stop's own already-established district/theming.
 export const STOP_STREETS = {
   "Ghindești": "Strada Nucilor",
-  "Florești Central": "Bulevardul Unirii, Centrul Civic",
+  "Florești Central": "Gara Florești, Bulevardul Unirii",
   "Florești Central North": "Strada Ștefan cel Mare",
+  "Centrul Civic": "Piața Prefecturii",
   "Vărvăreuca": "Strada Recoltei, Agricultural District",
   "Lunga": "Strada Meșterilor, Artisan Quarter",
   "Mărculești": "Șoseaua Aviatorilor, Aviagorodok",
@@ -79,11 +84,18 @@ export const TRANSIT_LINES = [
     stops: ["Vărvăreuca", "Florești Central", "Lunga", "Mărculești"],
   },
   {
+    id: "metro_m2",
+    name: "Metro M2",
+    mode: "metro",
+    color: "#283593",
+    stops: ["Coach Terminal", "Florești Central", "Florești Central North"],
+  },
+  {
     id: "tram_t1",
     name: "Tram T1",
     mode: "tram",
     color: "#8e44ad",
-    stops: ["Coach Terminal", "Florești Central North"],
+    stops: ["Florești Central", "Centrul Civic"],
   },
   {
     id: "brt1",
@@ -111,7 +123,7 @@ export const TRANSIT_LINES = [
     name: "Bus B1 (biogas/electric)",
     mode: "bus",
     color: "#7f8c8d",
-    stops: ["Florești Central", "Ghindești"],
+    stops: ["Florești Central", "Ghindești", "Gura Camencii"],
   },
   {
     id: "regional_r1",
@@ -232,7 +244,7 @@ export function roadRouteLabel(road) {
 // than at the municipality's plain center, so it reads as sitting inside
 // Centrul Civic once that quadrant is drawn. Structural world-building,
 // ties the Directorates panels to an actual place on the map.
-export const CIVIC_DISTRICT_PT = [FLORESTI_PT[0] + 0.003, FLORESTI_PT[1] - 0.003];
+export const CIVIC_DISTRICT_PT = CENTRUL_CIVIC_PT;
 
 // The CBD masterplan's own footprint (see CbdMasterplan.jsx and the
 // expander in Florești Central's municipal view) -- shown on the map itself

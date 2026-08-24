@@ -306,35 +306,43 @@ established, alongside its own **🚊 Public Transit Network** expander
 (next to Suburbs and Technopolis Okrugs) listing every line's stops in
 order. Rail runs in two tiers, road transit in three:
 
+- **Gara Florești** — the "Florești Central" stop is now named as the
+  metropole's actual multi-modal rail hub: every one of the 9 lines below
+  either passes through it, interchanges there, or originates there.
 - **Metro M1** — the backbone spanning all 4 municipalities (Vărvăreuca →
   Florești Central → Lunga → Mărculești), tracing the same real municipal
   corridors the map's own territory is built from (Mărculești is only
   ever reachable via Lunga).
-- **Tram T1** — a short local connector running strictly between two
-  municipal boundaries (Coach Terminal → Florești Central North), not
-  into either municipality's built-up core, and sharing no stop with any
-  other line — a standalone connector, not a hub.
+- **Metro M2** — Coach Terminal → Florești Central → Florești Central
+  North, a second metro tier crossing Metro M1 at Gara Florești rather
+  than avoiding the core, so the two metro lines form a genuine
+  interchange there (superseding the earlier design where M2 stayed clear
+  of the Florești Central stop).
+- **Tram T1** — a short local shuttle confined to Florești Central itself
+  (Gara Florești ↔ Centrul Civic), a dedicated civic-core connector distinct
+  from the cross-municipality metro lines.
 - **BRT 1/2/3** (biogas/electric, commuter-rail-equivalent reach, don't
   stop as often) — BRT 1 reaches Gura Camencii; BRT 2 reaches Ghindești
   and Gura Căinarului; BRT 3 reaches the Prajila Technopolis Okrug.
 - **Bus B1** (biogas/electric, local, no dedicated lane) — Florești
-  Central ↔ Ghindești, a basic service alongside BRT 2's faster one on
-  the same corridor.
+  Central → Ghindești → Gura Camencii, a basic multi-stop service
+  alongside BRT 2/3's faster ones on overlapping corridors.
 - **Regional Rail R1/R2** — Florești Central out to the prefecture's own
   small towns, Cunicea and Răduleni (see Directorates & Departments
   below).
-- Every line's stops carry a proposed street/avenue name too (e.g. Metro
-  M1's Florești Central stop sits on "Bulevardul Unirii, Centrul Civic") —
-  concept alignments, not a surveyed plan, in the same spirit as the CBD
-  masterplan below.
+- Every line's stops carry a proposed street/avenue name too (e.g. Gara
+  Florești sits on "Gara Florești, Bulevardul Unirii" and the new Centrul
+  Civic stop on "Piața Prefecturii") — concept alignments, not a surveyed
+  plan, in the same spirit as the CBD masterplan below.
 - Each line is drawn on the map in its own color, styled by mode — metro
   solid+thick, trams solid+thinner, BRT dashed, plain buses finely
   dotted, regional rail dash-dotted — with a hover tooltip listing its
   full named-street route.
 - **Interchanges** — any stop served by 2+ lines — get a white-on-black
   ring marker (⇄), computed from the lines' own stop lists rather than
-  hardcoded: Florești Central is now a 7-way hub (Metro, all 3 BRT lines,
-  the bus, and both regional rail lines).
+  hardcoded: Florești Central (Gara Florești) is now an 8-way hub (both
+  metro lines, the tram, all 3 BRT lines, the bus, and both regional rail
+  lines).
 - The map's auto-fit view widens once more (past the Technopolis Okrugs)
   to keep the whole network in frame, including Gura Căinarului out past
   Prajila to the west, and Cunicea/Răduleni to the east/north.
@@ -440,7 +448,10 @@ Council** (Department of Local Administration, Department of Public
 Finance) and its own interactive infrastructure-investment policy, shown
 in the Prefecture section right alongside Prefecture Policies. Each town
 is reached by its own Regional Rail line from Florești Central and by the
-Regional Expressway, and gets a 🏘️ sign on the map.
+Regional Expressway, and gets a 🏘️ sign on the map, now ringed by a
+dashed green 1.4 km territory circle reflecting their expanded land area —
+and, per their own notes, neither town is mono-industrial like the
+Technopolis Okrugs (see Industries & Schools Dashboard below).
 
 ### Directorates Dashboard — every tier, one screen
 
@@ -453,3 +464,30 @@ Prefecture Towns' councils always; once the metropole is established,
 adds the Metropolitan Council's 6 directorates and one expander per
 municipality (its 3 departments plus all 4 of its districts' civic
 offices).
+
+### Industries & Schools Dashboard — factories and schools, one screen
+
+A new top-level **🏭 Industries & Schools Dashboard** panel, same flat
+click-to-browse shape as the Directorates Dashboard: one expander per
+location, showing its factories (name, sector, products) and schools.
+Purely descriptive world-building — no cost, no score effects.
+
+- **Beside the metropole** (always visible): **Cunicea** (Cunicea
+  AutoParts — a Sigma Motors supplier; Cunicea Precision Electronics),
+  **Răduleni** (Răduleni Heavy Components — a PHI supplier), and **Gura
+  Căinarului** (Gura Căinarului Beverage Works) — each town's factory
+  roster backs up its "not mono-industrial" note above.
+- **Within the metropole** (once established): **Florești Central** hosts
+  ProMilk, FlorPan, Alfa-Nistru Group, and Florești Precision Components
+  (precision materials/electronics, echoing Cunicea's own); **Gura
+  Camencii** has a bread factory; **Ghindești** has both a beer factory
+  and Ghindești Zahăr S.A., a sugar-processing plant.
+- **Schools** are listed the same way per location — each municipality's
+  own real-named school(s) (e.g. Liceul Teoretic Ștefan cel Mare at
+  Florești Central) plus, concentrated at Florești Central as the
+  metropole's cosmopolitan hub, five fictional international schools:
+  Tokugawa International Japanese School, Abdi İpekçi Türk Lisesi, Fuad
+  Seniora School, Liceo Español Don Quijote, and Liceo Classico Italiano
+  Giuseppe Verdi. A sixth, **Liceo Tecnico Giorgetto Giugiaro**, sits
+  deliberately at Ciripcău next to Sigma Motors — a thematic pairing with
+  the real automotive designer's namesake.

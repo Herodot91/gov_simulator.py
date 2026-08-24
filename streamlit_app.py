@@ -471,16 +471,18 @@ PREFECTURE_POLICIES = [
 # from STOP_COORDS at render time (defined further down), same lazy
 # pattern TECHNOPOLIS_OKRUGS uses with find_locality().
 PREFECTURE_TOWNS = [
-    {"id": "cunicea", "name": "Cunicea",
-     "note": "A real village east of the metropole, its territory expanded into a small "
-             "town within the prefecture, with its own town council.",
+    {"id": "cunicea", "name": "Cunicea", "radius": 1400,
+     "note": "A real village east of the metropole, its territory significantly expanded into a "
+             "small town within the prefecture, with its own town council. Not mono-industrial, "
+             "unlike the Technopolis Okrugs -- several factories across different sectors.",
      "council": [
          {"name": "Department of Local Administration", "mandate": "Town council staff, civil records, local permits."},
          {"name": "Department of Public Finance", "mandate": "Local budget, taxation, procurement."},
      ]},
-    {"id": "raduleni", "name": "Răduleni",
-     "note": "A real village north of the metropole, its territory expanded into a small "
-             "town within the prefecture, with its own town council.",
+    {"id": "raduleni", "name": "Răduleni", "radius": 1400,
+     "note": "A real village north of the metropole, its territory significantly expanded into a "
+             "small town within the prefecture, with its own town council. Not mono-industrial, "
+             "unlike the Technopolis Okrugs -- several factories across different sectors.",
      "council": [
          {"name": "Department of Local Administration", "mandate": "Town council staff, civil records, local permits."},
          {"name": "Department of Public Finance", "mandate": "Local budget, taxation, procurement."},
@@ -499,6 +501,76 @@ TOWN_POLICIES = {
                      "B": ("Minor repairs only", {"Economy": +1}, 4)},
          "intl": "Răduleni's town council petitions the prefecture for infrastructure funding."},
     ],
+}
+
+# Factories across the metropole, the suburbs, and the Prefecture Towns --
+# structural world-building, browsable via the Industries & Schools
+# Dashboard below (click a location to see its factories, their products,
+# and their sector). Florești and Cunicea both also host precision-
+# materials/electronics factories; Cunicea and Răduleni each supply
+# components to one of the Technopolis Okrugs' own flagship companies,
+# making them genuinely multi-industry, not mono-industrial like the
+# Okrugs themselves.
+FACTORIES = {
+    "Florești Central": [
+        {"name": "ProMilk", "sector": "Dairy & Food Processing",
+         "products": ["Pasteurized milk", "Yogurt", "Butter", "Cheese"]},
+        {"name": "FlorPan", "sector": "Bakery & Food Processing",
+         "products": ["Bread", "Pastries", "Packaged baked goods"]},
+        {"name": "Alfa-Nistru Group", "sector": "Food Processing",
+         "products": ["Packaged foods", "Confectionery", "Preserves"]},
+        {"name": "Florești Precision Components", "sector": "Precision Materials & Electronics",
+         "products": ["Precision-machined parts", "Circuit assemblies", "Sensor housings"]},
+    ],
+    "Cunicea": [
+        {"name": "Cunicea AutoParts", "sector": "Automotive Components (Sigma Motors supplier)",
+         "products": ["EV battery housings", "Chassis components", "Interior trim assemblies"]},
+        {"name": "Cunicea Precision Electronics", "sector": "Precision Materials & Electronics",
+         "products": ["Printed circuit boards", "Sensor modules", "Wiring harnesses"]},
+    ],
+    "Răduleni": [
+        {"name": "Răduleni Heavy Components", "sector": "Industrial Components (PHI supplier)",
+         "products": ["Hydraulic cylinders", "Gearbox housings", "Structural steel weldments"]},
+    ],
+    "Gura Căinarului": [
+        {"name": "Gura Căinarului Beverage Works", "sector": "Beverages",
+         "products": ["Bottled water", "Soft drinks", "Fruit juices"]},
+    ],
+    "Gura Camencii": [
+        {"name": "Gura Camencii Bread Factory", "sector": "Bakery",
+         "products": ["Bread", "Bread rolls", "Crackers"]},
+    ],
+    "Ghindești": [
+        {"name": "Ghindești Beer Factory", "sector": "Brewing",
+         "products": ["Lager", "Craft ale", "Non-alcoholic beer"]},
+        {"name": "Ghindești Zahăr S.A.", "sector": "Sugar Processing",
+         "products": ["Refined sugar", "Sugar beet pulp (animal feed)", "Molasses"]},
+    ],
+}
+
+# Schools across the metropole and the Prefecture Towns -- "current"
+# (locally-rooted) schools per municipality/town, plus a handful of
+# fictional international schools reflecting the metropole's cosmopolitan,
+# industrial/tech-hub character. Giorgetto Giugiaro (the real automotive
+# designer's namesake) sits at Ciripcău deliberately, next to Sigma Motors.
+SCHOOLS = {
+    "Florești Central": [
+        "Liceul Teoretic Ștefan cel Mare",
+        "Școala Profesională din Florești",
+        "Tokugawa International Japanese School",
+        "Abdi İpekçi Türk Lisesi",
+        "Fuad Seniora School",
+        "Liceo Español Don Quijote",
+        "Liceo Classico Italiano Giuseppe Verdi",
+    ],
+    "Mărculești": ["Liceul Teoretic Mărculești"],
+    "Vărvăreuca": ["Liceul Agricol Vărvăreuca"],
+    "Lunga": ["Școala de Arte și Meserii Lunga"],
+    "Ghindești": ["Școala Profesională — Ghindești Branch"],
+    "Gura Camencii": ["Școala Profesională — Gura Camencii Branch"],
+    "Cunicea": ["Liceul Teoretic Cunicea"],
+    "Răduleni": ["Liceul Teoretic Răduleni"],
+    "Ciripcău": ["Liceo Tecnico Giorgetto Giugiaro"],
 }
 
 # Layer-scoped development projects — same interactive shape as SCENARIOS
@@ -626,10 +698,14 @@ _RADULENI_PT = (47.9567436, 28.247045)
 # municipality's own core.
 _FLORESTI_NORTH_PT = (47.8998, 28.2996)
 _COACH_TERMINAL_PT = (47.8700, 28.3235)
+# Centrul Civic's own point -- reused below as CIVIC_DISTRICT_PT for the
+# 🏛️ map marker, and here as a Tram T1 stop.
+_CENTRUL_CIVIC_PT = (_FLORESTI_PT[0] + 0.003, _FLORESTI_PT[1] - 0.003)
 STOP_COORDS = {
     "Ghindești": _GHINDESTI_PT,
     "Florești Central": _FLORESTI_PT,
     "Florești Central North": _FLORESTI_NORTH_PT,
+    "Centrul Civic": _CENTRUL_CIVIC_PT,
     "Vărvăreuca": _VARVAREUCA_PT,
     "Lunga": _LUNGA_PT,
     "Mărculești": _MARCULESTI_PT,
@@ -646,8 +722,9 @@ STOP_COORDS = {
 # in each stop's own already-established district/theming.
 STOP_STREETS = {
     "Ghindești": "Strada Nucilor",
-    "Florești Central": "Bulevardul Unirii, Centrul Civic",
+    "Florești Central": "Gara Florești, Bulevardul Unirii",
     "Florești Central North": "Strada Ștefan cel Mare",
+    "Centrul Civic": "Piața Prefecturii",
     "Vărvăreuca": "Strada Recoltei, Agricultural District",
     "Lunga": "Strada Meșterilor, Artisan Quarter",
     "Mărculești": "Șoseaua Aviatorilor, Aviagorodok",
@@ -662,16 +739,22 @@ STOP_STREETS = {
     "Cunicea": "Gara Cunicea, Regional Expressway",
     "Răduleni": "Gara Răduleni, Regional Expressway",
 }
-# Rail runs as two tiers -- the metro system (Metro, heavier/longer-haul)
-# and trams (Tram, short/local) -- alongside road transit in three tiers of
-# its own: BRT (limited-stop, commuter-equivalent reach), plain biogas/
-# electric bus (local, no dedicated lane), and regional rail out to the
-# prefecture's own small towns (see PREFECTURE_TOWNS below).
+# Rail runs as two tiers -- the metro system (Metro, heavier/longer-haul,
+# a couple of stations each) and trams (Tram, short/local) -- alongside
+# road transit in three tiers of its own: BRT (limited-stop, commuter-
+# equivalent reach), plain biogas/electric bus (local, no dedicated lane),
+# and regional rail out to the prefecture's own small towns (see
+# PREFECTURE_TOWNS below). BRT/bus/tram lines run denser stop spacing than
+# metro. Gara Florești (the "Florești Central" stop) is the hub where
+# every mode meets -- both metro lines, the tram, all 3 BRT lines, the
+# bus, and both regional rail lines.
 TRANSIT_LINES = [
     {"id": "metro_m1", "name": "Metro M1", "mode": "metro", "color": "#1a237e",
      "stops": ["Vărvăreuca", "Florești Central", "Lunga", "Mărculești"]},
+    {"id": "metro_m2", "name": "Metro M2", "mode": "metro", "color": "#283593",
+     "stops": ["Coach Terminal", "Florești Central", "Florești Central North"]},
     {"id": "tram_t1", "name": "Tram T1", "mode": "tram", "color": "#8e44ad",
-     "stops": ["Coach Terminal", "Florești Central North"]},
+     "stops": ["Florești Central", "Centrul Civic"]},
     {"id": "brt1", "name": "BRT 1 (biogas/electric)", "mode": "brt", "color": "#16a085",
      "stops": ["Gura Camencii", "Florești Central", "Mărculești Airport"]},
     {"id": "brt2", "name": "BRT 2 (biogas/electric)", "mode": "brt", "color": "#2980b9",
@@ -679,7 +762,7 @@ TRANSIT_LINES = [
     {"id": "brt3", "name": "BRT 3 (biogas/electric)", "mode": "brt", "color": "#27ae60",
      "stops": ["Gura Camencii", "Florești Central", "Lunga", "Prajila"]},
     {"id": "bus_b1", "name": "Bus B1 (biogas/electric)", "mode": "bus", "color": "#7f8c8d",
-     "stops": ["Florești Central", "Ghindești"]},
+     "stops": ["Florești Central", "Ghindești", "Gura Camencii"]},
     {"id": "regional_r1", "name": "Regional Rail R1", "mode": "regional_rail", "color": "#7b3f00",
      "stops": ["Florești Central", "Cunicea"]},
     {"id": "regional_r2", "name": "Regional Rail R2", "mode": "regional_rail", "color": "#5c4033",
@@ -765,7 +848,7 @@ ROAD_KIND_STYLE = {
 # than at the municipality's plain center, so it reads as sitting inside
 # Centrul Civic once that quadrant is drawn. Structural world-building,
 # ties the Directorates section to an actual place on the map.
-CIVIC_DISTRICT_PT = (_FLORESTI_PT[0] + 0.003, _FLORESTI_PT[1] - 0.003)
+CIVIC_DISTRICT_PT = _CENTRUL_CIVIC_PT
 
 # The CBD masterplan's own footprint (see load_cbd_masterplan_svg() and the
 # expander in Florești Central's municipal view) -- shown on the map itself
@@ -1198,9 +1281,19 @@ def build_map():
 
     # Prefecture Towns -- Cunicea and Răduleni, real villages outside the
     # metropole and the Technopolis Okrugs, grown into small towns with
-    # their own town council, directly under the prefecture.
+    # their own town council, directly under the prefecture. A larger
+    # green territory circle (vs. the Technopolis Okrugs' gold one) --
+    # these towns are bigger and multi-industry, not mono-industrial.
     for town in PREFECTURE_TOWNS:
         lat, lon = STOP_COORDS[town["name"]]
+        factories = FACTORIES.get(town["name"], [])
+        folium.Circle(
+            location=[lat, lon],
+            radius=town["radius"],
+            color="#2e7d32", weight=2, dash_array="5,5",
+            fill=True, fill_color="#66bb6a", fill_opacity=0.25,
+            tooltip=f"{town['name']} — Prefecture Town, {len(factories)} factories, own town council",
+        ).add_to(m)
         folium.Marker(
             location=[lat, lon],
             icon=folium.DivIcon(html=(
@@ -1570,14 +1663,15 @@ if st.session_state.metro_active:
 
         with st.expander(f"🚊 Public Transit Network ({len(TRANSIT_LINES)} lines)"):
             st.caption(
-                "Rail runs in two tiers: **Metro M1** is the backbone spanning all 4 municipalities; "
-                "**Tram T1** is a short local connector running strictly between Vărvăreuca's Heritage "
-                "Quarter boundary (the Coach Terminal) and Florești Central's own northern boundary. "
-                "Road transit runs in three tiers: **BRT** lines reach further out at commuter-rail-"
-                "equivalent speed and don't stop as often; plain **biogas/electric buses** cover local "
-                "routes with no dedicated lane; **regional rail** reaches the prefecture's own small "
-                "towns (Cunicea, Răduleni). Routes below are proposed street-level alignments, not a "
-                "surveyed plan."
+                "**Gara Florești** (the Florești Central stop) is the hub where every mode meets. Rail "
+                "runs in two tiers: **Metro M1** is the backbone spanning all 4 municipalities; "
+                "**Metro M2** crosses it there, running Coach Terminal ↔ Gara Florești ↔ Florești "
+                "Central North. **Tram T1** is a short local shuttle from Gara Florești out to Centrul "
+                "Civic. Road transit runs in three tiers, each with denser stops than the rail lines: "
+                "**BRT** lines reach further out at commuter-rail-equivalent speed and don't stop as "
+                "often; plain **biogas/electric buses** cover local routes with no dedicated lane; "
+                "**regional rail** reaches the prefecture's own small towns (Cunicea, Răduleni). Routes "
+                "below are proposed street-level alignments, not a surveyed plan."
             )
             for line in TRANSIT_LINES:
                 st.markdown(f"**{line['name']}** — {TRANSIT_MODE_LABELS[line['mode']]}  \n{transit_route_label(line)}")
@@ -1819,6 +1913,48 @@ if st.session_state.metro_active:
 else:
     st.caption("Establish the metropole (Scenario 1, option B) to see the Metropolitan Council and "
                "each municipality's own departments and district civic offices here too.")
+
+# ---------- Industries & Schools Dashboard ----------
+# Same flat, click-to-browse shape as the Directorates Dashboard above:
+# every location's factories (name, sector, products) and schools, laid
+# out in one place. Purely descriptive world-building, no cost/score
+# effects.
+def _industry_school_expander(name):
+    factories = FACTORIES.get(name, [])
+    schools = SCHOOLS.get(name, [])
+    if not factories and not schools:
+        return
+    label_bits = []
+    if factories:
+        label_bits.append(f"{len(factories)} factories")
+    if schools:
+        label_bits.append(f"{len(schools)} schools")
+    with st.expander(f"{name} — {', '.join(label_bits)}"):
+        if factories:
+            st.markdown("**🏭 Factories**")
+            for f in factories:
+                st.markdown(f"- **{f['name']}** — *{f['sector']}.* {', '.join(f['products'])}")
+        if schools:
+            st.markdown("**🎓 Schools**")
+            for s in schools:
+                st.markdown(f"- {s}")
+
+st.subheader("🏭 Industries & Schools Dashboard")
+st.caption(
+    "Every location's factories (name, sector, products) and schools, browsable in one place -- "
+    "purely descriptive, no cost or score effects."
+)
+st.markdown("**Beside the metropole**")
+for name in ["Cunicea", "Răduleni", "Gura Căinarului"]:
+    _industry_school_expander(name)
+
+if st.session_state.metro_active:
+    st.markdown("**Within the metropole**")
+    for name in list(METRO_STRUCTURE) + [s["name"] for s in SUBURBS] + ["Ciripcău"]:
+        _industry_school_expander(name)
+else:
+    st.caption("Establish the metropole (Scenario 1, option B) to see factories and schools across "
+               "the municipalities, suburbs, and Ciripcău too.")
 
 # ---------- Real-time clock loop ----------
 # While auto-play is on, the app sleeps for one tick then reruns itself,
