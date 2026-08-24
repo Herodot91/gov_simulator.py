@@ -21,7 +21,7 @@ export const METRO_STRUCTURE = {
   },
 };
 
-export const SUBURBS = [{ name: "Ghindești" }, { name: "Gura Camencii" }];
+export const SUBURBS = [{ name: "Ghindești" }, { name: "Gura Camencii" }, { name: "Gura Căinarului" }];
 
 export const MUNICIPALITY_COLORS = {
   "Florești Central": "#4cc9f0",

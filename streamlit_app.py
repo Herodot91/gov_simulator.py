@@ -44,7 +44,7 @@ METRO_STRUCTURE = {
                       "Green Belt District", "Artisan Quarter"],
     },
 }
-SUBURBS = [{"name": "Ghindești"}, {"name": "Gura Camencii"}]
+SUBURBS = [{"name": "Ghindești"}, {"name": "Gura Camencii"}, {"name": "Gura Căinarului"}]
 MUNICIPALITY_COLORS = {"Florești Central": "#4cc9f0", "Mărculești": "#8338ec",
                         "Vărvăreuca": "#8ab17d", "Lunga": "#e76f51"}
 INAUGURATION_COST = 15
@@ -552,24 +552,22 @@ FACTORIES = {
 
 # Schools across the metropole and the Prefecture Towns -- "current"
 # (locally-rooted) schools per municipality/town, plus a handful of
-# fictional international schools reflecting the metropole's cosmopolitan,
+# fictional international schools spread one per location across the whole
+# metropole (not all stacked in Florești Central) reflecting its cosmopolitan,
 # industrial/tech-hub character. Giorgetto Giugiaro (the real automotive
 # designer's namesake) sits at Ciripcău deliberately, next to Sigma Motors.
 SCHOOLS = {
     "Florești Central": [
         "Liceul Teoretic Ștefan cel Mare",
         "Școala Profesională din Florești",
-        "Tokugawa International Japanese School",
-        "Abdi İpekçi Türk Lisesi",
         "Fuad Seniora School",
-        "Liceo Español Don Quijote",
-        "Liceo Classico Italiano Giuseppe Verdi",
     ],
-    "Mărculești": ["Liceul Teoretic Mărculești"],
-    "Vărvăreuca": ["Liceul Agricol Vărvăreuca"],
-    "Lunga": ["Școala de Arte și Meserii Lunga"],
-    "Ghindești": ["Școala Profesională — Ghindești Branch"],
+    "Mărculești": ["Liceul Teoretic Mărculești", "Tokugawa International Japanese School"],
+    "Vărvăreuca": ["Liceul Agricol Vărvăreuca", "Liceo Español Don Quijote"],
+    "Lunga": ["Școala de Arte și Meserii Lunga", "Liceo Classico Italiano Giuseppe Verdi"],
+    "Ghindești": ["Școala Profesională — Ghindești Branch", "Abdi İpekçi Türk Lisesi"],
     "Gura Camencii": ["Școala Profesională — Gura Camencii Branch"],
+    "Gura Căinarului": ["Școala Profesională — Gura Căinarului Branch"],
     "Cunicea": ["Liceul Teoretic Cunicea"],
     "Răduleni": ["Liceul Teoretic Răduleni"],
     "Ciripcău": ["Liceo Tecnico Giorgetto Giugiaro"],
@@ -1577,20 +1575,6 @@ st.markdown("#### 🏛️ Prefecture Policies")
 for policy in PREFECTURE_POLICIES:
     render_project(policy, "Prefecture", "prefecture_policy")
 
-st.markdown("#### 🏘️ Prefecture Towns")
-st.caption(
-    "Beside the metropole (with its Technopolis Okrugs and suburbs), two real villages have grown "
-    "into small towns directly under the prefecture, each with its own town council and policies -- "
-    "connected to Florești by regional rail, and to the Metropolitan Ring Road by a regional expressway."
-)
-for town in PREFECTURE_TOWNS:
-    st.markdown(f"**{town['name']}** — {town['note']}")
-    with st.expander(f"🏢 {town['name']} Town Council ({len(town['council'])})"):
-        for d in town["council"]:
-            st.markdown(f"- **{d['name']}** — {d['mandate']}")
-    for policy in TOWN_POLICIES[town["id"]]:
-        render_project(policy, f"{town['name']} Town Council", f"town_policy_{town['id']}")
-
 map_key = "metro_map_active" if st.session_state.metro_active else "metro_map_inactive"
 map_state = st_folium(build_map(), height=520, use_container_width=True, key=map_key)
 
@@ -1835,6 +1819,24 @@ if st.session_state.metro_active:
                 else:
                     st.caption(f"Inaugurate {sel_muni} to unlock projects in this district.")
 
+# Prefecture Towns -- a third branch under the Prefecture, alongside the
+# Metropole (with its Suburbs and Technopolis Okrugs) above: same governance
+# scheme top to bottom -- Prefecture, then the Metropole (drill down into its
+# municipalities/districts by clicking), then the Prefecture's two towns.
+st.markdown("#### 🏘️ Prefecture Towns")
+st.caption(
+    "Beside the metropole (with its Technopolis Okrugs and suburbs), two real villages have grown "
+    "into small towns directly under the prefecture, each with its own town council and policies -- "
+    "connected to Florești by regional rail, and to the Metropolitan Ring Road by a regional expressway."
+)
+for town in PREFECTURE_TOWNS:
+    st.markdown(f"**{town['name']}** — {town['note']}")
+    with st.expander(f"🏢 {town['name']} Town Council ({len(town['council'])})"):
+        for d in town["council"]:
+            st.markdown(f"- **{d['name']}** — {d['mandate']}")
+    for policy in TOWN_POLICIES[town["id"]]:
+        render_project(policy, f"{town['name']} Town Council", f"town_policy_{town['id']}")
+
 # ---------- FlorTech University ----------
 st.subheader("🎓 FlorTech — Florești University of Technology")
 if not st.session_state.metro_active:
@@ -1970,7 +1972,7 @@ st.caption(
     "purely descriptive, no cost or score effects."
 )
 st.markdown("**Beside the metropole**")
-for name in ["Cunicea", "Răduleni", "Gura Căinarului"]:
+for name in ["Cunicea", "Răduleni"]:
     _industry_school_expander(name)
 
 if st.session_state.metro_active:

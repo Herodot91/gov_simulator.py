@@ -57,11 +57,17 @@ export default function GovernanceStructure() {
 
       <PrefectureExpander />
       <PrefecturePolicies />
-      <PrefectureTowns />
 
       <MetroMap />
 
       {state.metroActive && <DrillDown localities={localities} />}
+
+      {/* A third branch under the Prefecture, alongside the Metropole (with
+          its Suburbs and Technopolis Okrugs) above: same governance scheme
+          top to bottom -- Prefecture, then the Metropole (drill down into
+          its municipalities/districts by clicking), then the Prefecture's
+          two towns. */}
+      <PrefectureTowns />
     </section>
   );
 }

@@ -3,7 +3,7 @@ import { useSimState } from "../state/SimulationContext.jsx";
 import { METRO_STRUCTURE, SUBURBS } from "../data/metroStructure.js";
 import { FACTORIES, SCHOOLS } from "../data/directorates.js";
 
-const BESIDE_METROPOLE = ["Cunicea", "Răduleni", "Gura Căinarului"];
+const BESIDE_METROPOLE = ["Cunicea", "Răduleni"];
 
 // Same flat, click-to-browse shape as the Directorates Dashboard: every
 // location's factories (name, sector, products) and schools, laid out in

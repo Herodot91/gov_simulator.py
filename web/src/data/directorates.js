@@ -159,24 +159,22 @@ export const FACTORIES = {
 
 // Schools across the metropole and the Prefecture Towns -- "current"
 // (locally-rooted) schools per municipality/town, plus a handful of
-// fictional international schools reflecting the metropole's cosmopolitan,
+// fictional international schools spread one per location across the whole
+// metropole (not all stacked in Florești Central) reflecting its cosmopolitan,
 // industrial/tech-hub character. Giorgetto Giugiaro (the real automotive
 // designer's namesake) sits at Ciripcău deliberately, next to Sigma Motors.
 export const SCHOOLS = {
   "Florești Central": [
     "Liceul Teoretic Ștefan cel Mare",
     "Școala Profesională din Florești",
-    "Tokugawa International Japanese School",
-    "Abdi İpekçi Türk Lisesi",
     "Fuad Seniora School",
-    "Liceo Español Don Quijote",
-    "Liceo Classico Italiano Giuseppe Verdi",
   ],
-  "Mărculești": ["Liceul Teoretic Mărculești"],
-  "Vărvăreuca": ["Liceul Agricol Vărvăreuca"],
-  "Lunga": ["Școala de Arte și Meserii Lunga"],
-  "Ghindești": ["Școala Profesională — Ghindești Branch"],
+  "Mărculești": ["Liceul Teoretic Mărculești", "Tokugawa International Japanese School"],
+  "Vărvăreuca": ["Liceul Agricol Vărvăreuca", "Liceo Español Don Quijote"],
+  "Lunga": ["Școala de Arte și Meserii Lunga", "Liceo Classico Italiano Giuseppe Verdi"],
+  "Ghindești": ["Școala Profesională — Ghindești Branch", "Abdi İpekçi Türk Lisesi"],
   "Gura Camencii": ["Școala Profesională — Gura Camencii Branch"],
+  "Gura Căinarului": ["Școala Profesională — Gura Căinarului Branch"],
   "Cunicea": ["Liceul Teoretic Cunicea"],
   "Răduleni": ["Liceul Teoretic Răduleni"],
   "Ciripcău": ["Liceo Tecnico Giorgetto Giugiaro"],

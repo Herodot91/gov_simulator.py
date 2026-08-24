@@ -109,8 +109,9 @@ the raion system itself:
 - 4 **municipalities**, each with real local government once inaugurated
   (budget cost + a small Governance/Stability boost), each with 4 named
   districts: Florești Central, Mărculești, Vărvăreuca, Lunga.
-- 2 **suburbs** (Ghindești, Gura Camencii) — administratively dependent on
-  the metropole, no local government of their own.
+- 3 **suburbs** (Ghindești, Gura Camencii, Gura Căinarului) —
+  administratively dependent on the metropole, no local government of
+  their own.
 - 2 **Technopolis Okrugs** (Prajila, Ciripcău) — see below.
 
 ### A second model, alongside the French one: Zelenograd-style okrugs
@@ -192,8 +193,9 @@ as any shared border). The map view is fit tightly to that merged territory
 only (no suburbs, no extra padding out to the full prefecture), computed
 once and baked into `data/floresti_municipalities.geojson`. Inaugurated
 municipalities render with a bright fill; the rest stay muted. Suburbs
-(Ghindești, Gura Camencii) are listed in the app but not drawn on the map
-as territory, keeping its extent to just the 4 merged municipalities —
+(Ghindești, Gura Camencii, Gura Căinarului) are listed in the app but not
+drawn on the map as territory, keeping its extent to just the 4 merged
+municipalities —
 the Technopolis Okrugs get their own dashed-circle map markers instead,
 described above.
 
@@ -450,13 +452,19 @@ villages — **Cunicea** and **Răduleni** (using the real Rădulenii Noi
 locality's coordinates, preferred over Rădulenii Vechi) — have grown into
 small towns directly under the prefecture, each with its own **🏢 Town
 Council** (Department of Local Administration, Department of Public
-Finance) and its own interactive infrastructure-investment policy, shown
-in the Prefecture section right alongside Prefecture Policies. Each town
-is reached by its own Regional Rail line from Florești Central and by the
-Regional Expressway, and gets a 🏘️ sign on the map, now ringed by a
+Finance) and its own interactive infrastructure-investment policy. Each
+town is reached by its own Regional Rail line from Florești Central and
+by the Regional Expressway, and gets a 🏘️ sign on the map, ringed by a
 dashed green 1.4 km territory circle reflecting their expanded land area —
 and, per their own notes, neither town is mono-industrial like the
 Technopolis Okrugs (see Industries & Schools Dashboard below).
+
+The Prefecture section now reads as one consistent scheme top to bottom —
+**Prefecture** (Directorates, Policies) → **Metropole** (map, Suburbs and
+Technopolis Okrugs, then click a municipality to drill into its
+districts) → **Prefecture Towns** — with the two towns shown last, as a
+third branch under the Prefecture alongside the Metropole, rather than
+interleaved between Prefecture Policies and the map.
 
 ### Directorates Dashboard — every tier, one screen
 
@@ -478,23 +486,24 @@ location, showing its factories (name, sector, products) and schools.
 Purely descriptive world-building — no cost, no score effects.
 
 - **Beside the metropole** (always visible): **Cunicea** (Cunicea
-  AutoParts — a Sigma Motors supplier; Cunicea Precision Electronics),
-  **Răduleni** (Răduleni Heavy Components — a PHI supplier), and **Gura
-  Căinarului** (Gura Căinarului Beverage Works) — each town's factory
-  roster backs up its "not mono-industrial" note above.
+  AutoParts — a Sigma Motors supplier; Cunicea Precision Electronics) and
+  **Răduleni** (Răduleni Heavy Components — a PHI supplier) — each town's
+  factory roster backs up its "not mono-industrial" note above.
 - **Within the metropole** (once established): **Florești Central** hosts
   ProMilk, FlorPan, Alfa-Nistru Group, Florești Precision Components
   (precision materials/electronics, echoing Cunicea's own), and Florești
   HPP — the hydroelectric power plant on the Răut river, managed by
   HydroTechnique Ltd. (also its own map sign, see Roads & Key Sites
   above); **Gura Camencii** has a bread factory; **Ghindești** has both a
-  beer factory and Ghindești Zahăr S.A., a sugar-processing plant.
-- **Schools** are listed the same way per location — each municipality's
-  own real-named school(s) (e.g. Liceul Teoretic Ștefan cel Mare at
-  Florești Central) plus, concentrated at Florești Central as the
-  metropole's cosmopolitan hub, five fictional international schools:
-  Tokugawa International Japanese School, Abdi İpekçi Türk Lisesi, Fuad
-  Seniora School, Liceo Español Don Quijote, and Liceo Classico Italiano
-  Giuseppe Verdi. A sixth, **Liceo Tecnico Giorgetto Giugiaro**, sits
-  deliberately at Ciripcău next to Sigma Motors — a thematic pairing with
-  the real automotive designer's namesake.
+  beer factory and Ghindești Zahăr S.A., a sugar-processing plant; **Gura
+  Căinarului** (now a suburb, see above) has the Beverage Works.
+- **Schools** are listed the same way per location, spread across the
+  whole metropole rather than stacked in one place — each
+  municipality/suburb's own real-named school(s) (e.g. Liceul Teoretic
+  Ștefan cel Mare at Florești Central) plus one fictional international
+  school each: Fuad Seniora School at Florești Central, Tokugawa
+  International Japanese School at Mărculești, Liceo Español Don Quijote
+  at Vărvăreuca, Liceo Classico Italiano Giuseppe Verdi at Lunga, Abdi
+  İpekçi Türk Lisesi at Ghindești, and **Liceo Tecnico Giorgetto
+  Giugiaro** deliberately at Ciripcău next to Sigma Motors — a thematic
+  pairing with the real automotive designer's namesake.
