@@ -542,6 +542,26 @@
   margin-top: 18px;
 }
 
+.expander-nested {
+  margin: 8px 0 0;
+}
+
+.expander-nested .expander-toggle {
+  padding: 8px 12px;
+  font-size: 13px;
+  background: #f3f5f9;
+}
+
+.expander-nested .suburb-list {
+  padding: 8px 18px 10px;
+  font-size: 13px;
+}
+
+.technopolis-body h4 {
+  margin: 4px 0 2px;
+  font-size: 15px;
+}
+
 .masterplan-body {
   padding: 14px 18px 18px;
 }

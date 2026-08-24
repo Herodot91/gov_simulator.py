@@ -54,7 +54,7 @@ INAUGURATION_COST = 15
 # Real villages, well outside the metropole's own territory, each sponsored
 # as a single-company technopolis rather than folded into ordinary municipal
 # structure. Structural world-building, not a scenario -- no cost, no score
-# effects, nothing to click through.
+# effects to the sim, but each company's product line is browsable.
 TECHNOPOLIS_OKRUGS = [
     {
         "name": "Prajila",
@@ -69,6 +69,121 @@ TECHNOPOLIS_OKRUGS = [
         "note": "Coupé, hatchback, and urban SUV lines built for the domestic and regional market.",
     },
 ]
+
+# Each Technopolis Okrug's flagship company has a browsable product line --
+# real-shaped catalogs (named models, a category, a one-line spec), not
+# just the company name.
+COMPANY_PRODUCTS = {
+    "PHI — Prajila Heavy Industry": [
+        {"model": "PHI EX200", "category": "Hydraulic Excavator", "spec": "20-tonne class, 120 kW"},
+        {"model": "PHI EX450", "category": "Hydraulic Excavator", "spec": "45-tonne class, 260 kW"},
+        {"model": "PHI WL180", "category": "Wheel Loader", "spec": "3.0 m³ bucket, 130 kW"},
+        {"model": "PHI D8T", "category": "Crawler Dozer", "spec": "310 kW, semi-U blade"},
+        {"model": "PHI MG3000", "category": "Motor Grader", "spec": "3.7 m moldboard, 165 kW"},
+        {"model": "PHI CR650", "category": "Crawler Crane", "spec": "65-tonne lift capacity"},
+        {"model": "PHI RT100", "category": "Rough-Terrain Crane", "spec": "100-tonne lift capacity"},
+        {"model": "PHI HD400", "category": "Rigid Dump Truck", "spec": "40-tonne payload"},
+        {"model": "PHI ADT300", "category": "Articulated Dump Truck", "spec": "30-tonne payload, 6x6"},
+        {"model": "PHI SK150", "category": "Skid-Steer Loader", "spec": "1,500 kg rated operating capacity"},
+    ],
+    "Sigma Motors": [
+        {"model": "Sigma Vela", "category": "Coupé", "spec": "Electric, 420 km range, 0–100 km/h in 5.4s"},
+        {"model": "Sigma Brio", "category": "Hatchback", "spec": "Hybrid, 4.2 L/100km combined"},
+        {"model": "Sigma Brio-e", "category": "Hatchback", "spec": "Electric, 340 km range"},
+        {"model": "Sigma Terra", "category": "Urban SUV", "spec": "Electric, 460 km range, AWD"},
+        {"model": "Sigma Terra Hybrid", "category": "Urban SUV", "spec": "Plug-in hybrid, 65 km EV range"},
+    ],
+}
+
+# FlorTech — Florești University of Technology: a mass development that
+# grows the real Școala Profesională din Florești (kept alongside, as
+# vocational institutes) into a full university, with campuses spread
+# across the metropole's municipalities, its suburbs, and the two
+# Technopolis Okrugs. Structural world-building like the okrugs above --
+# browsable, not simulated.
+FLORTECH = {
+    "name": "FlorTech — Florești University of Technology",
+    "origin": (
+        "Grown out of the real Școala Profesională din Florești, whose vocational programs "
+        "continue alongside the new university rather than being replaced by it."
+    ),
+    "campuses": [
+        {
+            "id": "central",
+            "name": "FlorTech Central Campus",
+            "location": "Florești Central — Politeh District",
+            "levels": ["BEng", "BSc", "MEng", "MSc", "PhD", "Postdoc"],
+            "faculties": [
+                {"name": "Faculty of Electrical, Electronics & Telecommunications",
+                 "departments": ["Electrical Engineering", "Electronics & Microelectronics",
+                                 "Telecommunications", "Programming & Cybersecurity"]},
+                {"name": "Faculty of Civil Engineering, Architecture & Urban Planning",
+                 "departments": ["Construction Engineering", "Architecture", "Urban Planning"]},
+                {"name": "Faculty of Engineering Economics & Management",
+                 "departments": ["Engineering Economics"]},
+            ],
+        },
+        {
+            "id": "marculesti",
+            "name": "FlorTech Mărculești Campus",
+            "location": "Mărculești — Aviagorodok",
+            "levels": ["BEng", "BSc", "MEng", "MSc"],
+            "faculties": [
+                {"name": "Faculty of Transportation & Automation Engineering",
+                 "departments": ["Transportation Engineering", "Automation & Computer Engineering"]},
+            ],
+        },
+        {
+            "id": "varvareuca",
+            "name": "FlorTech Vărvăreuca Campus",
+            "location": "Vărvăreuca — Agricultural District",
+            "levels": ["BEng", "BSc", "MSc"],
+            "faculties": [
+                {"name": "Faculty of Natural Sciences & Process Engineering",
+                 "departments": ["Applied Natural Sciences in Engineering", "Food Engineering"]},
+            ],
+        },
+        {
+            "id": "lunga",
+            "name": "FlorTech Lunga Campus",
+            "location": "Lunga — Artisan Quarter",
+            "levels": ["BEng", "BSc", "MSc"],
+            "faculties": [
+                {"name": "Faculty of Design",
+                 "departments": ["Industrial Design", "Interior Design", "Textile Engineering & Design"]},
+            ],
+        },
+        {
+            "id": "prajila",
+            "name": "FlorTech Prajila Campus (PHI-sponsored)",
+            "location": "Prajila Technopolis Okrug",
+            "levels": ["BEng", "MEng", "MSc"],
+            "faculties": [
+                {"name": "Faculty of Mechanical & Heavy Industry Engineering",
+                 "departments": ["Mechanical Engineering", "Industrial Engineering",
+                                 "Construction Engineering", "Mining Engineering (incl. Oil & Gas)",
+                                 "Robotics & Mechatronics"]},
+            ],
+        },
+        {
+            "id": "ciripcau",
+            "name": "FlorTech Ciripcău Campus (Sigma Motors-sponsored)",
+            "location": "Ciripcău Technopolis Okrug",
+            "levels": ["BEng", "MEng", "MSc"],
+            "faculties": [
+                {"name": "Faculty of Automotive Engineering & Design",
+                 "departments": ["Automotive Design", "Electrical Engineering (EV Systems)",
+                                 "Robotics & Mechatronics"]},
+            ],
+        },
+    ],
+    "vocational_institutes": [
+        {"id": "ghindesti", "name": "Școala Profesională — Ghindești Branch", "location": "Ghindești (suburb)",
+         "tracks": ["Electrical Technician", "Automotive Mechanic", "Welding & Metalwork", "CNC Machining"]},
+        {"id": "guracamencii", "name": "Școala Profesională — Gura Camencii Branch", "location": "Gura Camencii (suburb)",
+         "tracks": ["Construction Trades", "HVAC Technician", "Industrial Maintenance"]},
+    ],
+}
 
 
 @st.cache_data
@@ -261,6 +376,7 @@ def reset_simulation(start_budget):
     st.session_state.selected_municipality = None
     st.session_state.selected_district = None
     st.session_state.resolved_projects = {}
+    st.session_state.selected_campus = None
 
 
 if "scores" not in st.session_state:
@@ -771,6 +887,10 @@ if st.session_state.metro_active:
                     f"**{loc['display_name']}** ({loc['type']}) — {okrug['company']}  \n"
                     f"*{okrug['sector']}.* {okrug['note']}"
                 )
+                products = COMPANY_PRODUCTS.get(okrug["company"], [])
+                with st.expander(f"🔧 {okrug['company']} — product line ({len(products)})"):
+                    for p in products:
+                        st.markdown(f"- **{p['model']}** — {p['category']} · {p['spec']}")
 
         st.markdown("#### 🏗️ Metropolitan Projects")
         for project in METRO_PROJECTS:
@@ -848,6 +968,42 @@ if st.session_state.metro_active:
                         render_project(project, f"{sel_dist} district", "district_project")
                 else:
                     st.caption(f"Inaugurate {sel_muni} to unlock projects in this district.")
+
+# ---------- FlorTech University ----------
+st.subheader("🎓 FlorTech — Florești University of Technology")
+if not st.session_state.metro_active:
+    st.info("FlorTech's campuses come online once the metropole is established "
+            "(Scenario 1, option B).")
+else:
+    st.caption(FLORTECH["origin"])
+    sel_campus_id = st.session_state.selected_campus
+
+    if sel_campus_id is None:
+        st.write("👆 Click a campus for its faculties, departments, and programs:")
+        campus_cols = st.columns(3)
+        for i, campus in enumerate(FLORTECH["campuses"]):
+            with campus_cols[i % 3]:
+                if st.button(campus["name"], key=f"select_campus_{campus['id']}", use_container_width=True):
+                    st.session_state.selected_campus = campus["id"]
+                    st.rerun()
+
+        with st.expander(
+            f"🛠️ Vocational Institutes ({len(FLORTECH['vocational_institutes'])}) — "
+            "Școala Profesională legacy tracks, kept alongside FlorTech"
+        ):
+            for inst in FLORTECH["vocational_institutes"]:
+                st.markdown(f"**{inst['name']}** — {inst['location']}  \n{', '.join(inst['tracks'])}")
+    else:
+        campus = next(c for c in FLORTECH["campuses"] if c["id"] == sel_campus_id)
+        if st.button("← Back to FlorTech", key="back_to_flortech"):
+            st.session_state.selected_campus = None
+            st.rerun()
+        st.markdown(f"### {campus['name']}")
+        st.caption(f"{campus['location']} · Degree levels: {', '.join(campus['levels'])}")
+        for fac in campus["faculties"]:
+            st.markdown(f"#### {fac['name']}")
+            for dept in fac["departments"]:
+                st.markdown(f"- **{dept}** — {', '.join(campus['levels'])}")
 
 # ---------- Real-time clock loop ----------
 # While auto-play is on, the app sleeps for one tick then reruns itself,

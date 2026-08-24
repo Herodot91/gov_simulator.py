@@ -6,6 +6,7 @@ import ScoreChart from "./components/ScoreChart.jsx";
 import ExportPanel from "./components/ExportPanel.jsx";
 import CitizenProgressCard from "./components/CitizenProgressCard.jsx";
 import GovernanceStructure from "./components/GovernanceStructure.jsx";
+import FlorTechSection from "./components/FlorTechSection.jsx";
 import "./App.css";
 
 function AppShell() {
@@ -28,6 +29,7 @@ function AppShell() {
         </div>
 
         <GovernanceStructure />
+        <FlorTechSection />
       </main>
     </div>
   );

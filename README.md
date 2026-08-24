@@ -125,8 +125,12 @@ into ordinary municipal government:
 
 This is structural world-building, not a scenario: it's shown as a plain
 info panel (🏭 Technopolis Okrugs, next to the 🏘️ Suburbs panel at the
-Metropole layer) with no budget cost, no score effects, and nothing to
-click through.
+Metropole layer) with no budget cost, no score effects. Each company's
+name is itself a nested expander — 🔧 *Company — product line (n)* — with
+a browsable catalog of its named models: PHI's 10-model heavy-equipment
+line (excavators, wheel loaders, dozers, graders, cranes, dump trucks,
+a skid-steer), and Sigma Motors' 5-model hybrid/EV line (coupé, hatchback
+in both hybrid and EV trims, urban SUV in both trims).
 
 Both okrugs are also marked directly on the metropole map itself — a small
 dashed gold circle at each village's real coordinates (distinct from the
@@ -181,5 +185,60 @@ as any shared border). The map view is fit tightly to that merged territory
 only (no suburbs, no extra padding out to the full prefecture), computed
 once and baked into `data/floresti_municipalities.geojson`. Inaugurated
 municipalities render with a bright fill; the rest stay muted. Suburbs
-(Ghindești, Gura Camencii, Prajila) are listed in the app but not drawn on
-the map, keeping its extent to just the 4 merged municipalities.
+(Ghindești, Gura Camencii) are listed in the app but not drawn on the map
+as territory, keeping its extent to just the 4 merged municipalities —
+the Technopolis Okrugs get their own dashed-circle map markers instead,
+described above.
+
+## FlorTech — Florești University of Technology
+
+A second piece of structural world-building, alongside the Technopolis
+Okrugs: a mass development that grows the real **Școala Profesională din
+Florești** (a real vocational school) into a full technical university,
+without replacing it — the vocational tracks continue to run alongside
+the new university, not folded into it.
+
+Shown as its own top-level panel (🎓 FlorTech — Florești University of
+Technology), right after the Governance Structure panel, once the
+metropole is established. It has no cost or score effects — it's browsable
+content, same as the Technopolis Okrugs.
+
+- **6 campuses**, spread across the metropole's municipalities, its
+  suburbs, and the two Technopolis Okrugs, each tied to that location's own
+  theming already established elsewhere in the app:
+  - **Central Campus** (Florești Central, Politeh District) — Electrical/
+    Electronics/Telecom + Programming & Cybersecurity; Civil Engineering,
+    Architecture & Urban Planning; Engineering Economics.
+  - **Mărculești Campus** (Aviagorodok) — Transportation Engineering,
+    Automation & Computer Engineering.
+  - **Vărvăreuca Campus** (Agricultural District) — Applied Natural
+    Sciences in Engineering, Food Engineering.
+  - **Lunga Campus** (Artisan Quarter) — Industrial Design, Interior
+    Design, Textile Engineering & Design.
+  - **Prajila Campus** (PHI-sponsored) — Mechanical, Industrial, and
+    Construction Engineering, Mining (incl. Oil & Gas), Robotics &
+    Mechatronics — mirroring PHI's own heavy-machinery identity.
+  - **Ciripcău Campus** (Sigma Motors-sponsored) — Automotive Design,
+    Electrical Engineering (EV Systems), Robotics & Mechatronics —
+    mirroring Sigma Motors' own EV identity.
+
+  Between them, the 6 campuses cover every field requested: design
+  (automotive, industrial, interior), engineering economics, robotics &
+  mechatronics, applied natural sciences in engineering, architecture,
+  urban planning, mechanical engineering, transportation engineering,
+  electrical engineering, industrial engineering, construction
+  engineering, programming & cybersecurity, telecommunications,
+  electronics & microelectronics, mining (incl. oil & gas), textile
+  engineering & design, food engineering, and automation & computer
+  science/engineering.
+
+- Click a campus to drill into its faculties and departments, each
+  department offered at that campus's own degree levels — up to BEng,
+  BSc, MEng, MSc, PhD, and Postdoc at the flagship Central Campus, a
+  narrower BEng/MEng/MSc band at the specialist campuses. "← Back to
+  FlorTech" returns to the campus grid.
+- A **🛠️ Vocational Institutes** expander lists the two branches keeping
+  Școala Profesională's own non-degree tracks running: Electrical
+  Technician, Automotive Mechanic, Welding & Metalwork, CNC Machining
+  (Ghindești branch), and Construction Trades, HVAC Technician, Industrial
+  Maintenance (Gura Camencii branch).

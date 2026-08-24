@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSimState, useSimActions } from "../state/SimulationContext.jsx";
 import { METRO_STRUCTURE, SUBURBS, INAUGURATION_COST, TECHNOPOLIS_OKRUGS } from "../data/metroStructure.js";
 import { METRO_PROJECTS, MUNICIPALITY_PROJECTS, DISTRICT_PROJECTS, districtProjectKey } from "../data/projects.js";
+import { COMPANY_PRODUCTS } from "../data/companies.js";
 import MetroMap, { findLocality } from "./MetroMap.jsx";
 import ProjectCard from "./ProjectCard.jsx";
 import CbdMasterplan from "./CbdMasterplan.jsx";
@@ -187,6 +188,28 @@ function SuburbsExpander({ localities }) {
   );
 }
 
+function CompanyProducts({ company }) {
+  const [open, setOpen] = useState(false);
+  const products = COMPANY_PRODUCTS[company] || [];
+  return (
+    <div className="expander expander-nested">
+      <button className="expander-toggle" onClick={() => setOpen((o) => !o)}>
+        <span className={`expander-caret ${open ? "open" : ""}`}>›</span>
+        🔧 {company} — product line ({products.length})
+      </button>
+      {open && (
+        <ul className="suburb-list">
+          {products.map((p) => (
+            <li key={p.model}>
+              <strong>{p.model}</strong> — {p.category} · {p.spec}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function TechnopolisExpander({ localities }) {
   const [open, setOpen] = useState(false);
   return (
@@ -214,6 +237,7 @@ function TechnopolisExpander({ localities }) {
                   <span className="caption">
                     <em>{okrug.sector}.</em> {okrug.note}
                   </span>
+                  <CompanyProducts company={okrug.company} />
                 </li>
               );
             })}
