@@ -8,13 +8,14 @@ export const SCENARIOS = [
     intl: "France's Ministry of the Interior offers a prefecture-partnership model.",
   },
   {
-    title: "Create Technical University in Bender",
+    title: "Technical University Investment in Florești",
     options: {
       A: ["Skip investment", { Economy: -5 }, 0],
       B: ["IT faculty only", { Economy: +5 }, 15],
       C: ["Full technical university", { Economy: +10, Governance: +5 }, 25],
     },
-    intl: "Russia warns against outside influence.",
+    intl: "Local employers and the EU push to expand Școala Profesională into a full " +
+      "technical university — the seed of what will grow into FlorTech.",
   },
   {
     title: "Digital Justice & Procurement Reform",
@@ -33,12 +34,12 @@ export const SCENARIOS = [
     intl: "UN welcomes clean tech expansion.",
   },
   {
-    title: "Education: New Agricultural Universities",
+    title: "Education: New Agricultural College in Vărvăreuca",
     options: {
-      A: ["EU model in Taul, Karmanovo", { Economy: +5, Stability: +5 }, 25],
+      A: ["Build it, EU model", { Economy: +5, Stability: +5 }, 25],
       B: ["Keep colleges as-is", { Economy: -5 }, 0],
     },
-    intl: "Foreign students show interest in Moldova.",
+    intl: "Foreign students show interest in Vărvăreuca's Agricultural District.",
   },
 ];
 

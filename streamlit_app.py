@@ -239,11 +239,12 @@ SCENARIOS = [
                  "B": ("Establish Florești Metropole (mixed decentralization)",
                         {"Governance": +10, "Stability": +5}, 20)},
      "intl": "France's Ministry of the Interior offers a prefecture-partnership model."},
-    {"title": "Create Technical University in Bender",
+    {"title": "Technical University Investment in Florești",
      "options": {"A": ("Skip investment", {"Economy": -5}, 0),
                  "B": ("IT faculty only", {"Economy": +5}, 15),
                  "C": ("Full technical university", {"Economy": +10, "Governance": +5}, 25)},
-     "intl": "Russia warns against outside influence."},
+     "intl": "Local employers and the EU push to expand Școala Profesională into a full "
+             "technical university — the seed of what will grow into FlorTech."},
     {"title": "Digital Justice & Procurement Reform",
      "options": {"A": ("Delay reform", {"Governance": -5}, 0),
                  "B": ("Implement transparency tools", {"Governance": +10, "Risk": -5}, 15)},
@@ -252,10 +253,10 @@ SCENARIOS = [
      "options": {"A": ("One per region", {"Economy": +5}, 20),
                  "B": ("Ignore sector", {"Economy": -5}, 0)},
      "intl": "UN welcomes clean tech expansion."},
-    {"title": "Education: New Agricultural Universities",
-     "options": {"A": ("EU model in Taul, Karmanovo", {"Economy": +5, "Stability": +5}, 25),
+    {"title": "Education: New Agricultural College in Vărvăreuca",
+     "options": {"A": ("Build it, EU model", {"Economy": +5, "Stability": +5}, 25),
                  "B": ("Keep colleges as-is", {"Economy": -5}, 0)},
-     "intl": "Foreign students show interest in Moldova."},
+     "intl": "Foreign students show interest in Vărvăreuca's Agricultural District."},
 ]
 
 # Layer-scoped development projects — same interactive shape as SCENARIOS
