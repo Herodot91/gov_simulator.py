@@ -331,6 +331,21 @@ PROJECT_MAP_LOCATIONS = {
     "school_reconstruction": {"type": "point", "coord": (_LUNGA_PT[0] - 0.0035, _LUNGA_PT[1] + 0.003)},
 }
 
+# Where each FlorTech campus marker sits -- offset a little from its
+# municipality's/okrug's own anchor point so it doesn't sit exactly on top
+# of that label. Prajila/Ciripcău use their real village coordinates
+# (see floresti_localities.json) since they have no separate anchor const.
+_PRAJILA_PT = (47.84049, 28.2100662)
+_CIRIPCAU_PT = (47.9835655, 28.3808055)
+FLORTECH_CAMPUS_LOCATIONS = {
+    "central": (_FLORESTI_PT[0] + 0.0035, _FLORESTI_PT[1] - 0.0035),
+    "marculesti": (_MARCULESTI_PT[0] - 0.0035, _MARCULESTI_PT[1] - 0.0035),
+    "varvareuca": (_VARVAREUCA_PT[0] + 0.0035, _VARVAREUCA_PT[1] - 0.0035),
+    "lunga": (_LUNGA_PT[0], _LUNGA_PT[1] + 0.006),
+    "prajila": (_PRAJILA_PT[0] + 0.003, _PRAJILA_PT[1] + 0.003),
+    "ciripcau": (_CIRIPCAU_PT[0] + 0.003, _CIRIPCAU_PT[1] + 0.003),
+}
+
 # Ambient events that fire on their own once the clock is live, independent of
 # the scripted policy decisions above — this is what makes the world keep
 # moving in real time even while the player is deliberating.
@@ -617,6 +632,19 @@ def build_map():
               f"🏭 {loc['display_name']}<br><span style='font-weight:400;font-size:10px;'>{okrug['company']}</span>",
               "#7a5c00", size=11)
 
+    # FlorTech campuses -- point markers, not territory (a campus isn't its
+    # own governance unit). Clicking one drills into its faculties, same as
+    # clicking a municipality's shape drills into its districts.
+    campus_icon_html = ('<div style="font-size:18px;line-height:1;'
+                         'transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🎓</div>')
+    for campus in FLORTECH["campuses"]:
+        lat, lon = FLORTECH_CAMPUS_LOCATIONS[campus["id"]]
+        folium.Marker(
+            location=[lat, lon],
+            icon=folium.DivIcon(html=campus_icon_html),
+            tooltip=f"🎓 {campus['name']} — FlorTech campus",
+        ).add_to(m)
+
     # Resolved projects (any layer) get a marker/line on the map — only ones
     # actually decided on (not skipped), so the map reflects real choices.
     all_projects = (
@@ -850,6 +878,14 @@ if st.session_state.metro_active and map_state and map_state.get("last_object_cl
         if clicked_tooltip.startswith(muni_name) and st.session_state.selected_municipality != muni_name:
             st.session_state.selected_municipality = muni_name
             st.session_state.selected_district = None
+            st.rerun()
+    # Clicking a FlorTech campus marker on the map drills into it, same as
+    # clicking its button below -- the marker's tooltip carries the campus
+    # name, same pattern as municipality clicks above.
+    for campus in FLORTECH["campuses"]:
+        campus_tooltip_prefix = f"🎓 {campus['name']}"
+        if clicked_tooltip.startswith(campus_tooltip_prefix) and st.session_state.selected_campus != campus["id"]:
+            st.session_state.selected_campus = campus["id"]
             st.rerun()
 
 if st.session_state.metro_active:

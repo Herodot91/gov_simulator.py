@@ -4,6 +4,7 @@ import L from "leaflet";
 import { useSimState, useSimActions } from "../state/SimulationContext.jsx";
 import { METRO_STRUCTURE, MUNICIPALITY_COLORS, TECHNOPOLIS_OKRUGS } from "../data/metroStructure.js";
 import { allProjectsWithScope, PROJECT_MAP_LOCATIONS } from "../data/projects.js";
+import { FLORTECH, FLORTECH_CAMPUS_LOCATIONS } from "../data/flortech.js";
 import { pointInGeometry, geometryBounds, representativePoint, geometryParts, zoomForBounds, toLatLng } from "../utils/geo.js";
 
 const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png";
@@ -23,6 +24,12 @@ function labelIcon(text, color) {
 function projectIcon() {
   return divIcon(
     '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🏗️</div>'
+  );
+}
+
+function campusIcon() {
+  return divIcon(
+    '<div style="font-size:18px;line-height:1;transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🎓</div>'
   );
 }
 
@@ -191,6 +198,23 @@ export default function MetroMap() {
                   )}
                 />
               </div>
+            );
+          })}
+
+        {state.metroActive &&
+          FLORTECH.campuses.map((campus) => {
+            const pos = FLORTECH_CAMPUS_LOCATIONS[campus.id];
+            if (!pos) return null;
+            return (
+              <Marker
+                key={campus.id}
+                position={pos}
+                icon={campusIcon()}
+                eventHandlers={{
+                  add: (e) => e.target.bindTooltip(`🎓 ${campus.name} — FlorTech campus`),
+                  click: () => actions.selectCampus(campus.id),
+                }}
+              />
             );
           })}
 

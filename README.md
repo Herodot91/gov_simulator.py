@@ -237,6 +237,10 @@ content, same as the Technopolis Okrugs.
   BSc, MEng, MSc, PhD, and Postdoc at the flagship Central Campus, a
   narrower BEng/MEng/MSc band at the specialist campuses. "← Back to
   FlorTech" returns to the campus grid.
+- Each campus also gets its own 🎓 marker on the metropole map itself, at
+  a point near its home municipality/okrug — click the marker (same as
+  clicking a municipality's shape, or an okrug's circle) to drill straight
+  into that campus's detail, no need to scroll to the campus grid first.
 - A **🛠️ Vocational Institutes** expander lists the two branches keeping
   Școala Profesională's own non-degree tracks running: Electrical
   Technician, Automotive Mechanic, Welding & Metalwork, CNC Machining

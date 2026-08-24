@@ -106,3 +106,24 @@ export const FLORTECH = {
     },
   ],
 };
+
+// Where each campus marker sits on the map -- offset a little from its
+// municipality's/okrug's own anchor point so it doesn't sit exactly on top
+// of that label. Same reference points as web/src/data/projects.js
+// (Prajila/Ciripcău use their real village coordinates -- see
+// public/data/floresti_localities.json).
+const FLORESTI_PT = [47.8938318, 28.2996474];
+const MARCULESTI_PT = [47.8693441, 28.2415422];
+const VARVAREUCA_PT = [47.8798617, 28.3113869];
+const LUNGA_PT = [47.8617078, 28.231765];
+const PRAJILA_PT = [47.84049, 28.2100662];
+const CIRIPCAU_PT = [47.9835655, 28.3808055];
+
+export const FLORTECH_CAMPUS_LOCATIONS = {
+  central: [FLORESTI_PT[0] + 0.0035, FLORESTI_PT[1] - 0.0035],
+  marculesti: [MARCULESTI_PT[0] - 0.0035, MARCULESTI_PT[1] - 0.0035],
+  varvareuca: [VARVAREUCA_PT[0] + 0.0035, VARVAREUCA_PT[1] - 0.0035],
+  lunga: [LUNGA_PT[0], LUNGA_PT[1] + 0.006],
+  prajila: [PRAJILA_PT[0] + 0.003, PRAJILA_PT[1] + 0.003],
+  ciripcau: [CIRIPCAU_PT[0] + 0.003, CIRIPCAU_PT[1] + 0.003],
+};
