@@ -324,3 +324,36 @@ stops in order.
 - The map's auto-fit view widens once more (past the Technopolis Okrugs)
   to keep the whole network in frame, including Gura Căinarului out past
   Prajila to the west.
+
+## Directorates & Departments
+
+The app is built for real users at each governance tier — the
+metropolitan council, the prefecture, a municipal council, a district
+office — to work through policy and project decisions the way their own
+administration is actually organized. Every tier now shows its own
+organizational chart: purely descriptive world-building (no cost, no
+score effects), same shape as everything else in this section.
+
+- **🏛️ Florești Prefecture — Directorates (4)**, shown at the top of the
+  Governance Structure section regardless of whether the metropole has
+  been established — the prefecture is the outer state tier the metropole
+  gets carved out of, so it's in effect either way. Public Order & Civil
+  Protection, State Finance & Treasury Oversight, Public Administration &
+  Legal Affairs, Civil Registry & Documents.
+- **🏢 Metropolitan Council — Directorates (6)**, alongside Suburbs,
+  Technopolis Okrugs, and the transit network at the Metropole layer, once
+  established: Urban Planning & Territorial Development, Transport &
+  Infrastructure, Economic Development & Investment, Environment &
+  Sustainability, Education & Culture, Health & Social Assistance.
+- **🏢 Departments (3 each)**, one per municipality, shown in that
+  municipality's own drill-down view: two generic departments every
+  municipality needs (Municipal Finance, Public Services) plus one
+  thematic department tied to its established identity — Urban
+  Development & CBD Management at Florești Central, Transport & Airport
+  Liaison at Mărculești, Agriculture & Rural Development at Vărvăreuca,
+  Local Economy & Crafts at Lunga.
+- **🏢 Civic Office**, one per district (16 total), shown in that
+  district's own drill-down view — districts sit below the municipal
+  tier, so each gets a single lightweight office (e.g. "Politeh Civic
+  Office") rather than a full directorate roster of its own, framed as a
+  first-line liaison to its municipality's council.

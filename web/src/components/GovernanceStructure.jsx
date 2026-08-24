@@ -4,6 +4,12 @@ import { METRO_STRUCTURE, SUBURBS, INAUGURATION_COST, TECHNOPOLIS_OKRUGS } from 
 import { METRO_PROJECTS, MUNICIPALITY_PROJECTS, DISTRICT_PROJECTS, districtProjectKey } from "../data/projects.js";
 import { COMPANY_PRODUCTS } from "../data/companies.js";
 import { TRANSIT_LINES, transitInterchanges } from "../data/transit.js";
+import {
+  PREFECTURE_DIRECTORATES,
+  METRO_COUNCIL_DIRECTORATES,
+  MUNICIPALITY_DEPARTMENTS,
+  districtOffice,
+} from "../data/directorates.js";
 import MetroMap, { findLocality } from "./MetroMap.jsx";
 import ProjectCard from "./ProjectCard.jsx";
 import CbdMasterplan from "./CbdMasterplan.jsx";
@@ -38,6 +44,8 @@ export default function GovernanceStructure() {
         </p>
       )}
 
+      <PrefectureExpander />
+
       <MetroMap />
 
       {state.metroActive && <DrillDown localities={localities} />}
@@ -69,6 +77,7 @@ function DrillDown({ localities }) {
         <SuburbsExpander localities={localities} />
         <TechnopolisExpander localities={localities} />
         <TransitExpander />
+        <MetroCouncilExpander />
 
         <h4>🏗️ Metropolitan Projects</h4>
         {METRO_PROJECTS.map((p) => (
@@ -89,6 +98,8 @@ function DrillDown({ localities }) {
         <button className="btn btn-back" onClick={() => actions.backToMetro()}>← Back to Metropole</button>
         <h3 className="muni-heading">{selMuni} {active ? "✅ inaugurated" : ""}</h3>
         {anchor && <p className="caption">Anchor: {anchor.display_name}</p>}
+
+        <MunicipalityDepartmentsExpander municipality={selMuni} />
 
         <p className="hint">👆 Click a district for details:</p>
         <div className="muni-grid">
@@ -131,6 +142,7 @@ function DrillDown({ localities }) {
       <button className="btn btn-back" onClick={() => actions.backToMunicipality()}>← Back to {selMuni}</button>
       <h3 className="muni-heading">{selDist}</h3>
       <p className="caption">District of <strong>{selMuni}</strong>, Florești Metropole.</p>
+      <DistrictOffice municipality={selMuni} district={selDist} />
       {active ? (
         <div className="callout callout-info">
           This district shares in its municipality's local government, inaugurated as part of the
@@ -163,6 +175,37 @@ function DrillDown({ localities }) {
         </>
       )}
     </>
+  );
+}
+
+function MunicipalityDepartmentsExpander({ municipality }) {
+  const [open, setOpen] = useState(false);
+  const departments = MUNICIPALITY_DEPARTMENTS[municipality] || [];
+  return (
+    <div className="expander">
+      <button className="expander-toggle" onClick={() => setOpen((o) => !o)}>
+        <span className={`expander-caret ${open ? "open" : ""}`}>›</span>
+        🏢 {municipality} — Departments ({departments.length})
+      </button>
+      {open && (
+        <ul className="suburb-list">
+          {departments.map((d) => (
+            <li key={d.name}>
+              <strong>{d.name}</strong> — {d.mandate}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function DistrictOffice({ municipality, district }) {
+  const office = districtOffice(municipality, district);
+  return (
+    <p className="caption">
+      🏢 <strong>{office.name}</strong> — {office.mandate}
+    </p>
   );
 }
 
@@ -204,6 +247,54 @@ function CompanyProducts({ company }) {
           {products.map((p) => (
             <li key={p.model}>
               <strong>{p.model}</strong> — {p.category} · {p.spec}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function PrefectureExpander() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="expander">
+      <button className="expander-toggle" onClick={() => setOpen((o) => !o)}>
+        <span className={`expander-caret ${open ? "open" : ""}`}>›</span>
+        🏛️ Florești Prefecture — Directorates ({PREFECTURE_DIRECTORATES.length})
+      </button>
+      {open && (
+        <div className="technopolis-body">
+          <p className="caption">
+            The French-style prefecture's own deconcentrated state administration, in effect regardless
+            of whether the metropole has been established — the state tier the metropole is carved out of.
+          </p>
+          <ul className="suburb-list">
+            {PREFECTURE_DIRECTORATES.map((d) => (
+              <li key={d.name}>
+                <strong>{d.name}</strong> — {d.mandate}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MetroCouncilExpander() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="expander">
+      <button className="expander-toggle" onClick={() => setOpen((o) => !o)}>
+        <span className={`expander-caret ${open ? "open" : ""}`}>›</span>
+        🏢 Metropolitan Council — Directorates ({METRO_COUNCIL_DIRECTORATES.length})
+      </button>
+      {open && (
+        <ul className="suburb-list">
+          {METRO_COUNCIL_DIRECTORATES.map((d) => (
+            <li key={d.name}>
+              <strong>{d.name}</strong> — {d.mandate}
             </li>
           ))}
         </ul>

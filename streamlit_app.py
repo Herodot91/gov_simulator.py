@@ -48,6 +48,77 @@ MUNICIPALITY_COLORS = {"Florești Central": "#4cc9f0", "Mărculești": "#8338ec"
                         "Vărvăreuca": "#8ab17d", "Lunga": "#e76f51"}
 INAUGURATION_COST = 15
 
+# The app is built for real local-government users at each tier -- the
+# metropolitan council, the prefecture, each municipal council, each
+# district office -- to explore policy and project decisions the way
+# their own administration is actually organized: into directorates
+# (state/metro tier) and departments (municipal/district tier). Purely
+# descriptive world-building, same non-interactive shape as the
+# Technopolis Okrugs/FlorTech/AgroFlor/transit network -- no cost, no
+# score effects.
+PREFECTURE_DIRECTORATES = [
+    {"name": "Directorate of Public Order & Civil Protection",
+     "mandate": "Policing coordination, emergency services, civil protection planning."},
+    {"name": "Directorate of State Finance & Treasury Oversight",
+     "mandate": "State budget transfers, treasury oversight, fiscal compliance."},
+    {"name": "Directorate of Public Administration & Legal Affairs",
+     "mandate": "Legal oversight of local acts, administrative litigation, the prefect's own staff."},
+    {"name": "Directorate of Civil Registry & Documents",
+     "mandate": "Civil status records, identity documents, notarial oversight."},
+]
+METRO_COUNCIL_DIRECTORATES = [
+    {"name": "Directorate of Urban Planning & Territorial Development",
+     "mandate": "Metropolitan masterplans (incl. the Florești Central CBD), zoning coordination across municipalities."},
+    {"name": "Directorate of Transport & Infrastructure",
+     "mandate": "Trams, BRT, and commuter rail network planning; roads spanning more than one municipality."},
+    {"name": "Directorate of Economic Development & Investment",
+     "mandate": "Investment promotion, the Technopolis Okrugs relationship, business permitting."},
+    {"name": "Directorate of Environment & Sustainability",
+     "mandate": "Green tech policy, waste management, environmental compliance."},
+    {"name": "Directorate of Education & Culture",
+     "mandate": "FlorTech and AgroFlor liaison, schools, cultural programming."},
+    {"name": "Directorate of Health & Social Assistance",
+     "mandate": "Public health coordination, social services across municipalities."},
+]
+# Each municipality's own two generic departments (finance, public
+# services) plus one thematic department tied to its established identity.
+MUNICIPALITY_DEPARTMENTS = {
+    "Florești Central": [
+        {"name": "Department of Urban Development & CBD Management",
+         "mandate": "Central Business District oversight, Răut Plaza and civic-core development."},
+        {"name": "Department of Municipal Finance", "mandate": "Local budget, taxation, procurement."},
+        {"name": "Department of Public Services", "mandate": "Waste collection, water/sewer, municipal maintenance."},
+    ],
+    "Mărculești": [
+        {"name": "Department of Transport & Airport Liaison",
+         "mandate": "Coordination with Mărculești International Airport, ground transit."},
+        {"name": "Department of Municipal Finance", "mandate": "Local budget, taxation, procurement."},
+        {"name": "Department of Public Services", "mandate": "Waste collection, water/sewer, municipal maintenance."},
+    ],
+    "Vărvăreuca": [
+        {"name": "Department of Agriculture & Rural Development",
+         "mandate": "Farmland management, AgroFlor liaison, rural infrastructure."},
+        {"name": "Department of Municipal Finance", "mandate": "Local budget, taxation, procurement."},
+        {"name": "Department of Public Services", "mandate": "Waste collection, water/sewer, municipal maintenance."},
+    ],
+    "Lunga": [
+        {"name": "Department of Local Economy & Crafts",
+         "mandate": "Artisan Quarter support, local markets, small-business permitting."},
+        {"name": "Department of Municipal Finance", "mandate": "Local budget, taxation, procurement."},
+        {"name": "Department of Public Services", "mandate": "Waste collection, water/sewer, municipal maintenance."},
+    ],
+}
+
+
+def district_office(municipality, district):
+    """Districts sit below the municipal tier -- one lightweight civic
+    office each, rather than a full directorate roster of their own."""
+    return {
+        "name": f"{district} Civic Office",
+        "mandate": f"First-line public services liaison to the {municipality} Municipal Council — "
+                   "local permits, records, and citizen requests.",
+    }
+
 # A second, non-interactive governance layer sitting alongside the French
 # prefecture model: a Moscow-style detached satellite okrug, after Zelenograd
 # (Moscow's own physically separate single-industry administrative okrug).
@@ -1070,6 +1141,14 @@ else:
     st.caption("Mixed decentralization is in effect — click a municipality on the map (or below) to "
                "drill down into its districts. Suburbs stay administratively dependent on the metropole.")
 
+with st.expander(f"🏛️ Florești Prefecture — Directorates ({len(PREFECTURE_DIRECTORATES)})"):
+    st.caption(
+        "The French-style prefecture's own deconcentrated state administration, in effect regardless "
+        "of whether the metropole has been established — the state tier the metropole is carved out of."
+    )
+    for d in PREFECTURE_DIRECTORATES:
+        st.markdown(f"- **{d['name']}** — {d['mandate']}")
+
 map_key = "metro_map_active" if st.session_state.metro_active else "metro_map_inactive"
 map_state = st_folium(build_map(), height=520, use_container_width=True, key=map_key)
 
@@ -1151,6 +1230,10 @@ if st.session_state.metro_active:
             for stop, lines in transit_interchanges().items():
                 st.markdown(f"- **{stop}** — {', '.join(lines)}")
 
+        with st.expander(f"🏢 Metropolitan Council — Directorates ({len(METRO_COUNCIL_DIRECTORATES)})"):
+            for d in METRO_COUNCIL_DIRECTORATES:
+                st.markdown(f"- **{d['name']}** — {d['mandate']}")
+
         st.markdown("#### 🏗️ Metropolitan Projects")
         for project in METRO_PROJECTS:
             render_project(project, "Metropolitan", "metro_project")
@@ -1167,6 +1250,10 @@ if st.session_state.metro_active:
                 st.rerun()
             st.markdown(f"### {sel_muni} {'✅ inaugurated' if active else ''}")
             st.caption(f"Anchor: {anchor['display_name']}")
+
+            with st.expander(f"🏢 {sel_muni} — Departments ({len(MUNICIPALITY_DEPARTMENTS[sel_muni])})"):
+                for d in MUNICIPALITY_DEPARTMENTS[sel_muni]:
+                    st.markdown(f"- **{d['name']}** — {d['mandate']}")
 
             st.write("👆 Click a district for details:")
             dist_cols = st.columns(4)
@@ -1208,6 +1295,8 @@ if st.session_state.metro_active:
                 st.rerun()
             st.markdown(f"### {sel_dist}")
             st.caption(f"District of **{sel_muni}**, Florești Metropole.")
+            office = district_office(sel_muni, sel_dist)
+            st.markdown(f"🏢 **{office['name']}** — {office['mandate']}")
             if active:
                 st.info("This district shares in its municipality's local government, "
                         "inaugurated as part of the mixed-decentralization reform.")
