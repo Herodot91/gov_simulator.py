@@ -10,7 +10,8 @@ drill-downs, the public transit network (Metro M1/M2, Tram T1, BRT/Bus/Regional 
 road+regional transit, all interchanging at Gara Florești) with
 named-street routes and interchange markers, the Metropolitan Ring Road,
 Technopolis Expressway and Regional Expressway, the Coach
-Terminal/Airport/Centrul Civic/CBD zone map sites, each governance tier's
+Terminal/Airport/Centrul Civic/CBD zone/Florești HPP (Răut river,
+HydroTechnique Ltd.) map sites, each governance tier's
 own directorates/departments org chart (plus interactive Prefecture
 Policies, two Prefecture Towns — each with an expanded, dashed-circle
 territory, its own town council/policies, and a non-mono-industrial

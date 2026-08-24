@@ -255,3 +255,9 @@ export const CBD_ZONE_BOUNDS = [
   [47.8893, 28.2918],
   [47.8935, 28.2965],
 ];
+
+// Florești's own hydroelectric power plant, on the Răut river just
+// downstream of the CBD riverside land, managed by HydroTechnique Ltd. --
+// structural world-building, same "not a simulation choice" status as the
+// Coach Terminal/Airport signs above.
+export const HPP_PT = [47.8862, 28.2938];

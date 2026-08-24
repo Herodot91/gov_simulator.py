@@ -18,6 +18,7 @@ import {
   roadRouteLabel,
   CIVIC_DISTRICT_PT,
   CBD_ZONE_BOUNDS,
+  HPP_PT,
 } from "../data/transit.js";
 import {
   pointInGeometry,
@@ -411,7 +412,7 @@ export default function MetroMap() {
             eventHandlers={{
               add: (e) =>
                 e.target.bindTooltip(
-                  "Autogara Metropolitană — Coach Terminal, Tram M2 terminus, on the Metropolitan " +
+                  "Autogara Metropolitană — Coach Terminal, Tram T1 terminus, on the Metropolitan " +
                     "Ring Road at Vărvăreuca's Heritage Quarter boundary"
                 ),
             }}
@@ -426,6 +427,21 @@ export default function MetroMap() {
             )}
             eventHandlers={{
               add: (e) => e.target.bindTooltip("Mărculești–Florești International Airport"),
+            }}
+          />
+        )}
+
+        {state.metroActive && (
+          <Marker
+            position={HPP_PT}
+            icon={divIcon(
+              '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">⚡</div>'
+            )}
+            eventHandlers={{
+              add: (e) =>
+                e.target.bindTooltip(
+                  "Florești HPP — hydroelectric power plant on the Răut river, managed by HydroTechnique Ltd."
+                ),
             }}
           />
         )}

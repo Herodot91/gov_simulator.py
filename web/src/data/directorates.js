@@ -116,6 +116,11 @@ export const FACTORIES = {
       sector: "Precision Materials & Electronics",
       products: ["Precision-machined parts", "Circuit assemblies", "Sensor housings"],
     },
+    {
+      name: "Florești HPP (HydroTechnique Ltd.)",
+      sector: "Hydroelectric Power",
+      products: ["Electricity generation", "Grid supply to Florești Central", "Răut river flow regulation"],
+    },
   ],
   "Cunicea": [
     {

@@ -384,6 +384,11 @@ decision, this is a fixed route, not a Cost/effects choice.
   (between Centrul Civic and the Răut) is now drawn as a dashed blue zone
   on the map itself, not just linked from Florești Central's municipal
   expander.
+- **⚡ Florești HPP** — the hydroelectric power plant on the Răut river,
+  just downstream of the CBD riverside land, gets its own sign, same
+  treatment as the Coach Terminal/Airport. Managed by HydroTechnique
+  Ltd. — a factory entry alongside Florești Central's other plants in the
+  Industries & Schools Dashboard below.
 
 ## Directorates & Departments
 
@@ -478,10 +483,12 @@ Purely descriptive world-building — no cost, no score effects.
   Căinarului** (Gura Căinarului Beverage Works) — each town's factory
   roster backs up its "not mono-industrial" note above.
 - **Within the metropole** (once established): **Florești Central** hosts
-  ProMilk, FlorPan, Alfa-Nistru Group, and Florești Precision Components
-  (precision materials/electronics, echoing Cunicea's own); **Gura
-  Camencii** has a bread factory; **Ghindești** has both a beer factory
-  and Ghindești Zahăr S.A., a sugar-processing plant.
+  ProMilk, FlorPan, Alfa-Nistru Group, Florești Precision Components
+  (precision materials/electronics, echoing Cunicea's own), and Florești
+  HPP — the hydroelectric power plant on the Răut river, managed by
+  HydroTechnique Ltd. (also its own map sign, see Roads & Key Sites
+  above); **Gura Camencii** has a bread factory; **Ghindești** has both a
+  beer factory and Ghindești Zahăr S.A., a sugar-processing plant.
 - **Schools** are listed the same way per location — each municipality's
   own real-named school(s) (e.g. Liceul Teoretic Ștefan cel Mare at
   Florești Central) plus, concentrated at Florești Central as the

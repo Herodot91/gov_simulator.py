@@ -521,6 +521,8 @@ FACTORIES = {
          "products": ["Packaged foods", "Confectionery", "Preserves"]},
         {"name": "Florești Precision Components", "sector": "Precision Materials & Electronics",
          "products": ["Precision-machined parts", "Circuit assemblies", "Sensor housings"]},
+        {"name": "Florești HPP (HydroTechnique Ltd.)", "sector": "Hydroelectric Power",
+         "products": ["Electricity generation", "Grid supply to Florești Central", "Răut river flow regulation"]},
     ],
     "Cunicea": [
         {"name": "Cunicea AutoParts", "sector": "Automotive Components (Sigma Motors supplier)",
@@ -855,6 +857,12 @@ CIVIC_DISTRICT_PT = _CENTRUL_CIVIC_PT
 # as a zone, not just linked from an expander. The riverside land between
 # Centrul Civic and the Răut, around the Metro Line 1 station and Răut Plaza.
 CBD_ZONE_BOUNDS = (47.8893, 28.2918, 47.8935, 28.2965)  # (min_lat, min_lon, max_lat, max_lon)
+
+# Florești's own hydroelectric power plant, on the Răut river just downstream
+# of the CBD riverside land, managed by HydroTechnique Ltd. -- structural
+# world-building, same "not a simulation choice" status as the Coach
+# Terminal/Airport signs above.
+_HPP_PT = (47.8862, 28.2938)
 
 
 # Ambient events that fire on their own once the clock is live, independent of
@@ -1266,6 +1274,18 @@ def build_map():
             'filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">✈️</div>'
         )),
         tooltip="Mărculești–Florești International Airport",
+    ).add_to(m)
+
+    # Florești HPP -- the hydroelectric power plant on the Răut river,
+    # managed by HydroTechnique Ltd., same sign treatment as the Coach
+    # Terminal/Airport.
+    folium.Marker(
+        location=list(_HPP_PT),
+        icon=folium.DivIcon(html=(
+            '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);'
+            'filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">⚡</div>'
+        )),
+        tooltip="Florești HPP — hydroelectric power plant on the Răut river, managed by HydroTechnique Ltd.",
     ).add_to(m)
 
     # The Civic District (Centrul Civic, Florești Central) -- seat of the
@@ -1709,6 +1729,11 @@ if st.session_state.metro_active:
             st.markdown(
                 "**📐 Proposed CBD** — the riverside zone shown on the map between Centrul Civic and "
                 "the Răut; see the full concept masterplan in Florești Central's own municipal view."
+            )
+            st.markdown(
+                "**⚡ Florești HPP** — the hydroelectric power plant on the Răut river, just downstream "
+                "of the CBD riverside land, managed by HydroTechnique Ltd. (see Industries & Schools "
+                "Dashboard below)."
             )
 
         with st.expander(f"🏢 Metropolitan Council — Directorates ({len(METRO_COUNCIL_DIRECTORATES)})"):

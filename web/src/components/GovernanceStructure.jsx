@@ -494,6 +494,11 @@ function RoadsExpander() {
               Civic and the Răut; see the full concept masterplan in Florești Central's own municipal
               view.
             </li>
+            <li>
+              <strong>⚡ Florești HPP</strong> — the hydroelectric power plant on the Răut river, just
+              downstream of the CBD riverside land, managed by HydroTechnique Ltd. (see Industries &amp;
+              Schools Dashboard below).
+            </li>
           </ul>
         </div>
       )}
