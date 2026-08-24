@@ -392,6 +392,14 @@ def build_map():
 
     if metro_boundary is not None and not metro_boundary.is_empty:
         min_lon, min_lat, max_lon, max_lat = metro_boundary.bounds
+        # The Technopolis Okrugs sit outside the metropole's own territory
+        # (that's the point of the Zelenograd model) -- widen the fitted
+        # view to include them too, same as a real Moscow map that has to
+        # zoom out to show Zelenograd alongside the city proper.
+        for okrug in TECHNOPOLIS_OKRUGS:
+            loc = find_locality(okrug["name"])
+            min_lon, max_lon = min(min_lon, loc["lon"]), max(max_lon, loc["lon"])
+            min_lat, max_lat = min(min_lat, loc["lat"]), max(max_lat, loc["lat"])
         center = [(min_lat + max_lat) / 2, (min_lon + max_lon) / 2]
         zoom = _zoom_for_bounds((min_lon, min_lat, max_lon, max_lat), 600, 500)
     else:
@@ -475,6 +483,23 @@ def build_map():
             for part in parts:
                 c = part.representative_point()
                 label(c.y, c.x, f"{name}{' ✅' if active else ''}", "#111111" if active else "#333333")
+
+    # Technopolis Okrugs — shown as their own small marked territory, same
+    # spirit as how a real Moscow map marks Zelenograd: a real point outside
+    # the main urban mass, given a distinct look (gold, dashed) so it doesn't
+    # read as a 5th ordinary municipality.
+    for okrug in TECHNOPOLIS_OKRUGS:
+        loc = find_locality(okrug["name"])
+        folium.Circle(
+            location=[loc["lat"], loc["lon"]],
+            radius=900,
+            color="#b8860b", weight=2, dash_array="5,5",
+            fill=True, fill_color="#e3b23c", fill_opacity=0.35,
+            tooltip=f"{loc['display_name']} — Technopolis Okrug (Zelenograd model) — {okrug['company']}",
+        ).add_to(m)
+        label(loc["lat"], loc["lon"],
+              f"🏭 {loc['display_name']}<br><span style='font-weight:400;font-size:10px;'>{okrug['company']}</span>",
+              "#7a5c00", size=11)
 
     # Resolved projects (any layer) get a marker/line on the map — only ones
     # actually decided on (not skipped), so the map reflects real choices.

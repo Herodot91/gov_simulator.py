@@ -128,6 +128,15 @@ info panel (🏭 Technopolis Okrugs, next to the 🏘️ Suburbs panel at the
 Metropole layer) with no budget cost, no score effects, and nothing to
 click through.
 
+Both okrugs are also marked directly on the metropole map itself — a small
+dashed gold circle at each village's real coordinates (distinct from the
+4 municipalities' solid fill, so it doesn't read as a 5th ordinary
+municipality), labeled with the village name and its company. Since real
+Prajila and Ciripcău sit outside the metropole's own territory — Ciripcău
+well to the northeast — the map's fitted view widens to include both
+alongside the 4 municipalities, the same way a real Moscow map has to
+zoom out to fit Zelenograd in alongside the city proper.
+
 The structure is shown as a real street-level Leaflet map, not a schematic
 diagram: each of the 4 municipalities starts from its actual current
 territory — the real OpenStreetMap administrative boundary (admin_level=8)

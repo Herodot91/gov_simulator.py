@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, GeoJSON, Marker, Polyline, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, Marker, Polyline, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import { useSimState, useSimActions } from "../state/SimulationContext.jsx";
-import { METRO_STRUCTURE, MUNICIPALITY_COLORS } from "../data/metroStructure.js";
+import { METRO_STRUCTURE, MUNICIPALITY_COLORS, TECHNOPOLIS_OKRUGS } from "../data/metroStructure.js";
 import { allProjectsWithScope, PROJECT_MAP_LOCATIONS } from "../data/projects.js";
 import { pointInGeometry, geometryBounds, representativePoint, geometryParts, zoomForBounds, toLatLng } from "../utils/geo.js";
 
@@ -82,16 +82,28 @@ export default function MetroMap() {
   }, [geo]);
 
   const { center, zoom } = useMemo(() => {
-    if (state.metroActive && metroBoundaryFeature) {
-      const bounds = geometryBounds(metroBoundaryFeature.geometry);
-      const [minLon, minLat, maxLon, maxLat] = bounds;
+    if (state.metroActive && metroBoundaryFeature && geo) {
+      let [minLon, minLat, maxLon, maxLat] = geometryBounds(metroBoundaryFeature.geometry);
+      // The Technopolis Okrugs sit outside the metropole's own territory
+      // (that's the point of the Zelenograd model) -- widen the fitted view
+      // to include them too, same as a real Moscow map that has to zoom out
+      // to show Zelenograd alongside the city proper.
+      for (const okrug of TECHNOPOLIS_OKRUGS) {
+        const loc = findLocality(geo.localities, okrug.name);
+        if (!loc) continue;
+        minLon = Math.min(minLon, loc.lon);
+        maxLon = Math.max(maxLon, loc.lon);
+        minLat = Math.min(minLat, loc.lat);
+        maxLat = Math.max(maxLat, loc.lat);
+      }
+      const bounds = [minLon, minLat, maxLon, maxLat];
       return {
         center: [(minLat + maxLat) / 2, (minLon + maxLon) / 2],
         zoom: zoomForBounds(bounds, 700, 500),
       };
     }
     return { center: [47.9, 28.35], zoom: 10 };
-  }, [state.metroActive, metroBoundaryFeature]);
+  }, [state.metroActive, metroBoundaryFeature, geo]);
 
   if (!geo) {
     return <div className="map-loading">Loading map…</div>;
@@ -153,6 +165,31 @@ export default function MetroMap() {
                 {labelPoints.map((pt, i) => (
                   <Marker key={i} position={pt} icon={labelIcon(`${name}${active ? " ✅" : ""}`, active ? "#111111" : "#333333")} interactive={false} />
                 ))}
+              </div>
+            );
+          })}
+
+        {state.metroActive &&
+          TECHNOPOLIS_OKRUGS.map((okrug) => {
+            const loc = findLocality(geo.localities, okrug.name);
+            if (!loc) return null;
+            const pos = [loc.lat, loc.lon];
+            const tooltipText = `${loc.display_name} — Technopolis Okrug (Zelenograd model) — ${okrug.company}`;
+            return (
+              <div key={okrug.name}>
+                <Circle
+                  center={pos}
+                  radius={900}
+                  pathOptions={{ color: "#b8860b", weight: 2, dashArray: "5,5", fillColor: "#e3b23c", fillOpacity: 0.35 }}
+                  eventHandlers={{ add: (e) => e.target.bindTooltip(tooltipText) }}
+                />
+                <Marker
+                  position={pos}
+                  interactive={false}
+                  icon={divIcon(
+                    `<div style="font-size:11px;font-weight:700;color:#7a5c00;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;white-space:nowrap;text-align:center;transform:translate(-50%,-50%);">🏭 ${loc.display_name}<br><span style="font-weight:400;font-size:10px;">${okrug.company}</span></div>`
+                  )}
+                />
               </div>
             );
           })}
