@@ -246,3 +246,46 @@ content, same as the Technopolis Okrugs.
   Technician, Automotive Mechanic, Welding & Metalwork, CNC Machining
   (Ghindești branch), and Construction Trades, HVAC Technician, Industrial
   Maintenance (Gura Camencii branch).
+
+## AgroFlor — Florești University of Agricultural Sciences and Technologies
+
+A second university, alongside FlorTech: grew out of Scenario 5's
+investment in a Vărvăreuca agricultural college into a full
+metropole-wide university — campuses across every municipality and both
+suburbs (not the Technopolis Okrugs, which stay single-company rather
+than academic). Same shape as FlorTech: its own top-level panel (🌾
+AgroFlor...), no cost or score effects, browsable content only, gated on
+the metropole being established.
+
+- **6 campuses**, one per municipality plus one per suburb:
+  - **Vărvăreuca Campus** (Agricultural District, the flagship) —
+    Agronomy, Horticulture, Crop Engineering; Genetics & Plant Breeding,
+    Biotechnology.
+  - **Central Campus** (Politeh District) — Agricultural Economics,
+    Sustainable Development, Rural Planning.
+  - **Mărculești Campus** (Aviagorodok) — Agricultural Machinery
+    Engineering, Agritech & Precision Farming.
+  - **Lunga Campus** (Artisan Quarter) — Animal Husbandry, Veterinary
+    Medicine.
+  - **Ghindești Campus** (suburb) — Food Engineering, Biology, Chemistry.
+  - **Gura Camencii Campus** (suburb) — Physics, Informatics & Applied
+    Mathematics in Agriculture.
+
+  Between them, the 6 campuses cover every field requested: agronomy,
+  horticulture, crop engineering, genetics, biotechnology, plant growth
+  and genetics, food engineering, agricultural economics, sustainable
+  development, husbandry and veterinary medicine, agricultural machinery
+  engineering and agritech, biology, chemistry, physics, informatics and
+  math applications in agriculture, and rural planning.
+
+- Click a campus to drill into its faculties/departments (offered at that
+  campus's own degree levels — BSc/MSc/PhD/Postdoc at the flagship
+  Vărvăreuca and Central campuses, a narrower band at the specialist
+  campuses) **and** its 🔬 Research Centers & Labs — e.g. the Crop
+  Genetics Research Center and Soil & Water Sustainability Lab at
+  Vărvăreuca, the Animal Health Research Lab at Lunga.
+- Each campus also gets its own 🌾 marker on the metropole map — a green
+  badge distinct from FlorTech's navy 🎓 badges so the two universities'
+  campuses read apart at a glance, even where both have a campus in the
+  same municipality (e.g. Florești Central). Click the marker to drill
+  straight into that campus's detail, same as FlorTech's markers.

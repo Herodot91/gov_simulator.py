@@ -185,6 +185,91 @@ FLORTECH = {
     ],
 }
 
+# AgroFlor — Florești University of Agricultural Sciences and Technologies:
+# grew out of the Scenario 5 investment in a Vărvăreuca agricultural college
+# into a full metropole-wide university, with campuses across all 4
+# municipalities and both suburbs (not the Technopolis Okrugs -- those stay
+# single-company, not academic). Structural world-building like FlorTech --
+# browsable, not simulated. Each campus also lists its research centers/labs
+# alongside its faculties/departments.
+AGROFLOR = {
+    "name": "AgroFlor — Florești University of Agricultural Sciences and Technologies",
+    "origin": (
+        "Grew out of the investment in a Vărvăreuca agricultural college into a full "
+        "metropole-wide university, with campuses across every municipality and both suburbs."
+    ),
+    "campuses": [
+        {
+            "id": "varvareuca",
+            "name": "AgroFlor Vărvăreuca Campus",
+            "location": "Vărvăreuca — Agricultural District",
+            "levels": ["BSc", "MSc", "PhD", "Postdoc"],
+            "faculties": [
+                {"name": "Faculty of Agronomy & Crop Sciences",
+                 "departments": ["Agronomy", "Horticulture", "Crop Engineering"]},
+                {"name": "Faculty of Genetics & Biotechnology",
+                 "departments": ["Genetics & Plant Breeding", "Biotechnology"]},
+            ],
+            "research_centers": ["Crop Genetics Research Center", "Soil & Water Sustainability Lab"],
+        },
+        {
+            "id": "central",
+            "name": "AgroFlor Central Campus",
+            "location": "Florești Central — Politeh District",
+            "levels": ["BSc", "MSc", "PhD", "Postdoc"],
+            "faculties": [
+                {"name": "Faculty of Agricultural Economics & Rural Development",
+                 "departments": ["Agricultural Economics", "Sustainable Development", "Rural Planning"]},
+            ],
+            "research_centers": ["Agri-Economics Policy Center"],
+        },
+        {
+            "id": "marculesti",
+            "name": "AgroFlor Mărculești Campus",
+            "location": "Mărculești — Aviagorodok",
+            "levels": ["BEng", "BSc", "MSc"],
+            "faculties": [
+                {"name": "Faculty of Agricultural Machinery & Agritech",
+                 "departments": ["Agricultural Machinery Engineering", "Agritech & Precision Farming"]},
+            ],
+            "research_centers": ["Agritech & Precision Farming Lab"],
+        },
+        {
+            "id": "lunga",
+            "name": "AgroFlor Lunga Campus",
+            "location": "Lunga — Artisan Quarter",
+            "levels": ["BSc", "MSc", "PhD"],
+            "faculties": [
+                {"name": "Faculty of Veterinary Medicine & Animal Husbandry",
+                 "departments": ["Animal Husbandry", "Veterinary Medicine"]},
+            ],
+            "research_centers": ["Animal Health Research Lab"],
+        },
+        {
+            "id": "ghindesti",
+            "name": "AgroFlor Ghindești Campus",
+            "location": "Ghindești (suburb)",
+            "levels": ["BSc", "MSc"],
+            "faculties": [
+                {"name": "Faculty of Food Engineering & Natural Sciences",
+                 "departments": ["Food Engineering", "Biology", "Chemistry"]},
+            ],
+            "research_centers": ["Food Quality & Safety Lab"],
+        },
+        {
+            "id": "guracamencii",
+            "name": "AgroFlor Gura Camencii Campus",
+            "location": "Gura Camencii (suburb)",
+            "levels": ["BSc", "MSc"],
+            "faculties": [
+                {"name": "Faculty of Applied Sciences",
+                 "departments": ["Physics", "Informatics & Applied Mathematics in Agriculture"]},
+            ],
+            "research_centers": ["Agri-Informatics Lab"],
+        },
+    ],
+}
+
 
 @st.cache_data
 def load_geo_data():
@@ -347,6 +432,21 @@ FLORTECH_CAMPUS_LOCATIONS = {
     "ciripcau": (_CIRIPCAU_PT[0] + 0.003, _CIRIPCAU_PT[1] + 0.003),
 }
 
+# AgroFlor campuses use their own offsets (opposite side from FlorTech's, at
+# each shared municipality) so the two universities' markers don't stack.
+# Ghindești/Gura Camencii use their real suburb coordinates (see
+# floresti_localities.json).
+_GHINDESTI_PT = (47.8623849, 28.3870348)
+_GURACAMENCII_PT = (47.8901159, 28.3553067)
+AGROFLOR_CAMPUS_LOCATIONS = {
+    "varvareuca": (_VARVAREUCA_PT[0] - 0.0045, _VARVAREUCA_PT[1] + 0.0045),
+    "central": (_FLORESTI_PT[0] - 0.0045, _FLORESTI_PT[1] + 0.0045),
+    "marculesti": (_MARCULESTI_PT[0] + 0.0045, _MARCULESTI_PT[1] + 0.0045),
+    "lunga": (_LUNGA_PT[0], _LUNGA_PT[1] - 0.006),
+    "ghindesti": (_GHINDESTI_PT[0] + 0.003, _GHINDESTI_PT[1] - 0.003),
+    "guracamencii": (_GURACAMENCII_PT[0] + 0.003, _GURACAMENCII_PT[1] - 0.003),
+}
+
 # Ambient events that fire on their own once the clock is live, independent of
 # the scripted policy decisions above — this is what makes the world keep
 # moving in real time even while the player is deliberating.
@@ -393,6 +493,7 @@ def reset_simulation(start_budget):
     st.session_state.selected_district = None
     st.session_state.resolved_projects = {}
     st.session_state.selected_campus = None
+    st.session_state.selected_agro_campus = None
 
 
 if "scores" not in st.session_state:
@@ -653,6 +754,21 @@ def build_map():
             tooltip=f"🎓 {campus['name']} — FlorTech campus",
         ).add_to(m)
 
+    # AgroFlor campuses -- same shape as FlorTech's markers above, a
+    # distinct green badge so the two universities read apart on the map.
+    agro_icon_html = (
+        '<div style="width:28px;height:28px;border-radius:50%;background:#2a7f43;'
+        'display:flex;align-items:center;justify-content:center;font-size:15px;'
+        'box-shadow:0 1px 4px rgba(0,0,0,.45);border:2px solid #fff;">🌾</div>'
+    )
+    for campus in AGROFLOR["campuses"]:
+        lat, lon = AGROFLOR_CAMPUS_LOCATIONS[campus["id"]]
+        folium.Marker(
+            location=[lat, lon],
+            icon=folium.DivIcon(html=agro_icon_html, icon_size=(28, 28), icon_anchor=(14, 14)),
+            tooltip=f"🌾 {campus['name']} — AgroFlor campus",
+        ).add_to(m)
+
     # Resolved projects (any layer) get a marker/line on the map — only ones
     # actually decided on (not skipped), so the map reflects real choices.
     all_projects = (
@@ -895,6 +1011,12 @@ if st.session_state.metro_active and map_state and map_state.get("last_object_cl
         if clicked_tooltip.startswith(campus_tooltip_prefix) and st.session_state.selected_campus != campus["id"]:
             st.session_state.selected_campus = campus["id"]
             st.rerun()
+    # Same for AgroFlor campus markers.
+    for campus in AGROFLOR["campuses"]:
+        agro_tooltip_prefix = f"🌾 {campus['name']}"
+        if clicked_tooltip.startswith(agro_tooltip_prefix) and st.session_state.selected_agro_campus != campus["id"]:
+            st.session_state.selected_agro_campus = campus["id"]
+            st.rerun()
 
 if st.session_state.metro_active:
     sel_muni = st.session_state.selected_municipality
@@ -1048,6 +1170,38 @@ else:
             st.markdown(f"#### {fac['name']}")
             for dept in fac["departments"]:
                 st.markdown(f"- **{dept}** — {', '.join(campus['levels'])}")
+
+# ---------- AgroFlor University ----------
+st.subheader("🌾 AgroFlor — Florești University of Agricultural Sciences and Technologies")
+if not st.session_state.metro_active:
+    st.info("AgroFlor's campuses come online once the metropole is established "
+            "(Scenario 1, option B).")
+else:
+    st.caption(AGROFLOR["origin"])
+    sel_agro_id = st.session_state.selected_agro_campus
+
+    if sel_agro_id is None:
+        st.write("👆 Click a campus for its faculties, departments, research centers, and programs:")
+        agro_cols = st.columns(3)
+        for i, campus in enumerate(AGROFLOR["campuses"]):
+            with agro_cols[i % 3]:
+                if st.button(campus["name"], key=f"select_agro_campus_{campus['id']}", use_container_width=True):
+                    st.session_state.selected_agro_campus = campus["id"]
+                    st.rerun()
+    else:
+        campus = next(c for c in AGROFLOR["campuses"] if c["id"] == sel_agro_id)
+        if st.button("← Back to AgroFlor", key="back_to_agroflor"):
+            st.session_state.selected_agro_campus = None
+            st.rerun()
+        st.markdown(f"### {campus['name']}")
+        st.caption(f"{campus['location']} · Degree levels: {', '.join(campus['levels'])}")
+        for fac in campus["faculties"]:
+            st.markdown(f"#### {fac['name']}")
+            for dept in fac["departments"]:
+                st.markdown(f"- **{dept}** — {', '.join(campus['levels'])}")
+        st.markdown("#### 🔬 Research Centers & Labs")
+        for center in campus["research_centers"]:
+            st.markdown(f"- {center}")
 
 # ---------- Real-time clock loop ----------
 # While auto-play is on, the app sleeps for one tick then reruns itself,

@@ -40,6 +40,7 @@ function initialState(startBudget) {
     mode: "Democracy",
     tickInterval: 3,
     selectedCampus: null,
+    selectedAgroCampus: null,
   };
 }
 
@@ -75,6 +76,9 @@ function reducer(state, action) {
 
     case "SELECT_CAMPUS":
       return { ...state, selectedCampus: action.id };
+
+    case "SELECT_AGRO_CAMPUS":
+      return { ...state, selectedAgroCampus: action.id };
 
     case "BACK_TO_METRO":
       return { ...state, selectedMunicipality: null, selectedDistrict: null };
@@ -251,6 +255,7 @@ export function useSimActions() {
     selectMunicipality: useCallback((name) => dispatch({ type: "SELECT_MUNICIPALITY", name }), [dispatch]),
     selectDistrict: useCallback((name) => dispatch({ type: "SELECT_DISTRICT", name }), [dispatch]),
     selectCampus: useCallback((id) => dispatch({ type: "SELECT_CAMPUS", id }), [dispatch]),
+    selectAgroCampus: useCallback((id) => dispatch({ type: "SELECT_AGRO_CAMPUS", id }), [dispatch]),
     backToMetro: useCallback(() => dispatch({ type: "BACK_TO_METRO" }), [dispatch]),
     backToMunicipality: useCallback(() => dispatch({ type: "BACK_TO_MUNICIPALITY" }), [dispatch]),
     resolveScenario: useCallback((scenario, key) => dispatch({ type: "RESOLVE_SCENARIO", scenario, key }), [dispatch]),

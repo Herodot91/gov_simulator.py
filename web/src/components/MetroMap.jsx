@@ -5,6 +5,7 @@ import { useSimState, useSimActions } from "../state/SimulationContext.jsx";
 import { METRO_STRUCTURE, MUNICIPALITY_COLORS, TECHNOPOLIS_OKRUGS } from "../data/metroStructure.js";
 import { allProjectsWithScope, PROJECT_MAP_LOCATIONS } from "../data/projects.js";
 import { FLORTECH, FLORTECH_CAMPUS_LOCATIONS } from "../data/flortech.js";
+import { AGROFLOR, AGROFLOR_CAMPUS_LOCATIONS } from "../data/agroflor.js";
 import { pointInGeometry, geometryBounds, representativePoint, geometryParts, zoomForBounds, toLatLng } from "../utils/geo.js";
 
 const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png";
@@ -39,6 +40,20 @@ function campusIcon() {
       '<div style="width:28px;height:28px;border-radius:50%;background:#1d3557;' +
       "display:flex;align-items:center;justify-content:center;font-size:15px;" +
       'box-shadow:0 1px 4px rgba(0,0,0,.45);border:2px solid #fff;">🎓</div>',
+    className: "map-divicon",
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+  });
+}
+
+// Same shape as campusIcon(), a distinct green badge so the two
+// universities read apart on the map.
+function agroCampusIcon() {
+  return L.divIcon({
+    html:
+      '<div style="width:28px;height:28px;border-radius:50%;background:#2a7f43;' +
+      "display:flex;align-items:center;justify-content:center;font-size:15px;" +
+      'box-shadow:0 1px 4px rgba(0,0,0,.45);border:2px solid #fff;">🌾</div>',
     className: "map-divicon",
     iconSize: [28, 28],
     iconAnchor: [14, 14],
@@ -225,6 +240,23 @@ export default function MetroMap() {
                 eventHandlers={{
                   add: (e) => e.target.bindTooltip(`🎓 ${campus.name} — FlorTech campus`),
                   click: () => actions.selectCampus(campus.id),
+                }}
+              />
+            );
+          })}
+
+        {state.metroActive &&
+          AGROFLOR.campuses.map((campus) => {
+            const pos = AGROFLOR_CAMPUS_LOCATIONS[campus.id];
+            if (!pos) return null;
+            return (
+              <Marker
+                key={campus.id}
+                position={pos}
+                icon={agroCampusIcon()}
+                eventHandlers={{
+                  add: (e) => e.target.bindTooltip(`🌾 ${campus.name} — AgroFlor campus`),
+                  click: () => actions.selectAgroCampus(campus.id),
                 }}
               />
             );
