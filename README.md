@@ -19,6 +19,13 @@ pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
+## React port
+
+A full-feature-parity React + Vanilla CSS port of this app lives in
+[`web/`](web/) — same simulation, same real map data, but a fully
+client-side static app instead of a Streamlit/Python backend. See
+[`web/README.md`](web/README.md) to run it.
+
 ## Real-time mode
 
 - Each policy decision resolves the instant you click it — scores, budget,
