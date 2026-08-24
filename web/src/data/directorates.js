@@ -40,6 +40,61 @@ export const PREFECTURE_POLICIES = [
   },
 ];
 
+// Two real villages, both outside the metropole and the Technopolis
+// Okrugs, whose territory has grown into a small town within the
+// prefecture -- each with its own town council and interactive policies,
+// structurally alongside the metropole (with its Technopolis Okrugs and
+// suburbs) as a third kind of settlement the prefecture governs.
+export const PREFECTURE_TOWNS = [
+  {
+    id: "cunicea",
+    name: "Cunicea",
+    note:
+      "A real village east of the metropole, its territory expanded into a small town within " +
+      "the prefecture, with its own town council.",
+    council: [
+      { name: "Department of Local Administration", mandate: "Town council staff, civil records, local permits." },
+      { name: "Department of Public Finance", mandate: "Local budget, taxation, procurement." },
+    ],
+  },
+  {
+    id: "raduleni",
+    name: "Răduleni",
+    note:
+      "A real village north of the metropole, its territory expanded into a small town within " +
+      "the prefecture, with its own town council.",
+    council: [
+      { name: "Department of Local Administration", mandate: "Town council staff, civil records, local permits." },
+      { name: "Department of Public Finance", mandate: "Local budget, taxation, procurement." },
+    ],
+  },
+];
+
+export const TOWN_POLICIES = {
+  cunicea: [
+    {
+      id: "cunicea_infra",
+      title: "Cunicea Town Infrastructure Investment",
+      options: {
+        A: ["Upgrade water & road infrastructure", { Economy: +4, Stability: +2 }, 12],
+        B: ["Minor repairs only", { Economy: +1 }, 4],
+      },
+      intl: "Cunicea's town council petitions the prefecture for infrastructure funding.",
+    },
+  ],
+  raduleni: [
+    {
+      id: "raduleni_infra",
+      title: "Răduleni Town Infrastructure Investment",
+      options: {
+        A: ["Upgrade water & road infrastructure", { Economy: +4, Stability: +2 }, 12],
+        B: ["Minor repairs only", { Economy: +1 }, 4],
+      },
+      intl: "Răduleni's town council petitions the prefecture for infrastructure funding.",
+    },
+  ],
+};
+
 export const PREFECTURE_DIRECTORATES = [
   {
     name: "Directorate of Public Order & Civil Protection",

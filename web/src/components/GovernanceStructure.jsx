@@ -6,6 +6,7 @@ import { SCENARIOS } from "../data/scenarios.js";
 import { COMPANY_PRODUCTS } from "../data/companies.js";
 import {
   TRANSIT_LINES,
+  TRANSIT_MODE_LABELS,
   transitInterchanges,
   transitRouteLabel,
   ROAD_NETWORK,
@@ -14,6 +15,8 @@ import {
 import {
   PREFECTURE_DIRECTORATES,
   PREFECTURE_POLICIES,
+  PREFECTURE_TOWNS,
+  TOWN_POLICIES,
   METRO_COUNCIL_DIRECTORATES,
   MUNICIPALITY_DEPARTMENTS,
   districtOffice,
@@ -54,6 +57,7 @@ export default function GovernanceStructure() {
 
       <PrefectureExpander />
       <PrefecturePolicies />
+      <PrefectureTowns />
 
       <MetroMap />
 
@@ -277,6 +281,52 @@ function PrefecturePolicies() {
   );
 }
 
+function PrefectureTowns() {
+  return (
+    <>
+      <h4>🏘️ Prefecture Towns</h4>
+      <p className="caption">
+        Beside the metropole (with its Technopolis Okrugs and suburbs), two real villages have grown
+        into small towns directly under the prefecture, each with its own town council and policies —
+        connected to Florești by regional rail, and to the Metropolitan Ring Road by a regional
+        expressway.
+      </p>
+      {PREFECTURE_TOWNS.map((town) => (
+        <div key={town.id}>
+          <p>
+            <strong>{town.name}</strong> — {town.note}
+          </p>
+          <TownCouncilExpander town={town} />
+          {TOWN_POLICIES[town.id].map((policy) => (
+            <ProjectCard key={policy.id} project={policy} scopeLabel={`${town.name} Town Council`} />
+          ))}
+        </div>
+      ))}
+    </>
+  );
+}
+
+function TownCouncilExpander({ town }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="expander">
+      <button className="expander-toggle" onClick={() => setOpen((o) => !o)}>
+        <span className={`expander-caret ${open ? "open" : ""}`}>›</span>
+        🏢 {town.name} Town Council ({town.council.length})
+      </button>
+      {open && (
+        <ul className="suburb-list">
+          {town.council.map((d) => (
+            <li key={d.name}>
+              <strong>{d.name}</strong> — {d.mandate}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function CurrentPolicies() {
   const state = useSimState();
   const resolved = Object.entries(state.resolvedScenarios);
@@ -353,8 +403,6 @@ function MetroCouncilExpander() {
   );
 }
 
-const TRANSIT_MODE_LABELS = { tram: "🚋 Tram", brt: "🚌 BRT", commuter: "🚆 Commuter" };
-
 function TransitExpander() {
   const [open, setOpen] = useState(false);
   return (
@@ -366,12 +414,14 @@ function TransitExpander() {
       {open && (
         <div className="technopolis-body">
           <p className="caption">
-            The metropole's metro system runs on trams, not heavy rail, and stays within the 4
-            municipalities' own boundaries — unlike the BRT and commuter lines, it doesn't reach the
-            suburbs. Tram M2 runs strictly between Vărvăreuca's Heritage Quarter boundary (the Coach
-            Terminal) and Florești Central's own northern boundary. A BRT corridor (biogas/electric
-            buses) covers what the trams don't, and two commuter rail lines reach past the metropole's
-            own territory. Routes below are proposed street-level alignments, not a surveyed plan.
+            Rail runs in two tiers: <strong>Metro M1</strong> is the backbone spanning all 4
+            municipalities; <strong>Tram T1</strong> is a short local connector running strictly
+            between Vărvăreuca's Heritage Quarter boundary (the Coach Terminal) and Florești Central's
+            own northern boundary. Road transit runs in three tiers: <strong>BRT</strong> lines reach
+            further out at commuter-rail-equivalent speed and don't stop as often; plain{" "}
+            <strong>biogas/electric buses</strong> cover local routes with no dedicated lane;{" "}
+            <strong>regional rail</strong> reaches the prefecture's own small towns (Cunicea,
+            Răduleni). Routes below are proposed street-level alignments, not a surveyed plan.
           </p>
           <ul className="suburb-list">
             {TRANSIT_LINES.map((line) => (
@@ -422,7 +472,7 @@ function RoadsExpander() {
             ))}
             <li>
               <strong>🚌 Autogara Metropolitană (Coach Terminal)</strong> — on Vărvăreuca's Heritage
-              Quarter boundary, on the Metropolitan Ring Road, Tram M2's terminus.
+              Quarter boundary, on the Metropolitan Ring Road, Tram T1's terminus.
             </li>
             <li>
               <strong>✈️ Mărculești–Florești International Airport</strong> — its own sign on the map,
@@ -431,6 +481,11 @@ function RoadsExpander() {
             <li>
               <strong>🏛️ Centrul Civic (Civic Center)</strong> — Florești Central's own civic district,
               seat of the Metropolitan Council, the Florești Prefecture, and their directorates.
+            </li>
+            <li>
+              <strong>🏘️ Cunicea &amp; Răduleni</strong> — Prefecture Towns, each with its own 🏘️ sign
+              on the map, reached by regional rail and the Regional Expressway (which joins the
+              Metropolitan Ring Road at Ghindești).
             </li>
             <li>
               <strong>📐 Proposed CBD</strong> — the riverside zone shown on the map between Centrul

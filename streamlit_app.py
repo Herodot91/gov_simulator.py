@@ -463,6 +463,44 @@ PREFECTURE_POLICIES = [
      "intl": "Regional emergency-response reviews recommend investment."},
 ]
 
+# Two real villages, both outside the metropole and the Technopolis Okrugs,
+# whose territory has grown into a small town within the prefecture --
+# each with its own town council and interactive policies, structurally
+# alongside the metropole (with its Technopolis Okrugs and suburbs) as a
+# third kind of settlement the prefecture governs. Coordinates looked up
+# from STOP_COORDS at render time (defined further down), same lazy
+# pattern TECHNOPOLIS_OKRUGS uses with find_locality().
+PREFECTURE_TOWNS = [
+    {"id": "cunicea", "name": "Cunicea",
+     "note": "A real village east of the metropole, its territory expanded into a small "
+             "town within the prefecture, with its own town council.",
+     "council": [
+         {"name": "Department of Local Administration", "mandate": "Town council staff, civil records, local permits."},
+         {"name": "Department of Public Finance", "mandate": "Local budget, taxation, procurement."},
+     ]},
+    {"id": "raduleni", "name": "Răduleni",
+     "note": "A real village north of the metropole, its territory expanded into a small "
+             "town within the prefecture, with its own town council.",
+     "council": [
+         {"name": "Department of Local Administration", "mandate": "Town council staff, civil records, local permits."},
+         {"name": "Department of Public Finance", "mandate": "Local budget, taxation, procurement."},
+     ]},
+]
+TOWN_POLICIES = {
+    "cunicea": [
+        {"id": "cunicea_infra", "title": "Cunicea Town Infrastructure Investment",
+         "options": {"A": ("Upgrade water & road infrastructure", {"Economy": +4, "Stability": +2}, 12),
+                     "B": ("Minor repairs only", {"Economy": +1}, 4)},
+         "intl": "Cunicea's town council petitions the prefecture for infrastructure funding."},
+    ],
+    "raduleni": [
+        {"id": "raduleni_infra", "title": "Răduleni Town Infrastructure Investment",
+         "options": {"A": ("Upgrade water & road infrastructure", {"Economy": +4, "Stability": +2}, 12),
+                     "B": ("Minor repairs only", {"Economy": +1}, 4)},
+         "intl": "Răduleni's town council petitions the prefecture for infrastructure funding."},
+    ],
+}
+
 # Layer-scoped development projects — same interactive shape as SCENARIOS
 # (options with Cost + score effects), but each project lives at exactly one
 # governance layer and only unlocks once that layer is active: metropole
@@ -575,9 +613,15 @@ AGROFLOR_CAMPUS_LOCATIONS = {
 # reach past the metropole's own territory to Gura Căinarului and to the
 # Prajila Technopolis Okrug.
 _GURA_CAINARULUI_PT = (47.8627915, 28.1831829)
-# Tram M2's own points: a stop on Florești Central's own northern boundary,
+# Real villages, both outside the metropole and the Technopolis Okrugs,
+# whose territory has grown into a small town within the prefecture -- see
+# PREFECTURE_TOWNS below. "Răduleni" uses the real Rădulenii Noi locality's
+# own coordinates (preferred over Rădulenii Vechi).
+_CUNICEA_PT = (47.9139733, 28.6456445)
+_RADULENI_PT = (47.9567436, 28.247045)
+# Tram T1's own points: a stop on Florești Central's own northern boundary,
 # and the Coach Terminal on Vărvăreuca's Heritage Quarter boundary (also
-# where the Metropolitan Ring Road passes -- see ROAD_NETWORK below). M2
+# where the Metropolitan Ring Road passes -- see ROAD_NETWORK below). T1
 # runs strictly between these two municipal boundaries, not into either
 # municipality's own core.
 _FLORESTI_NORTH_PT = (47.8998, 28.2996)
@@ -594,6 +638,8 @@ STOP_COORDS = {
     "Gura Căinarului": _GURA_CAINARULUI_PT,
     "Prajila": _PRAJILA_PT,
     "Coach Terminal": _COACH_TERMINAL_PT,
+    "Cunicea": _CUNICEA_PT,
+    "Răduleni": _RADULENI_PT,
 }
 # The real street/avenue each stop sits on -- proposed, not surveyed (same
 # "concept, not an adopted plan" spirit as the CBD masterplan), but grounded
@@ -613,25 +659,45 @@ STOP_STREETS = {
     "Coach Terminal": "Autogara Metropolitană, Heritage Quarter boundary",
     "South Lunga Bypass": "Drumul de Centură Sud",
     "Vărvăreuca Forestry Bypass": "Drumul Ocolitor, Forestry District boundary",
+    "Cunicea": "Gara Cunicea, Regional Expressway",
+    "Răduleni": "Gara Răduleni, Regional Expressway",
 }
+# Rail runs as two tiers -- the metro system (Metro, heavier/longer-haul)
+# and trams (Tram, short/local) -- alongside road transit in three tiers of
+# its own: BRT (limited-stop, commuter-equivalent reach), plain biogas/
+# electric bus (local, no dedicated lane), and regional rail out to the
+# prefecture's own small towns (see PREFECTURE_TOWNS below).
 TRANSIT_LINES = [
-    {"id": "tram_m1", "name": "Tram M1", "mode": "tram", "color": "#c0392b",
+    {"id": "metro_m1", "name": "Metro M1", "mode": "metro", "color": "#1a237e",
      "stops": ["Vărvăreuca", "Florești Central", "Lunga", "Mărculești"]},
-    {"id": "tram_m2", "name": "Tram M2", "mode": "tram", "color": "#8e44ad",
+    {"id": "tram_t1", "name": "Tram T1", "mode": "tram", "color": "#8e44ad",
      "stops": ["Coach Terminal", "Florești Central North"]},
     {"id": "brt1", "name": "BRT 1 (biogas/electric)", "mode": "brt", "color": "#16a085",
      "stops": ["Gura Camencii", "Florești Central", "Mărculești Airport"]},
-    {"id": "commuter_c1", "name": "Commuter C1", "mode": "commuter", "color": "#2c3e50",
+    {"id": "brt2", "name": "BRT 2 (biogas/electric)", "mode": "brt", "color": "#2980b9",
      "stops": ["Ghindești", "Florești Central", "Lunga", "Mărculești Airport", "Gura Căinarului"]},
-    {"id": "commuter_c2", "name": "Commuter C2", "mode": "commuter", "color": "#34495e",
+    {"id": "brt3", "name": "BRT 3 (biogas/electric)", "mode": "brt", "color": "#27ae60",
      "stops": ["Gura Camencii", "Florești Central", "Lunga", "Prajila"]},
+    {"id": "bus_b1", "name": "Bus B1 (biogas/electric)", "mode": "bus", "color": "#7f8c8d",
+     "stops": ["Florești Central", "Ghindești"]},
+    {"id": "regional_r1", "name": "Regional Rail R1", "mode": "regional_rail", "color": "#7b3f00",
+     "stops": ["Florești Central", "Cunicea"]},
+    {"id": "regional_r2", "name": "Regional Rail R2", "mode": "regional_rail", "color": "#5c4033",
+     "stops": ["Florești Central", "Răduleni"]},
 ]
-# Line styling by mode: trams (the metro system) run solid, BRT dashed
-# (it's a bus corridor, not rail), commuter rail dash-dotted.
+# Line styling by mode: metro solid+thick, trams solid+thinner, BRT dashed
+# (a bus corridor, not rail), plain buses finely dotted, regional rail
+# dash-dotted.
 TRANSIT_MODE_STYLE = {
-    "tram": {"weight": 5, "dash_array": None},
+    "metro": {"weight": 6, "dash_array": None},
+    "tram": {"weight": 4, "dash_array": None},
     "brt": {"weight": 4, "dash_array": "10,6"},
-    "commuter": {"weight": 4, "dash_array": "2,6"},
+    "bus": {"weight": 3, "dash_array": "2,4"},
+    "regional_rail": {"weight": 4, "dash_array": "2,6"},
+}
+TRANSIT_MODE_LABELS = {
+    "metro": "🚇 Metro", "tram": "🚋 Tram", "brt": "🚌 BRT",
+    "bus": "🚍 Bus", "regional_rail": "🚆 Regional Rail",
 }
 
 
@@ -677,6 +743,13 @@ ROAD_NETWORK = [
          ("Prajila", _PRAJILA_PT),
          ("Mărculești Airport", _MARCULESTI_AIRPORT_PT),
          ("Ciripcău", _CIRIPCAU_PT),
+     ]},
+    {"id": "regional_expressway", "name": "Regional Expressway (Cunicea–Răduleni)", "kind": "expressway",
+     "color": "#b45309",
+     "route": [
+         ("Cunicea", _CUNICEA_PT),
+         ("Răduleni", _RADULENI_PT),
+         ("Ghindești", _GHINDESTI_PT),
      ]},
 ]
 ROAD_KIND_STYLE = {
@@ -1089,7 +1162,7 @@ def build_map():
             tooltip=f"{road['name']}: {route_label}",
         ).add_to(m)
 
-    # Coach Terminal -- Tram M2's terminus, on the Metropolitan Ring Road at
+    # Coach Terminal -- Tram T1's terminus, on the Metropolitan Ring Road at
     # Vărvăreuca's Heritage Quarter boundary.
     folium.Marker(
         location=list(_COACH_TERMINAL_PT),
@@ -1097,7 +1170,7 @@ def build_map():
             '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);'
             'filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🚌</div>'
         )),
-        tooltip="Autogara Metropolitană — Coach Terminal, Tram M2 terminus, on the Metropolitan Ring Road "
+        tooltip="Autogara Metropolitană — Coach Terminal, Tram T1 terminus, on the Metropolitan Ring Road "
                 "at Vărvăreuca's Heritage Quarter boundary",
     ).add_to(m)
 
@@ -1122,6 +1195,20 @@ def build_map():
         )),
         tooltip="Centrul Civic — seat of the Metropolitan Council, the Florești Prefecture, and their directorates",
     ).add_to(m)
+
+    # Prefecture Towns -- Cunicea and Răduleni, real villages outside the
+    # metropole and the Technopolis Okrugs, grown into small towns with
+    # their own town council, directly under the prefecture.
+    for town in PREFECTURE_TOWNS:
+        lat, lon = STOP_COORDS[town["name"]]
+        folium.Marker(
+            location=[lat, lon],
+            icon=folium.DivIcon(html=(
+                '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);'
+                'filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🏘️</div>'
+            )),
+            tooltip=f"{town['name']} — Prefecture Town, own town council",
+        ).add_to(m)
 
     # CBD masterplan footprint -- shown as a zone on the map itself, not
     # just linked from Florești Central's municipal-view expander below.
@@ -1377,6 +1464,20 @@ st.markdown("#### 🏛️ Prefecture Policies")
 for policy in PREFECTURE_POLICIES:
     render_project(policy, "Prefecture", "prefecture_policy")
 
+st.markdown("#### 🏘️ Prefecture Towns")
+st.caption(
+    "Beside the metropole (with its Technopolis Okrugs and suburbs), two real villages have grown "
+    "into small towns directly under the prefecture, each with its own town council and policies -- "
+    "connected to Florești by regional rail, and to the Metropolitan Ring Road by a regional expressway."
+)
+for town in PREFECTURE_TOWNS:
+    st.markdown(f"**{town['name']}** — {town['note']}")
+    with st.expander(f"🏢 {town['name']} Town Council ({len(town['council'])})"):
+        for d in town["council"]:
+            st.markdown(f"- **{d['name']}** — {d['mandate']}")
+    for policy in TOWN_POLICIES[town["id"]]:
+        render_project(policy, f"{town['name']} Town Council", f"town_policy_{town['id']}")
+
 map_key = "metro_map_active" if st.session_state.metro_active else "metro_map_inactive"
 map_state = st_folium(build_map(), height=520, use_container_width=True, key=map_key)
 
@@ -1469,17 +1570,17 @@ if st.session_state.metro_active:
 
         with st.expander(f"🚊 Public Transit Network ({len(TRANSIT_LINES)} lines)"):
             st.caption(
-                "The metropole's metro system runs on trams, not heavy rail, and stays within the "
-                "4 municipalities' own boundaries -- unlike the BRT and commuter lines, it doesn't "
-                "reach the suburbs. Tram M2 runs strictly between Vărvăreuca's Heritage Quarter "
-                "boundary (the Coach Terminal) and Florești Central's own northern boundary. A BRT "
-                "corridor (biogas/electric buses) covers what the trams don't, and two commuter rail "
-                "lines reach past the metropole's own territory. Routes below are proposed "
-                "street-level alignments, not a surveyed plan."
+                "Rail runs in two tiers: **Metro M1** is the backbone spanning all 4 municipalities; "
+                "**Tram T1** is a short local connector running strictly between Vărvăreuca's Heritage "
+                "Quarter boundary (the Coach Terminal) and Florești Central's own northern boundary. "
+                "Road transit runs in three tiers: **BRT** lines reach further out at commuter-rail-"
+                "equivalent speed and don't stop as often; plain **biogas/electric buses** cover local "
+                "routes with no dedicated lane; **regional rail** reaches the prefecture's own small "
+                "towns (Cunicea, Răduleni). Routes below are proposed street-level alignments, not a "
+                "surveyed plan."
             )
             for line in TRANSIT_LINES:
-                mode_label = {"tram": "🚋 Tram", "brt": "🚌 BRT", "commuter": "🚆 Commuter"}[line["mode"]]
-                st.markdown(f"**{line['name']}** — {mode_label}  \n{transit_route_label(line)}")
+                st.markdown(f"**{line['name']}** — {TRANSIT_MODE_LABELS[line['mode']]}  \n{transit_route_label(line)}")
             st.markdown("**⇄ Interchanges**")
             for stop, lines in transit_interchanges().items():
                 st.markdown(f"- **{stop}** — {', '.join(lines)}")
@@ -1496,7 +1597,7 @@ if st.session_state.metro_active:
                 st.markdown(f"**{road['name']}**  \n{route_label}")
             st.markdown(
                 "**🚌 Autogara Metropolitană (Coach Terminal)** — on Vărvăreuca's Heritage Quarter "
-                "boundary, on the Metropolitan Ring Road, Tram M2's terminus."
+                "boundary, on the Metropolitan Ring Road, Tram T1's terminus."
             )
             st.markdown(
                 "**✈️ Mărculești–Florești International Airport** — its own sign on the map, same "
@@ -1505,6 +1606,11 @@ if st.session_state.metro_active:
             st.markdown(
                 "**🏛️ Centrul Civic (Civic Center)** — Florești Central's own civic district, seat "
                 "of the Metropolitan Council, the Florești Prefecture, and their directorates."
+            )
+            st.markdown(
+                "**🏘️ Cunicea & Răduleni** — Prefecture Towns, each with its own 🏘️ sign on the map, "
+                "reached by regional rail and the Regional Expressway (which joins the Metropolitan "
+                "Ring Road at Ghindești)."
             )
             st.markdown(
                 "**📐 Proposed CBD** — the riverside zone shown on the map between Centrul Civic and "
@@ -1677,6 +1783,42 @@ else:
         st.markdown("#### 🔬 Research Centers & Labs")
         for center in campus["research_centers"]:
             st.markdown(f"- {center}")
+
+# ---------- Directorates Dashboard ----------
+# Every governance tier's own directorates/departments/civic offices, in
+# one consolidated view -- the drill-down elsewhere in the app shows each
+# tier only once you've navigated to it; this is the same data laid out
+# flat, so a user can see the whole decentralized structure without
+# clicking through every municipality and district one at a time.
+st.subheader("📊 Directorates Dashboard")
+st.caption(
+    "Every governance tier's own directorates/departments/civic offices, in one place -- purely "
+    "descriptive, same as the panels this summarizes elsewhere in the app."
+)
+st.markdown(f"**🏛️ Florești Prefecture** — {len(PREFECTURE_DIRECTORATES)} directorates")
+for d in PREFECTURE_DIRECTORATES:
+    st.markdown(f"- {d['name']}")
+for town in PREFECTURE_TOWNS:
+    with st.expander(f"🏘️ {town['name']} Town Council ({len(town['council'])})"):
+        for d in town["council"]:
+            st.markdown(f"- **{d['name']}** — {d['mandate']}")
+
+if st.session_state.metro_active:
+    st.markdown(f"**🏢 Metropolitan Council** — {len(METRO_COUNCIL_DIRECTORATES)} directorates")
+    for d in METRO_COUNCIL_DIRECTORATES:
+        st.markdown(f"- {d['name']}")
+    for muni_name, info in METRO_STRUCTURE.items():
+        depts = MUNICIPALITY_DEPARTMENTS[muni_name]
+        with st.expander(f"🏢 {muni_name} — {len(depts)} departments, {len(info['districts'])} district offices"):
+            for d in depts:
+                st.markdown(f"- **{d['name']}** — {d['mandate']}")
+            st.markdown("**District Civic Offices**")
+            for dist in info["districts"]:
+                office = district_office(muni_name, dist)
+                st.markdown(f"- {office['name']}")
+else:
+    st.caption("Establish the metropole (Scenario 1, option B) to see the Metropolitan Council and "
+               "each municipality's own departments and district civic offices here too.")
 
 # ---------- Real-time clock loop ----------
 # While auto-play is on, the app sleeps for one tick then reruns itself,

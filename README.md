@@ -300,45 +300,44 @@ the metropole being established.
 ## Public Transit Network
 
 A third piece of structural world-building shown on the metropole map:
-the network of tram, bus, and commuter rail lines that actually move
-people around. No cost, no score effects — always drawn once the
-metropole is established, alongside its own **🚊 Public Transit Network**
-expander (next to Suburbs and Technopolis Okrugs) listing every line's
-stops in order.
+the network of rail and road transit that actually moves people around.
+No cost, no score effects — always drawn once the metropole is
+established, alongside its own **🚊 Public Transit Network** expander
+(next to Suburbs and Technopolis Okrugs) listing every line's stops in
+order. Rail runs in two tiers, road transit in three:
 
-- **The metro system runs on trams**, not heavy rail, and stays within
-  the 4 municipalities' own boundaries — unlike the BRT and commuter
-  lines below, it never reaches the suburbs. **Tram M1** (Vărvăreuca →
-  Florești Central → Lunga → Mărculești) is the backbone, tracing the
-  same real municipal corridors the map's own territory is built from
-  (Mărculești is only ever reachable via Lunga). **Tram M2** (Coach
-  Terminal → Florești Central North) runs strictly between two municipal
-  boundaries — Vărvăreuca's Heritage Quarter boundary at one end, Florești
-  Central's own northern boundary at the other — not into either
-  municipality's built-up core.
-- **BRT 1** (biogas/electric buses) covers what the trams don't, reaching
-  a suburb: Gura Camencii → Florești Central → Mărculești Airport.
-- **Two commuter rail lines** reach past the metropole's own territory —
-  **Commuter C1**: Ghindești → Florești Central → Lunga → Mărculești
-  Airport → Gura Căinarului (a real village further west); **Commuter
-  C2**: Gura Camencii → Florești Central → Lunga → Prajila, reaching the
-  Prajila Technopolis Okrug.
-- Every line's stops carry a proposed street/avenue name too (e.g. Tram
+- **Metro M1** — the backbone spanning all 4 municipalities (Vărvăreuca →
+  Florești Central → Lunga → Mărculești), tracing the same real municipal
+  corridors the map's own territory is built from (Mărculești is only
+  ever reachable via Lunga).
+- **Tram T1** — a short local connector running strictly between two
+  municipal boundaries (Coach Terminal → Florești Central North), not
+  into either municipality's built-up core, and sharing no stop with any
+  other line — a standalone connector, not a hub.
+- **BRT 1/2/3** (biogas/electric, commuter-rail-equivalent reach, don't
+  stop as often) — BRT 1 reaches Gura Camencii; BRT 2 reaches Ghindești
+  and Gura Căinarului; BRT 3 reaches the Prajila Technopolis Okrug.
+- **Bus B1** (biogas/electric, local, no dedicated lane) — Florești
+  Central ↔ Ghindești, a basic service alongside BRT 2's faster one on
+  the same corridor.
+- **Regional Rail R1/R2** — Florești Central out to the prefecture's own
+  small towns, Cunicea and Răduleni (see Directorates & Departments
+  below).
+- Every line's stops carry a proposed street/avenue name too (e.g. Metro
   M1's Florești Central stop sits on "Bulevardul Unirii, Centrul Civic") —
   concept alignments, not a surveyed plan, in the same spirit as the CBD
   masterplan below.
-- Each line is drawn on the map in its own color, styled by mode — trams
-  solid, BRT dashed (it's a bus corridor, not rail), commuter rail
-  dash-dotted — with a hover tooltip listing its full named-street route.
+- Each line is drawn on the map in its own color, styled by mode — metro
+  solid+thick, trams solid+thinner, BRT dashed, plain buses finely
+  dotted, regional rail dash-dotted — with a hover tooltip listing its
+  full named-street route.
 - **Interchanges** — any stop served by 2+ lines — get a white-on-black
   ring marker (⇄), computed from the lines' own stop lists rather than
-  hardcoded: Florești Central (Tram M1, BRT, both commuter lines), Lunga,
-  Gura Camencii, and Mărculești Airport are each 2–4-way interchanges.
-  Tram M2 doesn't share a stop with any other line — it's a standalone
-  boundary-to-boundary connector, not a hub.
+  hardcoded: Florești Central is now a 7-way hub (Metro, all 3 BRT lines,
+  the bus, and both regional rail lines).
 - The map's auto-fit view widens once more (past the Technopolis Okrugs)
   to keep the whole network in frame, including Gura Căinarului out past
-  Prajila to the west.
+  Prajila to the west, and Cunicea/Răduleni to the east/north.
 
 ## Roads & Key Sites
 
@@ -355,9 +354,13 @@ decision, this is a fixed route, not a Cost/effects choice.
 - **Technopolis Expressway** — Prajila → Mărculești Airport → Ciripcău,
   linking the two Technopolis Okrugs via the airport (Ciripcău's own
   connection *is* the expressway, not a separate boulevard).
+- **Regional Expressway (Cunicea–Răduleni)** — Cunicea → Răduleni →
+  Ghindești, joining the Metropolitan Ring Road right at Ghindești, so
+  the prefecture's two small towns connect directly into the metro's own
+  road network.
 - **🚌 Autogara Metropolitană (Coach Terminal)** — on Vărvăreuca's
   Heritage Quarter boundary, sitting on the Ring Road and doubling as
-  Tram M2's terminus.
+  Tram T1's terminus.
 - **✈️ Mărculești–Florești International Airport** — gets its own sign on
   the map, the same treatment as the Coach Terminal (previously only
   implied by the transit lines passing through it).
@@ -367,6 +370,8 @@ decision, this is a fixed route, not a Cost/effects choice.
   as the seat of the Metropolitan Council, the Florești Prefecture, and
   their directorates — tying the Directorates & Departments section below
   to an actual place.
+- **🏘️ Cunicea & Răduleni** — each gets its own sign on the map (see
+  Directorates & Departments below for their town councils).
 - **📐 Proposed CBD** — the CBD masterplan's own riverside footprint
   (between Centrul Civic and the Răut) is now drawn as a dashed blue zone
   on the map itself, not just linked from Florești Central's municipal
@@ -424,3 +429,27 @@ The 5 top-level scenarios disappear from the main flow once resolved
 the Metropole layer, next to the Metropolitan Council directorates, now
 lists every resolved scenario with the option actually chosen, so you can
 review past decisions without digging through the log.
+
+### Prefecture Towns — a third kind of settlement
+
+Beside the metropole (with its Technopolis Okrugs and suburbs), two real
+villages — **Cunicea** and **Răduleni** (using the real Rădulenii Noi
+locality's coordinates, preferred over Rădulenii Vechi) — have grown into
+small towns directly under the prefecture, each with its own **🏢 Town
+Council** (Department of Local Administration, Department of Public
+Finance) and its own interactive infrastructure-investment policy, shown
+in the Prefecture section right alongside Prefecture Policies. Each town
+is reached by its own Regional Rail line from Florești Central and by the
+Regional Expressway, and gets a 🏘️ sign on the map.
+
+### Directorates Dashboard — every tier, one screen
+
+A new top-level **📊 Directorates Dashboard** panel lays out every
+governance tier's own directorates/departments/civic offices flat, in one
+place — the same data the drill-down and expanders elsewhere already
+show, but without needing to click into every municipality and district
+one at a time to see it. Lists the Prefecture's 4 directorates and both
+Prefecture Towns' councils always; once the metropole is established,
+adds the Metropolitan Council's 6 directorates and one expander per
+municipality (its 3 departments plus all 4 of its districts' civic
+offices).

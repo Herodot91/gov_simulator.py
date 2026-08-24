@@ -1,11 +1,11 @@
 // Public transit network -- structural world-building like the Technopolis
 // Okrugs/FlorTech/AgroFlor: no cost, no score effects, always shown on the
-// map once the metropole is active. The metro system runs on trams, not
-// heavy rail, and stays inside the 4 municipalities -- unlike the BRT and
-// commuter lines, it doesn't reach the suburbs. A BRT corridor
-// (biogas/electric buses) covers what trams don't; two commuter rail lines
-// reach past the metropole's own territory to Gura Căinarului and to the
-// Prajila Technopolis Okrug.
+// map once the metropole is active. Rail runs in two tiers -- the metro
+// system (Metro, heavier/longer-haul) and trams (Tram, short/local) --
+// alongside road transit in three tiers of its own: BRT (limited-stop,
+// commuter-equivalent reach), plain biogas/electric bus (local, no
+// dedicated lane), and regional rail out to the prefecture's own small
+// towns (see directorates.js's PREFECTURE_TOWNS).
 const FLORESTI_PT = [47.8938318, 28.2996474];
 const VARVAREUCA_PT = [47.8798617, 28.3113869];
 const LUNGA_PT = [47.8617078, 28.231765];
@@ -16,9 +16,15 @@ const GURACAMENCII_PT = [47.8901159, 28.3553067];
 const PRAJILA_PT = [47.84049, 28.2100662];
 const CIRIPCAU_PT = [47.9865655, 28.3838055];
 const GURA_CAINARULUI_PT = [47.8627915, 28.1831829];
-// Tram M2's own points: a stop on Florești Central's own northern boundary,
+// Real villages, both outside the metropole and the Technopolis Okrugs,
+// whose territory has grown into a small town within the prefecture -- see
+// directorates.js's PREFECTURE_TOWNS. "Răduleni" uses the real Rădulenii
+// Noi locality's own coordinates (preferred over Rădulenii Vechi).
+const CUNICEA_PT = [47.9139733, 28.6456445];
+const RADULENI_PT = [47.9567436, 28.247045];
+// Tram T1's own points: a stop on Florești Central's own northern boundary,
 // and the Coach Terminal on Vărvăreuca's Heritage Quarter boundary (also
-// where the Metropolitan Ring Road passes -- see ROAD_NETWORK below). M2
+// where the Metropolitan Ring Road passes -- see ROAD_NETWORK below). T1
 // runs strictly between these two municipal boundaries, not into either
 // municipality's own core.
 const FLORESTI_NORTH_PT = [47.8998, 28.2996];
@@ -38,6 +44,8 @@ export const STOP_COORDS = {
   "Gura Căinarului": GURA_CAINARULUI_PT,
   "Prajila": PRAJILA_PT,
   "Coach Terminal": COACH_TERMINAL_PT,
+  "Cunicea": CUNICEA_PT,
+  "Răduleni": RADULENI_PT,
 };
 
 // The real street/avenue each stop sits on -- proposed, not surveyed (same
@@ -58,19 +66,21 @@ export const STOP_STREETS = {
   "Coach Terminal": "Autogara Metropolitană, Heritage Quarter boundary",
   "South Lunga Bypass": "Drumul de Centură Sud",
   "Vărvăreuca Forestry Bypass": "Drumul Ocolitor, Forestry District boundary",
+  "Cunicea": "Gara Cunicea, Regional Expressway",
+  "Răduleni": "Gara Răduleni, Regional Expressway",
 };
 
 export const TRANSIT_LINES = [
   {
-    id: "tram_m1",
-    name: "Tram M1",
-    mode: "tram",
-    color: "#c0392b",
+    id: "metro_m1",
+    name: "Metro M1",
+    mode: "metro",
+    color: "#1a237e",
     stops: ["Vărvăreuca", "Florești Central", "Lunga", "Mărculești"],
   },
   {
-    id: "tram_m2",
-    name: "Tram M2",
+    id: "tram_t1",
+    name: "Tram T1",
     mode: "tram",
     color: "#8e44ad",
     stops: ["Coach Terminal", "Florești Central North"],
@@ -83,31 +93,63 @@ export const TRANSIT_LINES = [
     stops: ["Gura Camencii", "Florești Central", "Mărculești Airport"],
   },
   {
-    id: "commuter_c1",
-    name: "Commuter C1",
-    mode: "commuter",
-    color: "#2c3e50",
+    id: "brt2",
+    name: "BRT 2 (biogas/electric)",
+    mode: "brt",
+    color: "#2980b9",
     stops: ["Ghindești", "Florești Central", "Lunga", "Mărculești Airport", "Gura Căinarului"],
   },
   {
-    id: "commuter_c2",
-    name: "Commuter C2",
-    mode: "commuter",
-    color: "#34495e",
+    id: "brt3",
+    name: "BRT 3 (biogas/electric)",
+    mode: "brt",
+    color: "#27ae60",
     stops: ["Gura Camencii", "Florești Central", "Lunga", "Prajila"],
+  },
+  {
+    id: "bus_b1",
+    name: "Bus B1 (biogas/electric)",
+    mode: "bus",
+    color: "#7f8c8d",
+    stops: ["Florești Central", "Ghindești"],
+  },
+  {
+    id: "regional_r1",
+    name: "Regional Rail R1",
+    mode: "regional_rail",
+    color: "#7b3f00",
+    stops: ["Florești Central", "Cunicea"],
+  },
+  {
+    id: "regional_r2",
+    name: "Regional Rail R2",
+    mode: "regional_rail",
+    color: "#5c4033",
+    stops: ["Florești Central", "Răduleni"],
   },
 ];
 
-// Line styling by mode: trams (the metro system) run solid, BRT dashed
-// (it's a bus corridor, not rail), commuter rail dash-dotted.
+// Line styling by mode: metro solid+thick, trams solid+thinner, BRT dashed
+// (a bus corridor, not rail), plain buses finely dotted, regional rail
+// dash-dotted.
 export const TRANSIT_MODE_STYLE = {
-  tram: { weight: 5, dashArray: null },
+  metro: { weight: 6, dashArray: null },
+  tram: { weight: 4, dashArray: null },
   brt: { weight: 4, dashArray: "10 6" },
-  commuter: { weight: 4, dashArray: "2 6" },
+  bus: { weight: 3, dashArray: "2 4" },
+  regional_rail: { weight: 4, dashArray: "2 6" },
 };
 
-// Stops served by 2+ transit lines -- where trams interchange with each
-// other, the BRT line, and the commuter lines.
+export const TRANSIT_MODE_LABELS = {
+  metro: "🚇 Metro",
+  tram: "🚋 Tram",
+  brt: "🚌 BRT",
+  bus: "🚍 Bus",
+  regional_rail: "🚆 Regional Rail",
+};
+
+// Stops served by 2+ transit lines -- where metro/trams interchange with
+// each other, the BRT lines, buses, and regional rail.
 export function transitInterchanges() {
   const byStop = {};
   for (const line of TRANSIT_LINES) {
@@ -125,13 +167,15 @@ export function transitRouteLabel(line) {
   return line.stops.map((s) => `${s} (${STOP_STREETS[s] || s})`).join(" → ");
 }
 
-// Two major roads, shown on the map as committed infrastructure (not a
+// Three major roads, shown on the map as committed infrastructure (not a
 // METRO_PROJECTS decision to resolve) -- the Metropolitan Ring Road stays
 // outside the municipalities' own built territory, tracing the metro's
 // southern periphery close to Vărvăreuca's Heritage Quarter and Forestry
 // District (its own two southernmost districts) rather than cutting through
 // the metropole itself, on its way from Ghindești to Gura Căinarului. The
 // Technopolis Expressway links the two Technopolis Okrugs via the airport.
+// The Regional Expressway links the two Prefecture Towns to the Ring Road
+// at Ghindești.
 export const ROAD_NETWORK = [
   {
     id: "ring_road_metro",
@@ -156,6 +200,17 @@ export const ROAD_NETWORK = [
       ["Prajila", PRAJILA_PT],
       ["Mărculești Airport", MARCULESTI_AIRPORT_PT],
       ["Ciripcău", CIRIPCAU_PT],
+    ],
+  },
+  {
+    id: "regional_expressway",
+    name: "Regional Expressway (Cunicea–Răduleni)",
+    kind: "expressway",
+    color: "#b45309",
+    route: [
+      ["Cunicea", CUNICEA_PT],
+      ["Răduleni", RADULENI_PT],
+      ["Ghindești", GHINDESTI_PT],
     ],
   },
 ];

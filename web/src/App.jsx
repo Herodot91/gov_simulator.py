@@ -8,6 +8,7 @@ import CitizenProgressCard from "./components/CitizenProgressCard.jsx";
 import GovernanceStructure from "./components/GovernanceStructure.jsx";
 import FlorTechSection from "./components/FlorTechSection.jsx";
 import AgroFlorSection from "./components/AgroFlorSection.jsx";
+import DirectoratesDashboard from "./components/DirectoratesDashboard.jsx";
 import "./App.css";
 
 function AppShell() {
@@ -32,6 +33,7 @@ function AppShell() {
         <GovernanceStructure />
         <FlorTechSection />
         <AgroFlorSection />
+        <DirectoratesDashboard />
       </main>
     </div>
   );

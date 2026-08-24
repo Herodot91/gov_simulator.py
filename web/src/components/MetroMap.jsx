@@ -6,6 +6,7 @@ import { METRO_STRUCTURE, MUNICIPALITY_COLORS, TECHNOPOLIS_OKRUGS } from "../dat
 import { allProjectsWithScope, PROJECT_MAP_LOCATIONS } from "../data/projects.js";
 import { FLORTECH, FLORTECH_CAMPUS_LOCATIONS } from "../data/flortech.js";
 import { AGROFLOR, AGROFLOR_CAMPUS_LOCATIONS } from "../data/agroflor.js";
+import { PREFECTURE_TOWNS } from "../data/directorates.js";
 import {
   STOP_COORDS,
   TRANSIT_LINES,
@@ -443,6 +444,20 @@ export default function MetroMap() {
             }}
           />
         )}
+
+        {state.metroActive &&
+          PREFECTURE_TOWNS.map((town) => (
+            <Marker
+              key={town.id}
+              position={STOP_COORDS[town.name]}
+              icon={divIcon(
+                '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🏘️</div>'
+              )}
+              eventHandlers={{
+                add: (e) => e.target.bindTooltip(`${town.name} — Prefecture Town, own town council`),
+              }}
+            />
+          ))}
 
         {state.metroActive && (
           <Rectangle
