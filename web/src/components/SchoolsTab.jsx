@@ -2,23 +2,22 @@ import { useState } from "react";
 import { useSimState } from "../state/SimulationContext.jsx";
 import { METRO_STRUCTURE, SUBURBS } from "../data/metroStructure.js";
 import { SCHOOLS } from "../data/directorates.js";
-import FlorTechSection from "./FlorTechSection.jsx";
-import AgroFlorSection from "./AgroFlorSection.jsx";
 
 const BESIDE_METROPOLE = ["Cunicea", "Răduleni"];
 
-// Every location's own schools, plus the two higher-ed universities
-// (FlorTech, AgroFlor) that grew out of the metropole's investment choices.
+// Every location's own K-12/lycee schools -- the universities (FlorTech,
+// AgroFlor) get their own separate tab, since they're not part of this same
+// tier: they answer to the national Ministry of Education, not the
+// Prefecture's own decentralized education directorate.
 export default function SchoolsTab() {
   const state = useSimState();
   const withinMetropole = [...Object.keys(METRO_STRUCTURE), ...SUBURBS.map((s) => s.name), "Ciripcău"];
 
   return (
     <>
-      <h4>🎓 Schools</h4>
       <p className="caption">
-        Every location's own schools, browsable in one place — purely descriptive, no cost or score
-        effects.
+        Every location's own K-12/lycee schools, browsable in one place — purely descriptive, no cost
+        or score effects. See the Universities tab for FlorTech and AgroFlor.
       </p>
       <p>
         <strong>Beside the metropole</strong>
@@ -41,9 +40,6 @@ export default function SchoolsTab() {
           suburbs, and Ciripcău too.
         </p>
       )}
-
-      <FlorTechSection />
-      <AgroFlorSection />
     </>
   );
 }

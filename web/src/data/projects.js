@@ -88,6 +88,34 @@ export function districtProjectKey(municipality, district) {
   return `${municipality}::${district}`;
 }
 
+// Each Technopolis Okrug gets its own real interactive policy, same
+// Cost + effects shape as Town Policies -- keyed by the okrug's own
+// "name", same convention as FACTORIES/SCHOOLS in directorates.js.
+export const TECHNOPOLIS_POLICIES = {
+  Prajila: [
+    {
+      id: "prajila_expansion",
+      title: "Prajila Heavy Industry — Production Line Expansion",
+      options: {
+        A: ["Expand PHI's heavy machinery production line", { Economy: +6, Governance: +2 }, 18],
+        B: ["Maintain current production capacity", {}, 0],
+      },
+      intl: "PHI's export contracts draw regional investor interest.",
+    },
+  ],
+  "Ciripcău": [
+    {
+      id: "ciripcau_expansion",
+      title: "Sigma Motors — EV Production Line Expansion",
+      options: {
+        A: ["Expand Sigma Motors' EV production line", { Economy: +6, Governance: +2 }, 18],
+        B: ["Maintain current production capacity", {}, 0],
+      },
+      intl: "Sigma Motors' EV lineup draws EU green-tech attention.",
+    },
+  ],
+};
+
 // Real-world reference points used to place resolved projects on the map --
 // same coordinates as each municipality's real anchor locality (see
 // floresti_localities.json), plus the real Mărculești airport's approximate

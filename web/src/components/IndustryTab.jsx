@@ -3,13 +3,16 @@ import { useSimState } from "../state/SimulationContext.jsx";
 import { METRO_STRUCTURE, SUBURBS, TECHNOPOLIS_OKRUGS } from "../data/metroStructure.js";
 import { FACTORIES } from "../data/directorates.js";
 import { COMPANY_PRODUCTS } from "../data/companies.js";
+import { TECHNOPOLIS_POLICIES } from "../data/projects.js";
 import { findLocality } from "./MetroMap.jsx";
 import { useLocalities } from "./useLocalities.js";
+import ProjectCard from "./ProjectCard.jsx";
 
 const BESIDE_METROPOLE = ["Cunicea", "Răduleni"];
 
 // Technopolis Okrugs' full product lines (the Decentralization Structure tab
-// only names them administratively) plus every location's own factories.
+// only names them administratively) and their own real policy, plus every
+// location's own factories.
 export default function IndustryTab() {
   const state = useSimState();
   const localities = useLocalities();
@@ -18,8 +21,10 @@ export default function IndustryTab() {
   return (
     <>
       <p className="caption">
-        Every Technopolis Okrug's flagship company and product line, plus every location's own
-        factories (name, sector, products) — purely descriptive, no cost or score effects.
+        Every Technopolis Okrug's flagship company, product line, and its own real production-line
+        policy, plus every location's own factories (name, sector, products) — factories are purely
+        descriptive, but each okrug's own policy is a real Cost + effects decision like any other
+        governance level's (see also the Policy Simulation tab).
       </p>
 
       <h4>🏭 Technopolis Okrugs</h4>
@@ -36,6 +41,9 @@ export default function IndustryTab() {
                 </span>
               </p>
               <CompanyProducts company={okrug.company} />
+              {(TECHNOPOLIS_POLICIES[okrug.name] || []).map((policy) => (
+                <ProjectCard key={policy.id} project={policy} scopeLabel={`${loc.display_name} Technopolis Okrug`} />
+              ))}
             </div>
           );
         })}

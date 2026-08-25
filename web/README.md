@@ -2,26 +2,35 @@
 
 A React + Vite port of the Streamlit app in the repo root, with the same
 feature set: real-time simulation, the 5 scripted scenarios, and the
-Florești Metropole section's own **six-tab menu** — Decentralization
+Florești Metropole section's own **eight-tab menu** — Decentralization
 Structure (Prefecture → Metropole → Prefecture Towns, the
 Metropole → Municipality → District drill-down via map click or list
 click, layer-scoped development projects with map markers, Suburbs, and
-the Technopolis Okrugs' administrative mention), Directorates (every
-tier's own org chart, flat), Map (the full interactive map on its own),
-Industry (the Zelenograd-model Technopolis Okrugs' full product-line
-catalogs plus every location's factories), Schools (every location's own
-schools plus the FlorTech and AgroFlor university campus/faculty/
-department drill-downs), and Transportation (the public transit network —
-Metro M1/M2, Tram T1, BRT/Bus/Regional Rail, all interchanging at Gara
-Florești — with named-street routes and interchange markers, Roads & Key
-Sites, and the **MetroFlor**/**FlorLink** operator listings). The
+a brief Technopolis Okrugs mention), Directorates (every tier's own org
+chart, flat), Map (the full interactive map on its own), Industry (the
+Zelenograd-model Technopolis Okrugs' full product-line catalogs and each
+okrug's own real production-line policy, plus every location's
+factories), Schools (every location's own K-12/lycee schools only),
+Universities (FlorTech and AgroFlor — split out from Schools, since
+Moldova's real universities answer to the national Ministry of Education,
+not the Prefecture's own education directorate), Transportation (the
+public transit network — Metro M1/M2, Tram T1, BRT/Bus/Regional Rail, all
+interchanging at Gara Florești — with named-street routes and interchange
+markers, Roads & Key Sites, and the **MetroFlor**/**FlorLink** operator
+listings), and Policy Simulation (pick any governance level — Prefecture,
+Metropole, Municipality, District, Town, Technopolis — and resolve its
+own real policies directly; resolving one here is a real decision that
+shows up at that level's own natural section too). Every resolved
+policy/project card anywhere in the app now shows a small diverging bar
+chart of the Governance/Economy/Stability/Risk deltas it applied plus its
+own explanation text, not just a plain "chosen option" message. The
 Metropolitan Ring Road, Technopolis Expressway, Regional Expressway, and
 Coach Terminal/Airport/Centrul Civic/CBD zone/Florești HPP (Răut river,
 HydroTechnique Ltd.) map sites are all still drawn on the map itself.
 Prefecture Towns each get an expanded, dashed-circle territory, their own
 town council/policies, and a non-mono-industrial factory roster; a
 Current Policies review panel sits in the Decentralization Structure tab.
-All six tabs stay mounted at once (hidden/shown, not conditionally
+All eight tabs stay mounted at once (hidden/shown, not conditionally
 rendered), so map clicks, drill-down selections, and expander state
 survive switching tabs. On-map district boundaries appear once a
 municipality is selected, and CSV/JSON export rounds out the feature set.
@@ -54,7 +63,9 @@ entirely client-side: no Python backend, no server-side session state.
 ```
 src/
   data/            scenarios, metro/district structure (incl. the two
-                    Zelenograd-model Technopolis Okrugs), development projects,
+                    Zelenograd-model Technopolis Okrugs), projects.js
+                    (development projects plus TECHNOPOLIS_POLICIES, one
+                    real policy per okrug),
                     companies.js (Technopolis Okrug product catalogs),
                     flortech.js (FlorTech campuses/faculties/vocational tracks),
                     agroflor.js (AgroFlor campuses/faculties/research centers),
@@ -71,13 +82,14 @@ src/
   state/           SimulationContext.jsx — the whole game state as a reducer
                     (incl. resolvedScenarios, for the Current Policies panel)
   components/      Sidebar, ScenarioPanel, ScoreChart (hand-rolled SVG),
-                    CitizenProgressCard, MetropoleTabs (the six-tab menu --
+                    CitizenProgressCard, MetropoleTabs (the eight-tab menu --
                     Decentralization Structure/Directorates/Map/Industry/
-                    Schools/Transportation -- keeps every tab's content
-                    mounted via the `hidden` attribute rather than
-                    conditional rendering, so map/drill-down/expander state
-                    survives switching tabs), useLocalities.js (shared hook,
-                    fetches public/data/floresti_localities.json),
+                    Schools/Universities/Transportation/Policy Simulation --
+                    keeps every tab's content mounted via the `hidden`
+                    attribute rather than conditional rendering, so
+                    map/drill-down/expander state survives switching tabs),
+                    useLocalities.js (shared hook, fetches
+                    public/data/floresti_localities.json),
                     MetroMap (react-leaflet, incl. the FlorTech/AgroFlor
                     campus markers, the transit lines/interchange markers,
                     the Ring Road/Expressway, the Coach Terminal/Centrul
@@ -90,21 +102,34 @@ src/
                     Technopolis Okrugs mention, Prefecture Policies, the
                     Current Policies review panel, and Prefecture Towns --
                     org-chart detail lives in the Directorates tab instead),
-                    ProjectCard, CbdMasterplan (fetches
+                    ProjectCard (options before resolution; once resolved,
+                    the chosen option, an EffectsBarChart of its own
+                    Governance/Economy/Stability/Risk deltas, and its own
+                    `intl` explanation caption), EffectsBarChart (small
+                    diverging SVG bar chart, reused by every resolved
+                    ProjectCard), CbdMasterplan (fetches
                     public/data/cbd_masterplan.svg — the same concept CBD
                     site plan the Streamlit app embeds),
                     DirectoratesDashboard (every tier's directorates/
                     departments/civic offices flattened into one panel, now
                     the Directorates tab's content), IndustryTab (the
-                    Technopolis Okrugs' full product-line catalogs plus
-                    every location's factories), SchoolsTab (every
-                    location's schools, plus FlorTechSection and
-                    AgroFlorSection), FlorTechSection (campus grid → campus
-                    detail drill-down, Vocational Institutes expander),
+                    Technopolis Okrugs' full product-line catalogs and each
+                    okrug's own TECHNOPOLIS_POLICIES card, plus every
+                    location's factories), SchoolsTab (every location's own
+                    K-12/lycee schools only), UniversitiesTab
+                    (FlorTechSection + AgroFlorSection, split out from
+                    Schools), FlorTechSection (campus grid → campus detail
+                    drill-down, Vocational Institutes expander),
                     AgroFlorSection (same shape, plus a Research Centers &
                     Labs list per campus), TransportationTab (MetroFlor/
                     FlorLink operator expanders, the Public Transit Network
-                    expander, and the Roads & Key Sites expander)
+                    expander, and the Roads & Key Sites expander),
+                    PolicySimulationTab (a governance-level picker --
+                    Prefecture/Metropole/Municipality/District/Town/
+                    Technopolis, with cascading Municipality/District
+                    selects -- rendering that level's own real
+                    ProjectCards, the same resolveProject action as
+                    everywhere else)
   utils/           geo.js (point-in-polygon, zoom-fit, and Sutherland-Hodgman
                     polygon clipping for the district quadrant overlay --
                     small manual replacements for the Python app's shapely

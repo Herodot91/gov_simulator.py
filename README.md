@@ -38,7 +38,7 @@ client-side static app instead of a Streamlit/Python backend. See
 - History (scores per month) and the full event log can be exported at any
   point as CSV / JSON, even mid-run.
 
-## Menu — six tabs instead of one long scroll
+## Menu — eight tabs instead of one long scroll
 
 The whole "Florești Metropole" section used to be one continuously
 scrolling page — every governance layer, dashboard, and reference section
@@ -47,26 +47,53 @@ now a proper tabbed menu instead:
 
 - **🏛️ Decentralization Structure** — the governance hierarchy itself:
   Prefecture (Policies) → Metropole (map-driven municipality/district
-  drill-down, Suburbs, Technopolis Okrugs, Metropolitan/Municipal/District
-  Projects) → Prefecture Towns. Structure and policy/project decisions
-  only — every tier's own org chart moved to its own tab.
+  drill-down, Suburbs, a brief Technopolis Okrugs mention,
+  Metropolitan/Municipal/District Projects) → Prefecture Towns. Structure
+  and policy/project decisions only — every tier's own org chart moved to
+  its own tab.
 - **🏢 Directorates** — every tier's directorates/departments/civic
   offices, flat (formerly the "Directorates Dashboard").
 - **🗺️ Map** — the full interactive map on its own, still click-to-drill-
   down (results show up back in the Decentralization Structure and
   Schools tabs).
-- **🏭 Industry** — the Technopolis Okrugs' full product lines plus every
-  location's factories.
-- **🎓 Schools** — every location's own schools, plus FlorTech and
-  AgroFlor (the two higher-ed universities).
+- **🏭 Industry** — the Technopolis Okrugs' full product lines and each
+  okrug's own real policy, plus every location's factories.
+- **📚 Schools** — every location's own K-12/lycee schools only.
+- **🎓 Universities** — FlorTech and AgroFlor, split out from Schools:
+  Moldova's real universities answer directly to the national Ministry of
+  Education, not the Prefecture's own decentralized education directorate,
+  so they get their own tab rather than sitting under K-12/lycee schools.
 - **🚌 Transportation** — the transit network, roads & key sites, and the
   two operators that run them (see below).
+- **📈 Policy Simulation** — every governance level's real policies,
+  reachable directly by picking a level (see below).
 
-All six tabs stay mounted at once (hidden/shown, not mounted/unmounted),
+All eight tabs stay mounted at once (hidden/shown, not mounted/unmounted),
 so map state, drill-down selections, and expander state all survive
 switching tabs — clicking a municipality on the Map tab and then flipping
 to Decentralization Structure shows that municipality's districts, exactly
 as if you'd clicked it there directly.
+
+### Policy Simulation — every level, one selector
+
+The **📈 Policy Simulation** tab lets you pick a governance level —
+Prefecture, Metropole, Municipality, District, Town, or Technopolis — and
+jump straight to that level's own real policies/projects (picking a
+Municipality/District/Town/Technopolis also picks *which* one). Resolving
+a policy here is a real decision, identical to using its card at that
+level's own natural section: it spends budget, updates the scores, and
+shows up at both places at once, since both read the same
+`resolved_projects`/`resolvedProjects` state keyed by the policy's own id.
+Technopolis Okrugs didn't have any interactive policy before this — each
+now gets its own real one (Prajila Heavy Industry / Sigma Motors
+production-line expansion, Cost 18 for either), also shown inline in the
+Industry tab next to that okrug's product-line catalog.
+
+Once *any* project/policy card anywhere in the app is resolved (not just
+from this tab), it now shows its own **result and explanation** in place:
+a small diverging bar chart of the Governance/Economy/Stability/Risk
+deltas that were actually applied, plus the policy's own `intl` flavor
+text as a caption — previously only a plain "chosen option" message.
 
 ### MetroFlor & FlorLink — the two transit operators
 
@@ -534,9 +561,11 @@ districts' civic offices).
 
 The **🏭 Industry** tab holds the Technopolis Okrugs' full company/
 product-line detail (the Decentralization Structure tab only names them
-administratively) plus every location's own factories (name, sector,
-products), same flat click-to-browse shape as the Directorates tab.
-Purely descriptive world-building — no cost, no score effects.
+administratively) and each okrug's own real production-line policy, plus
+every location's own factories (name, sector, products), same flat
+click-to-browse shape as the Directorates tab. Factories are purely
+descriptive world-building; each okrug's own policy is a real Cost +
+effects decision (see Policy Simulation below).
 
 - **Beside the metropole** (always visible): **Cunicea** (Cunicea
   AutoParts — a Sigma Motors supplier; Cunicea Precision Electronics) and
@@ -551,10 +580,10 @@ Purely descriptive world-building — no cost, no score effects.
   beer factory and Ghindești Zahăr S.A., a sugar-processing plant; **Gura
   Căinarului** (now a suburb, see above) has the Beverage Works.
 
-### Schools tab — every location's schools, plus FlorTech and AgroFlor
+### Schools tab — every location's K-12/lycee schools
 
-The **🎓 Schools** tab lists every location's own schools, spread across
-the whole metropole rather than stacked in one place — each
+The **📚 Schools** tab lists every location's own K-12/lycee schools,
+spread across the whole metropole rather than stacked in one place — each
 municipality/suburb's own real-named school(s) (e.g. Liceul Teoretic
 Ștefan cel Mare at Florești Central) plus one fictional international
 school each: Fuad Seniora School at Florești Central, Tokugawa
@@ -562,6 +591,15 @@ International Japanese School at Mărculești, Liceo Español Don Quijote
 at Vărvăreuca, Liceo Classico Italiano Giuseppe Verdi at Lunga, Abdi
 İpekçi Türk Lisesi at Ghindești, and **Liceo Tecnico Giorgetto Giugiaro**
 deliberately at Ciripcău next to Sigma Motors — a thematic pairing with
-the real automotive designer's namesake. FlorTech and AgroFlor (see
-below) share this tab too, since they're the metropole's own higher-ed
-institutions.
+the real automotive designer's namesake.
+
+### Universities tab — FlorTech and AgroFlor
+
+FlorTech and AgroFlor moved out of Schools into their own **🎓
+Universities** tab: real Moldovan universities answer directly to the
+national Ministry of Education, not to the Prefecture's own decentralized
+education directorate the way K-12/lycee schools do, so lumping them in
+with Schools misrepresented the governance structure. Same content as
+before (campus grid → campus detail drill-down, faculties/departments/
+programs, FlorTech's Vocational Institutes expander, AgroFlor's Research
+Centers & Labs) — just relocated.

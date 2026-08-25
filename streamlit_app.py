@@ -142,6 +142,28 @@ TECHNOPOLIS_OKRUGS = [
     },
 ]
 
+# Each Technopolis Okrug gets its own real interactive policy, same
+# Cost + effects shape as Town Policies -- keyed by the okrug's own
+# "name", same convention as FACTORIES/SCHOOLS below.
+TECHNOPOLIS_POLICIES = {
+    "Prajila": [
+        {"id": "prajila_expansion", "title": "Prajila Heavy Industry — Production Line Expansion",
+         "options": {
+             "A": ["Expand PHI's heavy machinery production line", {"Economy": +6, "Governance": +2}, 18],
+             "B": ["Maintain current production capacity", {}, 0],
+         },
+         "intl": "PHI's export contracts draw regional investor interest."},
+    ],
+    "Ciripcău": [
+        {"id": "ciripcau_expansion", "title": "Sigma Motors — EV Production Line Expansion",
+         "options": {
+             "A": ["Expand Sigma Motors' EV production line", {"Economy": +6, "Governance": +2}, 18],
+             "B": ["Maintain current production capacity", {}, 0],
+         },
+         "intl": "Sigma Motors' EV lineup draws EU green-tech attention."},
+    ],
+}
+
 # Each Technopolis Okrug's flagship company has a browsable product line --
 # real-shaped catalogs (named models, a category, a one-line spec), not
 # just the company name.
@@ -1509,7 +1531,8 @@ def risk_badge(val: int):
 def render_project(project, scope_label, key_prefix):
     """One project's UI at whichever governance layer it's shown: its
     options as buttons (mirrors the top-level SCENARIOS buttons) before
-    it's resolved, or the outcome once it is."""
+    it's resolved, or the result -- effects graph + explanation -- once
+    it is."""
     resolved = st.session_state.resolved_projects.get(project["id"])
     st.markdown(f"**{project['title']}**")
     if resolved:
@@ -1517,6 +1540,10 @@ def render_project(project, scope_label, key_prefix):
             st.caption("⏭️ Skipped")
         else:
             st.success(f"{resolved['choice']}) {resolved['label']}")
+            _, effects, _ = project["options"][resolved["choice"]]
+            if effects:
+                st.bar_chart(pd.DataFrame({"Effect": effects}))
+            st.caption(f"🌐 {project['intl']}")
     else:
         opt_items = list(project["options"].items())
         cols = st.columns(len(opt_items) + 1)
@@ -1576,17 +1603,24 @@ with right:
 # instead: Decentralization Structure (the governance hierarchy itself,
 # click-to-drill-down plus its policy/project levers), Directorates (every
 # tier's org chart, flat), Map (the full interactive map on its own), Industry
-# (factories + Technopolis Okrugs' product lines), Schools (K-12/lycee +
-# FlorTech/AgroFlor higher ed), and Transportation (transit + roads +
-# operators). Streamlit still executes every tab's code on each rerun --
-# tabs only hide/show already-rendered output client-side -- so state shared
-# across tabs (map clicks driving the structure tab's drill-down, etc.)
-# stays consistent regardless of which tab is currently visible.
+# (factories + Technopolis Okrugs' product lines and their own policy),
+# Schools (K-12/lycee only), Universities (FlorTech/AgroFlor -- these report
+# to the national Ministry of Education, not the Prefecture's own decentralized
+# education directorate, so they get their own tab rather than sitting under
+# Schools), Transportation (transit + roads + operators), and Policy
+# Simulation (every governance level's real policies, reachable directly by
+# picking a level, instead of navigating each one's own natural section).
+# Streamlit still executes every tab's code on each rerun -- tabs only
+# hide/show already-rendered output client-side -- so state shared across
+# tabs (map clicks driving the structure tab's drill-down, a policy resolved
+# from the simulation tab showing up at its natural level too, etc.) stays
+# consistent regardless of which tab is currently visible.
 st.subheader("🏙️ Florești Metropole")
 (tab_structure, tab_directorates, tab_map, tab_industry, tab_schools,
- tab_transport) = st.tabs([
+ tab_universities, tab_transport, tab_policy_sim) = st.tabs([
     "🏛️ Decentralization Structure", "🏢 Directorates", "🗺️ Map",
-    "🏭 Industry", "🎓 Schools", "🚌 Transportation",
+    "🏭 Industry", "📚 Schools", "🎓 Universities", "🚌 Transportation",
+    "📈 Policy Simulation",
 ])
 
 # ---------- Map tab ----------
@@ -1848,8 +1882,10 @@ with tab_directorates:
 # only names them administratively) plus every location's factories.
 with tab_industry:
     st.caption(
-        "Every Technopolis Okrug's flagship company and product line, plus every location's own "
-        "factories (name, sector, products) -- purely descriptive, no cost or score effects."
+        "Every Technopolis Okrug's flagship company, product line, and its own real production-line "
+        "policy, plus every location's own factories (name, sector, products) -- factories are purely "
+        "descriptive, but each okrug's own policy is a real Cost + effects decision like any other "
+        "governance level's (see also the Policy Simulation tab)."
     )
     st.markdown("#### 🏭 Technopolis Okrugs")
     for okrug in TECHNOPOLIS_OKRUGS:
@@ -1862,6 +1898,8 @@ with tab_industry:
         with st.expander(f"🔧 {okrug['company']} — product line ({len(products)})"):
             for p in products:
                 st.markdown(f"- **{p['model']}** — {p['category']} · {p['spec']}")
+        for policy in TECHNOPOLIS_POLICIES.get(okrug["name"], []):
+            render_project(policy, f"{loc['display_name']} Technopolis Okrug", "okrug_policy")
 
     def _factory_expander(name):
         factories = FACTORIES.get(name, [])
@@ -1884,8 +1922,10 @@ with tab_industry:
                    "municipalities, suburbs, and Ciripcău too.")
 
 # ---------- Schools tab ----------
-# Every location's own schools, plus the two higher-ed universities
-# (FlorTech, AgroFlor) that grew out of the metropole's investment choices.
+# Every location's own K-12/lycee schools -- the universities (FlorTech,
+# AgroFlor) get their own separate tab, since they're not part of this same
+# tier: they answer to the national Ministry of Education, not the
+# Prefecture's own decentralized education directorate.
 with tab_schools:
     def _school_expander(name):
         schools = SCHOOLS.get(name, [])
@@ -1895,10 +1935,9 @@ with tab_schools:
             for s in schools:
                 st.markdown(f"- {s}")
 
-    st.markdown("#### 🎓 Schools")
     st.caption(
-        "Every location's own schools, browsable in one place -- purely descriptive, no cost or "
-        "score effects."
+        "Every location's own K-12/lycee schools, browsable in one place -- purely descriptive, no "
+        "cost or score effects. See the Universities tab for FlorTech and AgroFlor."
     )
     st.markdown("**Beside the metropole**")
     for name in ["Cunicea", "Răduleni"]:
@@ -1911,6 +1950,17 @@ with tab_schools:
         st.caption("Establish the metropole (Scenario 1, option B) to see schools across the "
                    "municipalities, suburbs, and Ciripcău too.")
 
+# ---------- Universities tab ----------
+# FlorTech and AgroFlor -- unlike K-12/lycee schools (a Prefecture/municipal
+# education-directorate concern), Moldova's real universities report
+# directly to the national Ministry of Education, so these two get their
+# own tab rather than sitting under Schools.
+with tab_universities:
+    st.caption(
+        "FlorTech and AgroFlor answer to the national Ministry of Education directly, not the "
+        "Prefecture's own education directorate -- their campuses, programs, labs, and other "
+        "infrastructure, browsable here separately from the K-12/lycee schools in the Schools tab."
+    )
     st.markdown("#### 🎓 FlorTech — Florești University of Technology")
     if not st.session_state.metro_active:
         st.info("FlorTech's campuses come online once the metropole is established "
@@ -2044,6 +2094,87 @@ with tab_transport:
             "**⚡ Florești HPP** — the hydroelectric power plant on the Răut river, just downstream "
             "of the CBD riverside land, managed by HydroTechnique Ltd. (see the Industry tab)."
         )
+
+# ---------- Policy Simulation tab ----------
+# One selector reaching every governance level's own real policies/projects
+# directly, instead of navigating to each level's own natural section --
+# Prefecture, Metropole, Municipality, District, Town, and Technopolis all
+# have their own real Cost + effects decisions. Resolving one here uses the
+# exact same render_project()/resolved_projects mechanism as everywhere
+# else in the app (keyed by the project's own id, not by which UI rendered
+# it), so it's a real decision, not a preview -- it shows up at that
+# level's own natural section too, and vice versa.
+with tab_policy_sim:
+    st.caption(
+        "Pick a governance level to jump straight to its own real policies/projects -- the same "
+        "Cost + effects decisions available at that level's own section elsewhere in the app. "
+        "Resolving one here is a real decision: it spends budget and shows up at that level's own "
+        "section too. Once resolved, each card shows the effects it applied (graph) and its own "
+        "explanation."
+    )
+    policy_sim_level = st.radio(
+        "Governance level",
+        ["Prefecture", "Metropole", "Municipality", "District", "Town", "Technopolis"],
+        horizontal=True, key="policy_sim_level",
+    )
+
+    if policy_sim_level == "Prefecture":
+        for policy in PREFECTURE_POLICIES:
+            render_project(policy, "Prefecture", "policysim_prefecture")
+
+    elif policy_sim_level == "Metropole":
+        if not st.session_state.metro_active:
+            st.info("Establish the metropole (Scenario 1, option B) to see Metropolitan Projects.")
+        else:
+            for project in METRO_PROJECTS:
+                render_project(project, "Metropolitan", "policysim_metro")
+
+    elif policy_sim_level == "Municipality":
+        if not st.session_state.metro_active:
+            st.info("Establish the metropole (Scenario 1, option B) first.")
+        else:
+            ps_muni = st.selectbox("Municipality", list(METRO_STRUCTURE), key="policy_sim_muni")
+            ps_projects = MUNICIPALITY_PROJECTS.get(ps_muni, [])
+            ps_active = ps_muni in st.session_state.inaugurated
+            if not ps_projects:
+                st.caption(f"{ps_muni} has no municipal projects defined.")
+            elif not ps_active:
+                st.caption(f"Inaugurate {ps_muni} (from its own municipal view, in the "
+                           "Decentralization Structure tab) to unlock its projects.")
+            else:
+                for project in ps_projects:
+                    render_project(project, f"{ps_muni} municipal", "policysim_muni")
+
+    elif policy_sim_level == "District":
+        if not st.session_state.metro_active:
+            st.info("Establish the metropole (Scenario 1, option B) first.")
+        else:
+            ps_dist_muni = st.selectbox("Municipality", list(METRO_STRUCTURE), key="policy_sim_dist_muni")
+            ps_dist = st.selectbox("District", METRO_STRUCTURE[ps_dist_muni]["districts"], key="policy_sim_dist")
+            ps_dist_projects = DISTRICT_PROJECTS.get((ps_dist_muni, ps_dist), [])
+            ps_dist_active = ps_dist_muni in st.session_state.inaugurated
+            if not ps_dist_projects:
+                st.caption(f"{ps_dist} has no district projects defined.")
+            elif not ps_dist_active:
+                st.caption(f"Inaugurate {ps_dist_muni} to unlock projects in {ps_dist}.")
+            else:
+                for project in ps_dist_projects:
+                    render_project(project, f"{ps_dist} district", "policysim_dist")
+
+    elif policy_sim_level == "Town":
+        ps_town_name = st.selectbox(
+            "Prefecture Town", [t["name"] for t in PREFECTURE_TOWNS], key="policy_sim_town"
+        )
+        ps_town = next(t for t in PREFECTURE_TOWNS if t["name"] == ps_town_name)
+        for policy in TOWN_POLICIES[ps_town["id"]]:
+            render_project(policy, f"{ps_town['name']} Town Council", "policysim_town")
+
+    else:  # Technopolis
+        ps_okrug_name = st.selectbox(
+            "Technopolis Okrug", [o["name"] for o in TECHNOPOLIS_OKRUGS], key="policy_sim_okrug"
+        )
+        for policy in TECHNOPOLIS_POLICIES.get(ps_okrug_name, []):
+            render_project(policy, f"{ps_okrug_name} Technopolis Okrug", "policysim_okrug")
 
 # ---------- Real-time clock loop ----------
 # While auto-play is on, the app sleeps for one tick then reruns itself,

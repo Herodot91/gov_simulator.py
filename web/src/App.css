@@ -360,6 +360,47 @@
   color: var(--text-muted);
 }
 
+.effects-chart {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  margin: 6px 0;
+}
+
+.level-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 18px;
+}
+
+.btn-select-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.policy-sim-select {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+  max-width: 280px;
+}
+
+.policy-sim-select select {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--panel-bg);
+}
+
 .chart-legend-swatch {
   width: 10px;
   height: 10px;

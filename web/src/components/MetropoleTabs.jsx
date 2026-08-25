@@ -4,15 +4,19 @@ import DirectoratesDashboard from "./DirectoratesDashboard.jsx";
 import MapTab from "./MapTab.jsx";
 import IndustryTab from "./IndustryTab.jsx";
 import SchoolsTab from "./SchoolsTab.jsx";
+import UniversitiesTab from "./UniversitiesTab.jsx";
 import TransportationTab from "./TransportationTab.jsx";
+import PolicySimulationTab from "./PolicySimulationTab.jsx";
 
 const TABS = [
   { id: "structure", label: "🏛️ Decentralization Structure" },
   { id: "directorates", label: "🏢 Directorates" },
   { id: "map", label: "🗺️ Map" },
   { id: "industry", label: "🏭 Industry" },
-  { id: "schools", label: "🎓 Schools" },
+  { id: "schools", label: "📚 Schools" },
+  { id: "universities", label: "🎓 Universities" },
   { id: "transport", label: "🚌 Transportation" },
+  { id: "policySim", label: "📈 Policy Simulation" },
 ];
 
 // One flat scrolling page got chaotic once every governance layer,
@@ -55,8 +59,14 @@ export default function MetropoleTabs() {
       <div hidden={activeTab !== "schools"}>
         <SchoolsTab />
       </div>
+      <div hidden={activeTab !== "universities"}>
+        <UniversitiesTab />
+      </div>
       <div hidden={activeTab !== "transport"}>
         <TransportationTab />
+      </div>
+      <div hidden={activeTab !== "policySim"}>
+        <PolicySimulationTab />
       </div>
     </section>
   );

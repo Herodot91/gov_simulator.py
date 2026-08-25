@@ -1,8 +1,9 @@
 import { useSimState, useSimActions, fmtEffects } from "../state/SimulationContext.jsx";
+import EffectsBarChart from "./EffectsBarChart.jsx";
 
 // One project's UI at whichever governance layer it's shown: its options as
 // buttons (mirrors the top-level scenario buttons) before it's resolved, or
-// the outcome once it is.
+// the result -- effects graph + explanation -- once it is.
 export default function ProjectCard({ project, scopeLabel }) {
   const state = useSimState();
   const actions = useSimActions();
@@ -15,7 +16,14 @@ export default function ProjectCard({ project, scopeLabel }) {
         resolved.choice === null ? (
           <div className="project-skipped">⏭️ Skipped</div>
         ) : (
-          <div className="callout callout-success">{resolved.choice}) {resolved.label}</div>
+          <>
+            <div className="callout callout-success">{resolved.choice}) {resolved.label}</div>
+            {(() => {
+              const [, effects] = project.options[resolved.choice];
+              return Object.keys(effects).length > 0 ? <EffectsBarChart effects={effects} /> : null;
+            })()}
+            <p className="caption">🌐 {project.intl}</p>
+          </>
         )
       ) : (
         <div className="option-grid">
