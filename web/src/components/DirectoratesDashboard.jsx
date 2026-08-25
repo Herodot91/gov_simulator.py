@@ -18,35 +18,20 @@ export default function DirectoratesDashboard() {
   const state = useSimState();
 
   return (
-    <section className="panel">
-      <h3>📊 Directorates Dashboard</h3>
+    <>
       <p className="caption">
         Every governance tier's own directorates/departments/civic offices, in one place — purely
-        descriptive, same as the panels this summarizes elsewhere in the app.
+        descriptive, no cost or score effects.
       </p>
 
-      <p>
-        <strong>🏛️ Florești Prefecture</strong> — {PREFECTURE_DIRECTORATES.length} directorates
-      </p>
-      <ul className="suburb-list">
-        {PREFECTURE_DIRECTORATES.map((d) => (
-          <li key={d.name}>{d.name}</li>
-        ))}
-      </ul>
+      <PrefectureDirectoratesExpander />
       {PREFECTURE_TOWNS.map((town) => (
         <TownCouncilExpander key={town.id} town={town} />
       ))}
 
       {state.metroActive ? (
         <>
-          <p>
-            <strong>🏢 Metropolitan Council</strong> — {METRO_COUNCIL_DIRECTORATES.length} directorates
-          </p>
-          <ul className="suburb-list">
-            {METRO_COUNCIL_DIRECTORATES.map((d) => (
-              <li key={d.name}>{d.name}</li>
-            ))}
-          </ul>
+          <MetroCouncilExpander />
           {Object.entries(METRO_STRUCTURE).map(([muniName, info]) => (
             <MunicipalityExpander key={muniName} muniName={muniName} info={info} />
           ))}
@@ -57,7 +42,56 @@ export default function DirectoratesDashboard() {
           municipality's own departments and district civic offices here too.
         </p>
       )}
-    </section>
+    </>
+  );
+}
+
+function PrefectureDirectoratesExpander() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="expander">
+      <button className="expander-toggle" onClick={() => setOpen((o) => !o)}>
+        <span className={`expander-caret ${open ? "open" : ""}`}>›</span>
+        🏛️ Florești Prefecture — Directorates ({PREFECTURE_DIRECTORATES.length})
+      </button>
+      {open && (
+        <div className="technopolis-body">
+          <p className="caption">
+            The French-style prefecture's own deconcentrated state administration, in effect
+            regardless of whether the metropole has been established — the state tier the metropole is
+            carved out of.
+          </p>
+          <ul className="suburb-list">
+            {PREFECTURE_DIRECTORATES.map((d) => (
+              <li key={d.name}>
+                <strong>{d.name}</strong> — {d.mandate}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MetroCouncilExpander() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="expander">
+      <button className="expander-toggle" onClick={() => setOpen((o) => !o)}>
+        <span className={`expander-caret ${open ? "open" : ""}`}>›</span>
+        🏢 Metropolitan Council — Directorates ({METRO_COUNCIL_DIRECTORATES.length})
+      </button>
+      {open && (
+        <ul className="suburb-list">
+          {METRO_COUNCIL_DIRECTORATES.map((d) => (
+            <li key={d.name}>
+              <strong>{d.name}</strong> — {d.mandate}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 

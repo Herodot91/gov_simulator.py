@@ -5,11 +5,7 @@ import ScenarioPanel from "./components/ScenarioPanel.jsx";
 import ScoreChart from "./components/ScoreChart.jsx";
 import ExportPanel from "./components/ExportPanel.jsx";
 import CitizenProgressCard from "./components/CitizenProgressCard.jsx";
-import GovernanceStructure from "./components/GovernanceStructure.jsx";
-import FlorTechSection from "./components/FlorTechSection.jsx";
-import AgroFlorSection from "./components/AgroFlorSection.jsx";
-import DirectoratesDashboard from "./components/DirectoratesDashboard.jsx";
-import IndustriesSchoolsDashboard from "./components/IndustriesSchoolsDashboard.jsx";
+import MetropoleTabs from "./components/MetropoleTabs.jsx";
 import "./App.css";
 
 function AppShell() {
@@ -31,11 +27,7 @@ function AppShell() {
           </div>
         </div>
 
-        <GovernanceStructure />
-        <FlorTechSection />
-        <AgroFlorSection />
-        <DirectoratesDashboard />
-        <IndustriesSchoolsDashboard />
+        <MetropoleTabs />
       </main>
     </div>
   );

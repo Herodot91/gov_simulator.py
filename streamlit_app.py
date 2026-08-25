@@ -783,6 +783,23 @@ TRANSIT_MODE_LABELS = {
     "bus": "🚍 Bus", "regional_rail": "🚆 Regional Rail",
 }
 
+# Two operators, one per governance tier that actually runs transit --
+# mirrors the app's own two-tier transit planning (Metropolitan Council
+# Directorate of Transport & Infrastructure vs. the Prefecture): MetroFlor
+# runs everything that stays within the metropole itself, FlorLink connects
+# Florești to the Prefecture Towns and beyond.
+TRANSIT_OPERATORS = [
+    {"id": "metroflor", "name": "MetroFlor", "level": "Metropolitan",
+     "note": "The Metropolitan Council's own transit operator -- every mode that stays within the "
+             "metropole itself: the metro, the tram, the BRT lines, and the biogas/electric bus network.",
+     "line_ids": ["metro_m1", "metro_m2", "tram_t1", "brt1", "brt2", "brt3", "bus_b1"]},
+    {"id": "florlink", "name": "FlorLink", "level": "Prefecture",
+     "note": "The Prefecture's own operator, connecting Florești to Cunicea and Răduleni by regional "
+             "rail and running the Autogara Metropolitană's (Coach Terminal) intercity coach services -- "
+             "reaching beyond the metropole's own network, the way MetroFlor doesn't.",
+     "line_ids": ["regional_r1", "regional_r2"]},
+]
+
 
 def transit_interchanges():
     """Stops served by 2+ transit lines -- where trams interchange with
@@ -1553,30 +1570,34 @@ with right:
     """
     st.markdown(card_html, unsafe_allow_html=True)
 
-# ---------- Governance structure: metropole, municipalities, districts ----------
-st.subheader("🏙️ Florești Metropole — Governance Structure")
-if not st.session_state.metro_active:
-    st.info("Choose **B) Establish Florești Metropole** in Scenario 1 to activate mixed-decentralization "
-            "governance: a metropolitan tier (Istanbul/Budapest-style) carved out of the French-style "
-            "Florești Prefecture, over 4 municipalities, each with its own local government and districts.")
-else:
-    st.caption("Mixed decentralization is in effect — click a municipality on the map (or below) to "
-               "drill down into its districts. Suburbs stay administratively dependent on the metropole.")
+# ---------- Florești Metropole: tabbed menu ----------
+# One flat scrolling page got chaotic once every governance layer, dashboard,
+# and reference section piled up in sequence. Split into a proper menu
+# instead: Decentralization Structure (the governance hierarchy itself,
+# click-to-drill-down plus its policy/project levers), Directorates (every
+# tier's org chart, flat), Map (the full interactive map on its own), Industry
+# (factories + Technopolis Okrugs' product lines), Schools (K-12/lycee +
+# FlorTech/AgroFlor higher ed), and Transportation (transit + roads +
+# operators). Streamlit still executes every tab's code on each rerun --
+# tabs only hide/show already-rendered output client-side -- so state shared
+# across tabs (map clicks driving the structure tab's drill-down, etc.)
+# stays consistent regardless of which tab is currently visible.
+st.subheader("🏙️ Florești Metropole")
+(tab_structure, tab_directorates, tab_map, tab_industry, tab_schools,
+ tab_transport) = st.tabs([
+    "🏛️ Decentralization Structure", "🏢 Directorates", "🗺️ Map",
+    "🏭 Industry", "🎓 Schools", "🚌 Transportation",
+])
 
-with st.expander(f"🏛️ Florești Prefecture — Directorates ({len(PREFECTURE_DIRECTORATES)})"):
+# ---------- Map tab ----------
+with tab_map:
     st.caption(
-        "The French-style prefecture's own deconcentrated state administration, in effect regardless "
-        "of whether the metropole has been established — the state tier the metropole is carved out of."
+        "The metropole's full territory, transit network, roads, and key sites. Click a municipality, "
+        "district, or campus marker to drill into it -- see the Decentralization Structure and Schools "
+        "tabs for the result."
     )
-    for d in PREFECTURE_DIRECTORATES:
-        st.markdown(f"- **{d['name']}** — {d['mandate']}")
-
-st.markdown("#### 🏛️ Prefecture Policies")
-for policy in PREFECTURE_POLICIES:
-    render_project(policy, "Prefecture", "prefecture_policy")
-
-map_key = "metro_map_active" if st.session_state.metro_active else "metro_map_inactive"
-map_state = st_folium(build_map(), height=520, use_container_width=True, key=map_key)
+    map_key = "metro_map_active" if st.session_state.metro_active else "metro_map_inactive"
+    map_state = st_folium(build_map(), height=560, use_container_width=True, key=map_key)
 
 def _closest_marker_within(lat, lon, coords_by_id, tolerance=0.004):
     """Nearest id in a {id: (lat, lon)} dict, if within tolerance (~400m) --
@@ -1590,13 +1611,15 @@ def _closest_marker_within(lat, lon, coords_by_id, tolerance=0.004):
 
 
 # Clicking a municipality's shape, a district's quadrant, or a campus marker
-# drills into it, same as clicking its name/button below. streamlit-folium's
-# last_object_clicked_tooltip is unreliable for GeoJson polygon layers (it
-# comes back None even though the layer has a bound tooltip -- a
-# streamlit-folium quirk, not specific to this app's layers), so click
-# detection instead uses last_object_clicked (the real lat/lng clicked) and
-# does its own point-in-polygon / nearest-marker matching, same geometry the
-# map itself was built from.
+# drills into it, same as clicking its name/button in the Decentralization
+# Structure/Schools tabs. streamlit-folium's last_object_clicked_tooltip is
+# unreliable for GeoJson polygon layers (it comes back None even though the
+# layer has a bound tooltip -- a streamlit-folium quirk, not specific to this
+# app's layers), so click detection instead uses last_object_clicked (the
+# real lat/lng clicked) and does its own point-in-polygon / nearest-marker
+# matching, same geometry the map itself was built from. This runs every
+# rerun regardless of which tab is visible, since Streamlit tabs don't skip
+# execution -- they only hide/show already-rendered output.
 if st.session_state.metro_active and map_state and map_state.get("last_object_clicked"):
     click = map_state["last_object_clicked"]
     click_pt = Point(click["lng"], click["lat"])
@@ -1625,363 +1648,402 @@ if st.session_state.metro_active and map_state and map_state.get("last_object_cl
                 st.session_state.selected_district = None
                 st.rerun()
 
-if st.session_state.metro_active:
-    sel_muni = st.session_state.selected_municipality
-    sel_dist = st.session_state.selected_district
+# ---------- Decentralization Structure tab ----------
+with tab_structure:
+    if not st.session_state.metro_active:
+        st.info("Choose **B) Establish Florești Metropole** in Scenario 1 to activate mixed-decentralization "
+                "governance: a metropolitan tier (Istanbul/Budapest-style) carved out of the French-style "
+                "Florești Prefecture, over 4 municipalities, each with its own local government and districts.")
+    else:
+        st.caption("Mixed decentralization is in effect — click a municipality below (or on the Map tab) "
+                   "to drill down into its districts. Suburbs stay administratively dependent on the "
+                   "metropole. See the Directorates tab for every tier's own org chart.")
 
-    if sel_muni is None:
-        # ---------- Layer 1: Metropole -> pick a municipality ----------
-        st.caption("👆 Click a municipality to see its 4 districts.")
-        muni_cols = st.columns(4)
-        for col, name in zip(muni_cols, METRO_STRUCTURE):
-            active = name in st.session_state.inaugurated
-            with col:
-                if st.button(f"{name} {'✅' if active else ''}", key=f"select_{name}", use_container_width=True):
-                    st.session_state.selected_municipality = name
+    st.markdown("#### 🏛️ Prefecture Policies")
+    for policy in PREFECTURE_POLICIES:
+        render_project(policy, "Prefecture", "prefecture_policy")
+
+    if st.session_state.metro_active:
+        sel_muni = st.session_state.selected_municipality
+        sel_dist = st.session_state.selected_district
+
+        if sel_muni is None:
+            # ---------- Layer 1: Metropole -> pick a municipality ----------
+            st.caption("👆 Click a municipality to see its 4 districts.")
+            muni_cols = st.columns(4)
+            for col, name in zip(muni_cols, METRO_STRUCTURE):
+                active = name in st.session_state.inaugurated
+                with col:
+                    if st.button(f"{name} {'✅' if active else ''}", key=f"select_{name}", use_container_width=True):
+                        st.session_state.selected_municipality = name
+                        st.session_state.selected_district = None
+                        st.rerun()
+
+            with st.expander(f"🏘️ Suburbs ({len(SUBURBS)}) — dependent on the metropole, no local government"):
+                for suburb in SUBURBS:
+                    loc = find_locality(suburb["name"])
+                    st.markdown(f"- **{loc['display_name']}** ({loc['type']})")
+
+            with st.expander(f"🏭 Technopolis Okrugs ({len(TECHNOPOLIS_OKRUGS)}) — Zelenograd model"):
+                st.caption(
+                    "Alongside the French-style prefecture, the metropole borrows a second model from "
+                    "Moscow: a detached, single-industry administrative okrug, after Zelenograd — Moscow's "
+                    "own physically separate microelectronics okrug. These two villages sit outside the "
+                    "metropole's own territory but are administratively sponsored by it, each built around "
+                    "one flagship company rather than ordinary municipal government. See the Industry tab "
+                    "for each okrug's full product line."
+                )
+                for okrug in TECHNOPOLIS_OKRUGS:
+                    loc = find_locality(okrug["name"])
+                    st.markdown(f"**{loc['display_name']}** ({loc['type']}) — {okrug['company']} · {okrug['sector']}")
+
+            resolved_scenarios = st.session_state.resolved_scenarios
+            if resolved_scenarios:
+                with st.expander(f"📋 Current Policies ({len(resolved_scenarios)} decided)"):
+                    for s in SCENARIOS:
+                        r = resolved_scenarios.get(s["id"])
+                        if not r:
+                            continue
+                        if r["choice"] is None:
+                            st.markdown(f"- **{s['title']}** — ⏭️ Skipped")
+                        else:
+                            st.markdown(f"- **{s['title']}** — {r['choice']}) {r['label']}")
+
+            st.markdown("#### 🏗️ Metropolitan Projects")
+            for project in METRO_PROJECTS:
+                render_project(project, "Metropolitan", "metro_project")
+
+        else:
+            info = METRO_STRUCTURE[sel_muni]
+            active = sel_muni in st.session_state.inaugurated
+            anchor = find_locality(info["anchor"])
+
+            if sel_dist is None:
+                # ---------- Layer 2: Municipality -> pick a district ----------
+                if st.button("← Back to Metropole", key="back_to_metro"):
+                    st.session_state.selected_municipality = None
+                    st.rerun()
+                st.markdown(f"### {sel_muni} {'✅ inaugurated' if active else ''}")
+                st.caption(f"Anchor: {anchor['display_name']} · see the Directorates tab for this "
+                           "municipality's own departments.")
+
+                st.write("👆 Click a district for details:")
+                dist_cols = st.columns(4)
+                for col, d in zip(dist_cols, info["districts"]):
+                    with col:
+                        if st.button(d, key=f"select_district_{sel_muni}_{d}", use_container_width=True):
+                            st.session_state.selected_district = d
+                            st.rerun()
+
+                if active:
+                    st.success("Inaugurated")
+                else:
+                    if st.button(f"Inaugurate ({INAUGURATION_COST})", key=f"inaugurate_{sel_muni}",
+                                  disabled=st.session_state.budget < INAUGURATION_COST):
+                        inaugurate_municipality(sel_muni)
+                        st.rerun()
+
+                muni_projects = MUNICIPALITY_PROJECTS.get(sel_muni, [])
+                if muni_projects:
+                    st.markdown("#### 🏗️ Municipal Projects")
+                    if active:
+                        for project in muni_projects:
+                            render_project(project, f"{sel_muni} municipal", "muni_project")
+                    else:
+                        st.caption(f"Inaugurate {sel_muni} to unlock its municipal projects.")
+
+                if sel_muni == "Florești Central":
+                    with st.expander("📐 View CBD Masterplan — concept site plan for Răut Plaza's district"):
+                        st.caption(
+                            "A mixed-use business district proposed for the riverside land between Centrul "
+                            "Civic and the Răut, built around the Metro Line 1 station and Răut Plaza as its "
+                            "civic anchor. Concept only — not an adopted plan."
+                        )
+                        st.markdown(load_cbd_masterplan_svg(), unsafe_allow_html=True)
+            else:
+                # ---------- Layer 3: District detail ----------
+                if st.button(f"← Back to {sel_muni}", key="back_to_muni"):
                     st.session_state.selected_district = None
                     st.rerun()
+                st.markdown(f"### {sel_dist}")
+                st.caption(f"District of **{sel_muni}**, Florești Metropole · see the Directorates tab "
+                           "for this district's own civic office.")
+                if active:
+                    st.info("This district shares in its municipality's local government, "
+                            "inaugurated as part of the mixed-decentralization reform.")
+                else:
+                    st.warning(f"{sel_muni} hasn't been inaugurated yet — inaugurate it to activate "
+                               "local government here, including this district.")
+                    if st.button(f"Inaugurate {sel_muni} ({INAUGURATION_COST})", key=f"inaugurate_from_district_{sel_muni}",
+                                  disabled=st.session_state.budget < INAUGURATION_COST):
+                        inaugurate_municipality(sel_muni)
+                        st.rerun()
 
-        with st.expander(f"🏘️ Suburbs ({len(SUBURBS)}) — dependent on the metropole, no local government"):
-            for suburb in SUBURBS:
-                loc = find_locality(suburb["name"])
-                st.markdown(f"- **{loc['display_name']}** ({loc['type']})")
+                dist_projects = DISTRICT_PROJECTS.get((sel_muni, sel_dist), [])
+                if dist_projects:
+                    st.markdown("#### 🏗️ District Projects")
+                    if active:
+                        for project in dist_projects:
+                            render_project(project, f"{sel_dist} district", "district_project")
+                    else:
+                        st.caption(f"Inaugurate {sel_muni} to unlock projects in this district.")
 
-        with st.expander(f"🏭 Technopolis Okrugs ({len(TECHNOPOLIS_OKRUGS)}) — Zelenograd model"):
-            st.caption(
-                "Alongside the French-style prefecture, the metropole borrows a second model from "
-                "Moscow: a detached, single-industry administrative okrug, after Zelenograd — Moscow's "
-                "own physically separate microelectronics okrug. These two villages sit outside the "
-                "metropole's own territory but are administratively sponsored by it, each built around "
-                "one flagship company rather than ordinary municipal government."
-            )
-            for okrug in TECHNOPOLIS_OKRUGS:
-                loc = find_locality(okrug["name"])
-                st.markdown(
-                    f"**{loc['display_name']}** ({loc['type']}) — {okrug['company']}  \n"
-                    f"*{okrug['sector']}.* {okrug['note']}"
-                )
-                products = COMPANY_PRODUCTS.get(okrug["company"], [])
-                with st.expander(f"🔧 {okrug['company']} — product line ({len(products)})"):
-                    for p in products:
-                        st.markdown(f"- **{p['model']}** — {p['category']} · {p['spec']}")
+    # Prefecture Towns -- a third branch under the Prefecture, alongside the
+    # Metropole (with its Suburbs and Technopolis Okrugs) above: same
+    # governance scheme top to bottom -- Prefecture, then the Metropole
+    # (drill down into its municipalities/districts by clicking), then the
+    # Prefecture's two towns.
+    st.markdown("#### 🏘️ Prefecture Towns")
+    st.caption(
+        "Beside the metropole (with its Technopolis Okrugs and suburbs), two real villages have grown "
+        "into small towns directly under the prefecture, each with its own town council and policies -- "
+        "connected to Florești by regional rail, and to the Metropolitan Ring Road by a regional expressway."
+    )
+    for town in PREFECTURE_TOWNS:
+        st.markdown(f"**{town['name']}** — {town['note']}")
+        for policy in TOWN_POLICIES[town["id"]]:
+            render_project(policy, f"{town['name']} Town Council", f"town_policy_{town['id']}")
 
-        with st.expander(f"🚊 Public Transit Network ({len(TRANSIT_LINES)} lines)"):
-            st.caption(
-                "**Gara Florești** (the Florești Central stop) is the hub where every mode meets. Rail "
-                "runs in two tiers: **Metro M1** is the backbone spanning all 4 municipalities; "
-                "**Metro M2** crosses it there, running Coach Terminal ↔ Gara Florești ↔ Florești "
-                "Central North. **Tram T1** is a short local shuttle from Gara Florești out to Centrul "
-                "Civic. Road transit runs in three tiers, each with denser stops than the rail lines: "
-                "**BRT** lines reach further out at commuter-rail-equivalent speed and don't stop as "
-                "often; plain **biogas/electric buses** cover local routes with no dedicated lane; "
-                "**regional rail** reaches the prefecture's own small towns (Cunicea, Răduleni). Routes "
-                "below are proposed street-level alignments, not a surveyed plan."
-            )
-            for line in TRANSIT_LINES:
-                st.markdown(f"**{line['name']}** — {TRANSIT_MODE_LABELS[line['mode']]}  \n{transit_route_label(line)}")
-            st.markdown("**⇄ Interchanges**")
-            for stop, lines in transit_interchanges().items():
-                st.markdown(f"- **{stop}** — {', '.join(lines)}")
+# ---------- Directorates tab ----------
+# Every governance tier's own directorates/departments/civic offices, in
+# one consolidated view -- the drill-down in the Decentralization Structure
+# tab points here rather than repeating each tier's org chart inline.
+with tab_directorates:
+    st.caption(
+        "Every governance tier's own directorates/departments/civic offices, in one place -- purely "
+        "descriptive, no cost or score effects."
+    )
+    with st.expander(f"🏛️ Florești Prefecture — Directorates ({len(PREFECTURE_DIRECTORATES)})"):
+        st.caption(
+            "The French-style prefecture's own deconcentrated state administration, in effect "
+            "regardless of whether the metropole has been established — the state tier the metropole "
+            "is carved out of."
+        )
+        for d in PREFECTURE_DIRECTORATES:
+            st.markdown(f"- **{d['name']}** — {d['mandate']}")
+    for town in PREFECTURE_TOWNS:
+        with st.expander(f"🏘️ {town['name']} Town Council ({len(town['council'])})"):
+            for d in town["council"]:
+                st.markdown(f"- **{d['name']}** — {d['mandate']}")
 
-        with st.expander(f"🛣️ Roads & Key Sites ({len(ROAD_NETWORK)} roads)"):
-            st.caption(
-                "Committed infrastructure shown on the map itself, not a METRO_PROJECTS decision "
-                "to resolve. The Ring Road stays outside the municipalities' own built territory, "
-                "tracing the metro's southern periphery close to Vărvăreuca's Heritage Quarter and "
-                "Forestry District rather than cutting through the metropole itself."
-            )
-            for road in ROAD_NETWORK:
-                route_label = " → ".join(f"{name} ({STOP_STREETS.get(name, name)})" for name, _ in road["route"])
-                st.markdown(f"**{road['name']}**  \n{route_label}")
-            st.markdown(
-                "**🚌 Autogara Metropolitană (Coach Terminal)** — on Vărvăreuca's Heritage Quarter "
-                "boundary, on the Metropolitan Ring Road, Tram T1's terminus."
-            )
-            st.markdown(
-                "**✈️ Mărculești–Florești International Airport** — its own sign on the map, same "
-                "treatment as the Coach Terminal."
-            )
-            st.markdown(
-                "**🏛️ Centrul Civic (Civic Center)** — Florești Central's own civic district, seat "
-                "of the Metropolitan Council, the Florești Prefecture, and their directorates."
-            )
-            st.markdown(
-                "**🏘️ Cunicea & Răduleni** — Prefecture Towns, each with its own 🏘️ sign on the map, "
-                "reached by regional rail and the Regional Expressway (which joins the Metropolitan "
-                "Ring Road at Ghindești)."
-            )
-            st.markdown(
-                "**📐 Proposed CBD** — the riverside zone shown on the map between Centrul Civic and "
-                "the Răut; see the full concept masterplan in Florești Central's own municipal view."
-            )
-            st.markdown(
-                "**⚡ Florești HPP** — the hydroelectric power plant on the Răut river, just downstream "
-                "of the CBD riverside land, managed by HydroTechnique Ltd. (see Industries & Schools "
-                "Dashboard below)."
-            )
-
+    if st.session_state.metro_active:
         with st.expander(f"🏢 Metropolitan Council — Directorates ({len(METRO_COUNCIL_DIRECTORATES)})"):
             for d in METRO_COUNCIL_DIRECTORATES:
                 st.markdown(f"- **{d['name']}** — {d['mandate']}")
-
-        resolved_scenarios = st.session_state.resolved_scenarios
-        if resolved_scenarios:
-            with st.expander(f"📋 Current Policies ({len(resolved_scenarios)} decided)"):
-                for s in SCENARIOS:
-                    r = resolved_scenarios.get(s["id"])
-                    if not r:
-                        continue
-                    if r["choice"] is None:
-                        st.markdown(f"- **{s['title']}** — ⏭️ Skipped")
-                    else:
-                        st.markdown(f"- **{s['title']}** — {r['choice']}) {r['label']}")
-
-        st.markdown("#### 🏗️ Metropolitan Projects")
-        for project in METRO_PROJECTS:
-            render_project(project, "Metropolitan", "metro_project")
-
-    else:
-        info = METRO_STRUCTURE[sel_muni]
-        active = sel_muni in st.session_state.inaugurated
-        anchor = find_locality(info["anchor"])
-
-        if sel_dist is None:
-            # ---------- Layer 2: Municipality -> pick a district ----------
-            if st.button("← Back to Metropole", key="back_to_metro"):
-                st.session_state.selected_municipality = None
-                st.rerun()
-            st.markdown(f"### {sel_muni} {'✅ inaugurated' if active else ''}")
-            st.caption(f"Anchor: {anchor['display_name']}")
-
-            with st.expander(f"🏢 {sel_muni} — Departments ({len(MUNICIPALITY_DEPARTMENTS[sel_muni])})"):
-                for d in MUNICIPALITY_DEPARTMENTS[sel_muni]:
+        for muni_name, info in METRO_STRUCTURE.items():
+            depts = MUNICIPALITY_DEPARTMENTS[muni_name]
+            with st.expander(f"🏢 {muni_name} — {len(depts)} departments, {len(info['districts'])} district offices"):
+                for d in depts:
                     st.markdown(f"- **{d['name']}** — {d['mandate']}")
-
-            st.write("👆 Click a district for details:")
-            dist_cols = st.columns(4)
-            for col, d in zip(dist_cols, info["districts"]):
-                with col:
-                    if st.button(d, key=f"select_district_{sel_muni}_{d}", use_container_width=True):
-                        st.session_state.selected_district = d
-                        st.rerun()
-
-            if active:
-                st.success("Inaugurated")
-            else:
-                if st.button(f"Inaugurate ({INAUGURATION_COST})", key=f"inaugurate_{sel_muni}",
-                              disabled=st.session_state.budget < INAUGURATION_COST):
-                    inaugurate_municipality(sel_muni)
-                    st.rerun()
-
-            muni_projects = MUNICIPALITY_PROJECTS.get(sel_muni, [])
-            if muni_projects:
-                st.markdown("#### 🏗️ Municipal Projects")
-                if active:
-                    for project in muni_projects:
-                        render_project(project, f"{sel_muni} municipal", "muni_project")
-                else:
-                    st.caption(f"Inaugurate {sel_muni} to unlock its municipal projects.")
-
-            if sel_muni == "Florești Central":
-                with st.expander("📐 View CBD Masterplan — concept site plan for Răut Plaza's district"):
-                    st.caption(
-                        "A mixed-use business district proposed for the riverside land between Centrul "
-                        "Civic and the Răut, built around the Metro Line 1 station and Răut Plaza as its "
-                        "civic anchor. Concept only — not an adopted plan."
-                    )
-                    st.markdown(load_cbd_masterplan_svg(), unsafe_allow_html=True)
-        else:
-            # ---------- Layer 3: District detail ----------
-            if st.button(f"← Back to {sel_muni}", key="back_to_muni"):
-                st.session_state.selected_district = None
-                st.rerun()
-            st.markdown(f"### {sel_dist}")
-            st.caption(f"District of **{sel_muni}**, Florești Metropole.")
-            office = district_office(sel_muni, sel_dist)
-            st.markdown(f"🏢 **{office['name']}** — {office['mandate']}")
-            if active:
-                st.info("This district shares in its municipality's local government, "
-                        "inaugurated as part of the mixed-decentralization reform.")
-            else:
-                st.warning(f"{sel_muni} hasn't been inaugurated yet — inaugurate it to activate "
-                           "local government here, including this district.")
-                if st.button(f"Inaugurate {sel_muni} ({INAUGURATION_COST})", key=f"inaugurate_from_district_{sel_muni}",
-                              disabled=st.session_state.budget < INAUGURATION_COST):
-                    inaugurate_municipality(sel_muni)
-                    st.rerun()
-
-            dist_projects = DISTRICT_PROJECTS.get((sel_muni, sel_dist), [])
-            if dist_projects:
-                st.markdown("#### 🏗️ District Projects")
-                if active:
-                    for project in dist_projects:
-                        render_project(project, f"{sel_dist} district", "district_project")
-                else:
-                    st.caption(f"Inaugurate {sel_muni} to unlock projects in this district.")
-
-# Prefecture Towns -- a third branch under the Prefecture, alongside the
-# Metropole (with its Suburbs and Technopolis Okrugs) above: same governance
-# scheme top to bottom -- Prefecture, then the Metropole (drill down into its
-# municipalities/districts by clicking), then the Prefecture's two towns.
-st.markdown("#### 🏘️ Prefecture Towns")
-st.caption(
-    "Beside the metropole (with its Technopolis Okrugs and suburbs), two real villages have grown "
-    "into small towns directly under the prefecture, each with its own town council and policies -- "
-    "connected to Florești by regional rail, and to the Metropolitan Ring Road by a regional expressway."
-)
-for town in PREFECTURE_TOWNS:
-    st.markdown(f"**{town['name']}** — {town['note']}")
-    with st.expander(f"🏢 {town['name']} Town Council ({len(town['council'])})"):
-        for d in town["council"]:
-            st.markdown(f"- **{d['name']}** — {d['mandate']}")
-    for policy in TOWN_POLICIES[town["id"]]:
-        render_project(policy, f"{town['name']} Town Council", f"town_policy_{town['id']}")
-
-# ---------- FlorTech University ----------
-st.subheader("🎓 FlorTech — Florești University of Technology")
-if not st.session_state.metro_active:
-    st.info("FlorTech's campuses come online once the metropole is established "
-            "(Scenario 1, option B).")
-else:
-    st.caption(FLORTECH["origin"])
-    sel_campus_id = st.session_state.selected_campus
-
-    if sel_campus_id is None:
-        st.write("👆 Click a campus for its faculties, departments, and programs:")
-        campus_cols = st.columns(3)
-        for i, campus in enumerate(FLORTECH["campuses"]):
-            with campus_cols[i % 3]:
-                if st.button(campus["name"], key=f"select_campus_{campus['id']}", use_container_width=True):
-                    st.session_state.selected_campus = campus["id"]
-                    st.rerun()
-
-        with st.expander(
-            f"🛠️ Vocational Institutes ({len(FLORTECH['vocational_institutes'])}) — "
-            "Școala Profesională legacy tracks, kept alongside FlorTech"
-        ):
-            for inst in FLORTECH["vocational_institutes"]:
-                st.markdown(f"**{inst['name']}** — {inst['location']}  \n{', '.join(inst['tracks'])}")
+                st.markdown("**District Civic Offices**")
+                for dist in info["districts"]:
+                    office = district_office(muni_name, dist)
+                    st.markdown(f"- {office['name']}")
     else:
-        campus = next(c for c in FLORTECH["campuses"] if c["id"] == sel_campus_id)
-        if st.button("← Back to FlorTech", key="back_to_flortech"):
-            st.session_state.selected_campus = None
-            st.rerun()
-        st.markdown(f"### {campus['name']}")
-        st.caption(f"{campus['location']} · Degree levels: {', '.join(campus['levels'])}")
-        for fac in campus["faculties"]:
-            st.markdown(f"#### {fac['name']}")
-            for dept in fac["departments"]:
-                st.markdown(f"- **{dept}** — {', '.join(campus['levels'])}")
+        st.caption("Establish the metropole (Scenario 1, option B) to see the Metropolitan Council and "
+                   "each municipality's own departments and district civic offices here too.")
 
-# ---------- AgroFlor University ----------
-st.subheader("🌾 AgroFlor — Florești University of Agricultural Sciences and Technologies")
-if not st.session_state.metro_active:
-    st.info("AgroFlor's campuses come online once the metropole is established "
-            "(Scenario 1, option B).")
-else:
-    st.caption(AGROFLOR["origin"])
-    sel_agro_id = st.session_state.selected_agro_campus
+# ---------- Industry tab ----------
+# Technopolis Okrugs' full product lines (the Decentralization Structure tab
+# only names them administratively) plus every location's factories.
+with tab_industry:
+    st.caption(
+        "Every Technopolis Okrug's flagship company and product line, plus every location's own "
+        "factories (name, sector, products) -- purely descriptive, no cost or score effects."
+    )
+    st.markdown("#### 🏭 Technopolis Okrugs")
+    for okrug in TECHNOPOLIS_OKRUGS:
+        loc = find_locality(okrug["name"])
+        st.markdown(
+            f"**{loc['display_name']}** ({loc['type']}) — {okrug['company']}  \n"
+            f"*{okrug['sector']}.* {okrug['note']}"
+        )
+        products = COMPANY_PRODUCTS.get(okrug["company"], [])
+        with st.expander(f"🔧 {okrug['company']} — product line ({len(products)})"):
+            for p in products:
+                st.markdown(f"- **{p['model']}** — {p['category']} · {p['spec']}")
 
-    if sel_agro_id is None:
-        st.write("👆 Click a campus for its faculties, departments, research centers, and programs:")
-        agro_cols = st.columns(3)
-        for i, campus in enumerate(AGROFLOR["campuses"]):
-            with agro_cols[i % 3]:
-                if st.button(campus["name"], key=f"select_agro_campus_{campus['id']}", use_container_width=True):
-                    st.session_state.selected_agro_campus = campus["id"]
-                    st.rerun()
-    else:
-        campus = next(c for c in AGROFLOR["campuses"] if c["id"] == sel_agro_id)
-        if st.button("← Back to AgroFlor", key="back_to_agroflor"):
-            st.session_state.selected_agro_campus = None
-            st.rerun()
-        st.markdown(f"### {campus['name']}")
-        st.caption(f"{campus['location']} · Degree levels: {', '.join(campus['levels'])}")
-        for fac in campus["faculties"]:
-            st.markdown(f"#### {fac['name']}")
-            for dept in fac["departments"]:
-                st.markdown(f"- **{dept}** — {', '.join(campus['levels'])}")
-        st.markdown("#### 🔬 Research Centers & Labs")
-        for center in campus["research_centers"]:
-            st.markdown(f"- {center}")
-
-# ---------- Directorates Dashboard ----------
-# Every governance tier's own directorates/departments/civic offices, in
-# one consolidated view -- the drill-down elsewhere in the app shows each
-# tier only once you've navigated to it; this is the same data laid out
-# flat, so a user can see the whole decentralized structure without
-# clicking through every municipality and district one at a time.
-st.subheader("📊 Directorates Dashboard")
-st.caption(
-    "Every governance tier's own directorates/departments/civic offices, in one place -- purely "
-    "descriptive, same as the panels this summarizes elsewhere in the app."
-)
-st.markdown(f"**🏛️ Florești Prefecture** — {len(PREFECTURE_DIRECTORATES)} directorates")
-for d in PREFECTURE_DIRECTORATES:
-    st.markdown(f"- {d['name']}")
-for town in PREFECTURE_TOWNS:
-    with st.expander(f"🏘️ {town['name']} Town Council ({len(town['council'])})"):
-        for d in town["council"]:
-            st.markdown(f"- **{d['name']}** — {d['mandate']}")
-
-if st.session_state.metro_active:
-    st.markdown(f"**🏢 Metropolitan Council** — {len(METRO_COUNCIL_DIRECTORATES)} directorates")
-    for d in METRO_COUNCIL_DIRECTORATES:
-        st.markdown(f"- {d['name']}")
-    for muni_name, info in METRO_STRUCTURE.items():
-        depts = MUNICIPALITY_DEPARTMENTS[muni_name]
-        with st.expander(f"🏢 {muni_name} — {len(depts)} departments, {len(info['districts'])} district offices"):
-            for d in depts:
-                st.markdown(f"- **{d['name']}** — {d['mandate']}")
-            st.markdown("**District Civic Offices**")
-            for dist in info["districts"]:
-                office = district_office(muni_name, dist)
-                st.markdown(f"- {office['name']}")
-else:
-    st.caption("Establish the metropole (Scenario 1, option B) to see the Metropolitan Council and "
-               "each municipality's own departments and district civic offices here too.")
-
-# ---------- Industries & Schools Dashboard ----------
-# Same flat, click-to-browse shape as the Directorates Dashboard above:
-# every location's factories (name, sector, products) and schools, laid
-# out in one place. Purely descriptive world-building, no cost/score
-# effects.
-def _industry_school_expander(name):
-    factories = FACTORIES.get(name, [])
-    schools = SCHOOLS.get(name, [])
-    if not factories and not schools:
-        return
-    label_bits = []
-    if factories:
-        label_bits.append(f"{len(factories)} factories")
-    if schools:
-        label_bits.append(f"{len(schools)} schools")
-    with st.expander(f"{name} — {', '.join(label_bits)}"):
-        if factories:
-            st.markdown("**🏭 Factories**")
+    def _factory_expander(name):
+        factories = FACTORIES.get(name, [])
+        if not factories:
+            return
+        with st.expander(f"{name} — {len(factories)} factories"):
             for f in factories:
                 st.markdown(f"- **{f['name']}** — *{f['sector']}.* {', '.join(f['products'])}")
-        if schools:
-            st.markdown("**🎓 Schools**")
+
+    st.markdown("#### 🏭 Factories")
+    st.markdown("**Beside the metropole**")
+    for name in ["Cunicea", "Răduleni"]:
+        _factory_expander(name)
+    if st.session_state.metro_active:
+        st.markdown("**Within the metropole**")
+        for name in list(METRO_STRUCTURE) + [s["name"] for s in SUBURBS] + ["Ciripcău"]:
+            _factory_expander(name)
+    else:
+        st.caption("Establish the metropole (Scenario 1, option B) to see factories across the "
+                   "municipalities, suburbs, and Ciripcău too.")
+
+# ---------- Schools tab ----------
+# Every location's own schools, plus the two higher-ed universities
+# (FlorTech, AgroFlor) that grew out of the metropole's investment choices.
+with tab_schools:
+    def _school_expander(name):
+        schools = SCHOOLS.get(name, [])
+        if not schools:
+            return
+        with st.expander(f"{name} — {len(schools)} schools"):
             for s in schools:
                 st.markdown(f"- {s}")
 
-st.subheader("🏭 Industries & Schools Dashboard")
-st.caption(
-    "Every location's factories (name, sector, products) and schools, browsable in one place -- "
-    "purely descriptive, no cost or score effects."
-)
-st.markdown("**Beside the metropole**")
-for name in ["Cunicea", "Răduleni"]:
-    _industry_school_expander(name)
+    st.markdown("#### 🎓 Schools")
+    st.caption(
+        "Every location's own schools, browsable in one place -- purely descriptive, no cost or "
+        "score effects."
+    )
+    st.markdown("**Beside the metropole**")
+    for name in ["Cunicea", "Răduleni"]:
+        _school_expander(name)
+    if st.session_state.metro_active:
+        st.markdown("**Within the metropole**")
+        for name in list(METRO_STRUCTURE) + [s["name"] for s in SUBURBS] + ["Ciripcău"]:
+            _school_expander(name)
+    else:
+        st.caption("Establish the metropole (Scenario 1, option B) to see schools across the "
+                   "municipalities, suburbs, and Ciripcău too.")
 
-if st.session_state.metro_active:
-    st.markdown("**Within the metropole**")
-    for name in list(METRO_STRUCTURE) + [s["name"] for s in SUBURBS] + ["Ciripcău"]:
-        _industry_school_expander(name)
-else:
-    st.caption("Establish the metropole (Scenario 1, option B) to see factories and schools across "
-               "the municipalities, suburbs, and Ciripcău too.")
+    st.markdown("#### 🎓 FlorTech — Florești University of Technology")
+    if not st.session_state.metro_active:
+        st.info("FlorTech's campuses come online once the metropole is established "
+                "(Scenario 1, option B).")
+    else:
+        st.caption(FLORTECH["origin"])
+        sel_campus_id = st.session_state.selected_campus
+
+        if sel_campus_id is None:
+            st.write("👆 Click a campus for its faculties, departments, and programs:")
+            campus_cols = st.columns(3)
+            for i, campus in enumerate(FLORTECH["campuses"]):
+                with campus_cols[i % 3]:
+                    if st.button(campus["name"], key=f"select_campus_{campus['id']}", use_container_width=True):
+                        st.session_state.selected_campus = campus["id"]
+                        st.rerun()
+
+            with st.expander(
+                f"🛠️ Vocational Institutes ({len(FLORTECH['vocational_institutes'])}) — "
+                "Școala Profesională legacy tracks, kept alongside FlorTech"
+            ):
+                for inst in FLORTECH["vocational_institutes"]:
+                    st.markdown(f"**{inst['name']}** — {inst['location']}  \n{', '.join(inst['tracks'])}")
+        else:
+            campus = next(c for c in FLORTECH["campuses"] if c["id"] == sel_campus_id)
+            if st.button("← Back to FlorTech", key="back_to_flortech"):
+                st.session_state.selected_campus = None
+                st.rerun()
+            st.markdown(f"### {campus['name']}")
+            st.caption(f"{campus['location']} · Degree levels: {', '.join(campus['levels'])}")
+            for fac in campus["faculties"]:
+                st.markdown(f"#### {fac['name']}")
+                for dept in fac["departments"]:
+                    st.markdown(f"- **{dept}** — {', '.join(campus['levels'])}")
+
+    st.markdown("#### 🌾 AgroFlor — Florești University of Agricultural Sciences and Technologies")
+    if not st.session_state.metro_active:
+        st.info("AgroFlor's campuses come online once the metropole is established "
+                "(Scenario 1, option B).")
+    else:
+        st.caption(AGROFLOR["origin"])
+        sel_agro_id = st.session_state.selected_agro_campus
+
+        if sel_agro_id is None:
+            st.write("👆 Click a campus for its faculties, departments, research centers, and programs:")
+            agro_cols = st.columns(3)
+            for i, campus in enumerate(AGROFLOR["campuses"]):
+                with agro_cols[i % 3]:
+                    if st.button(campus["name"], key=f"select_agro_campus_{campus['id']}", use_container_width=True):
+                        st.session_state.selected_agro_campus = campus["id"]
+                        st.rerun()
+        else:
+            campus = next(c for c in AGROFLOR["campuses"] if c["id"] == sel_agro_id)
+            if st.button("← Back to AgroFlor", key="back_to_agroflor"):
+                st.session_state.selected_agro_campus = None
+                st.rerun()
+            st.markdown(f"### {campus['name']}")
+            st.caption(f"{campus['location']} · Degree levels: {', '.join(campus['levels'])}")
+            for fac in campus["faculties"]:
+                st.markdown(f"#### {fac['name']}")
+                for dept in fac["departments"]:
+                    st.markdown(f"- **{dept}** — {', '.join(campus['levels'])}")
+            st.markdown("#### 🔬 Research Centers & Labs")
+            for center in campus["research_centers"]:
+                st.markdown(f"- {center}")
+
+# ---------- Transportation tab ----------
+# Transit lines/interchanges and roads/key sites, plus the two operators that
+# run them: MetroFlor (the Metropolitan Council's own operator, everything
+# that stays within the metropole) and FlorLink (the Prefecture's own
+# operator, connecting Florești to the Prefecture Towns and beyond).
+with tab_transport:
+    st.markdown("#### 🚍 Operators")
+    for op in TRANSIT_OPERATORS:
+        op_lines = [l for l in TRANSIT_LINES if l["id"] in op["line_ids"]]
+        with st.expander(f"{op['name']} — {op['level']} operator ({len(op_lines)} lines)"):
+            st.caption(op["note"])
+            for line in op_lines:
+                st.markdown(f"- **{line['name']}** — {TRANSIT_MODE_LABELS[line['mode']]}")
+
+    with st.expander(f"🚊 Public Transit Network ({len(TRANSIT_LINES)} lines)"):
+        st.caption(
+            "**Gara Florești** (the Florești Central stop) is the hub where every mode meets. Rail "
+            "runs in two tiers: **Metro M1** is the backbone spanning all 4 municipalities; "
+            "**Metro M2** crosses it there, running Coach Terminal ↔ Gara Florești ↔ Florești "
+            "Central North. **Tram T1** is a short local shuttle from Gara Florești out to Centrul "
+            "Civic. Road transit runs in three tiers, each with denser stops than the rail lines: "
+            "**BRT** lines reach further out at commuter-rail-equivalent speed and don't stop as "
+            "often; plain **biogas/electric buses** cover local routes with no dedicated lane; "
+            "**regional rail** reaches the prefecture's own small towns (Cunicea, Răduleni). Routes "
+            "below are proposed street-level alignments, not a surveyed plan."
+        )
+        for line in TRANSIT_LINES:
+            st.markdown(f"**{line['name']}** — {TRANSIT_MODE_LABELS[line['mode']]}  \n{transit_route_label(line)}")
+        st.markdown("**⇄ Interchanges**")
+        for stop, lines in transit_interchanges().items():
+            st.markdown(f"- **{stop}** — {', '.join(lines)}")
+
+    with st.expander(f"🛣️ Roads & Key Sites ({len(ROAD_NETWORK)} roads)"):
+        st.caption(
+            "Committed infrastructure shown on the Map tab, not a METRO_PROJECTS decision to resolve. "
+            "The Ring Road stays outside the municipalities' own built territory, tracing the metro's "
+            "southern periphery close to Vărvăreuca's Heritage Quarter and Forestry District rather "
+            "than cutting through the metropole itself."
+        )
+        for road in ROAD_NETWORK:
+            route_label = " → ".join(f"{name} ({STOP_STREETS.get(name, name)})" for name, _ in road["route"])
+            st.markdown(f"**{road['name']}**  \n{route_label}")
+        st.markdown(
+            "**🚌 Autogara Metropolitană (Coach Terminal)** — on Vărvăreuca's Heritage Quarter "
+            "boundary, on the Metropolitan Ring Road, Tram T1's terminus and a FlorLink coach hub."
+        )
+        st.markdown(
+            "**✈️ Mărculești–Florești International Airport** — its own sign on the map, same "
+            "treatment as the Coach Terminal."
+        )
+        st.markdown(
+            "**🏛️ Centrul Civic (Civic Center)** — Florești Central's own civic district, seat "
+            "of the Metropolitan Council, the Florești Prefecture, and their directorates."
+        )
+        st.markdown(
+            "**🏘️ Cunicea & Răduleni** — Prefecture Towns, each with its own 🏘️ sign on the map, "
+            "reached by FlorLink regional rail and the Regional Expressway (which joins the "
+            "Metropolitan Ring Road at Ghindești)."
+        )
+        st.markdown(
+            "**📐 Proposed CBD** — the riverside zone shown on the map between Centrul Civic and "
+            "the Răut; see the full concept masterplan in Florești Central's own municipal view."
+        )
+        st.markdown(
+            "**⚡ Florești HPP** — the hydroelectric power plant on the Răut river, just downstream "
+            "of the CBD riverside land, managed by HydroTechnique Ltd. (see the Industry tab)."
+        )
 
 # ---------- Real-time clock loop ----------
 # While auto-play is on, the app sleeps for one tick then reruns itself,

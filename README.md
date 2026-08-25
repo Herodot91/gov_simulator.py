@@ -38,10 +38,56 @@ client-side static app instead of a Streamlit/Python backend. See
 - History (scores per month) and the full event log can be exported at any
   point as CSV / JSON, even mid-run.
 
+## Menu — six tabs instead of one long scroll
+
+The whole "Florești Metropole" section used to be one continuously
+scrolling page — every governance layer, dashboard, and reference section
+stacked in sequence, which got chaotic once enough features piled up. It's
+now a proper tabbed menu instead:
+
+- **🏛️ Decentralization Structure** — the governance hierarchy itself:
+  Prefecture (Policies) → Metropole (map-driven municipality/district
+  drill-down, Suburbs, Technopolis Okrugs, Metropolitan/Municipal/District
+  Projects) → Prefecture Towns. Structure and policy/project decisions
+  only — every tier's own org chart moved to its own tab.
+- **🏢 Directorates** — every tier's directorates/departments/civic
+  offices, flat (formerly the "Directorates Dashboard").
+- **🗺️ Map** — the full interactive map on its own, still click-to-drill-
+  down (results show up back in the Decentralization Structure and
+  Schools tabs).
+- **🏭 Industry** — the Technopolis Okrugs' full product lines plus every
+  location's factories.
+- **🎓 Schools** — every location's own schools, plus FlorTech and
+  AgroFlor (the two higher-ed universities).
+- **🚌 Transportation** — the transit network, roads & key sites, and the
+  two operators that run them (see below).
+
+All six tabs stay mounted at once (hidden/shown, not mounted/unmounted),
+so map state, drill-down selections, and expander state all survive
+switching tabs — clicking a municipality on the Map tab and then flipping
+to Decentralization Structure shows that municipality's districts, exactly
+as if you'd clicked it there directly.
+
+### MetroFlor & FlorLink — the two transit operators
+
+The Transportation tab's own **🚍 Operators** section names who actually
+runs each tier of transit, mirroring the app's own two-tier transit
+planning (the Metropolitan Council's Directorate of Transport &
+Infrastructure vs. the Prefecture):
+
+- **MetroFlor** — the Metropolitan Council's own operator, running every
+  mode that stays within the metropole itself: Metro M1/M2, Tram T1, all
+  3 BRT lines, and Bus B1 (7 lines total).
+- **FlorLink** — the Prefecture's own operator, connecting Florești to
+  Cunicea and Răduleni by Regional Rail R1/R2, and running the Autogara
+  Metropolitană's (Coach Terminal) intercity coach services — reaching
+  beyond the metropole's own network, the way MetroFlor doesn't.
+
 ## Governance structure UI — drill-down navigation
 
-The governance section follows the model's own layers, one screen at a
-time: **Metropole → Municipality → District**.
+The governance section (the Decentralization Structure tab) follows the
+model's own layers, one screen at a time: **Metropole → Municipality →
+District**.
 
 - At the Metropole layer, the map shows all 4 municipalities at once.
   Click a municipality's shape on the map, or its name below the map, to
@@ -304,9 +350,10 @@ the metropole being established.
 A third piece of structural world-building shown on the metropole map:
 the network of rail and road transit that actually moves people around.
 No cost, no score effects — always drawn once the metropole is
-established, alongside its own **🚊 Public Transit Network** expander
-(next to Suburbs and Technopolis Okrugs) listing every line's stops in
-order. Rail runs in two tiers, road transit in three:
+established, alongside its own **🚊 Public Transit Network** expander (in
+the Transportation tab, next to the MetroFlor/FlorLink operator listings
+and Roads & Key Sites) listing every line's stops in order. Rail runs in
+two tiers, road transit in three:
 
 - **Gara Florești** — the "Florești Central" stop is now named as the
   metropole's actual multi-modal rail hub: every one of the 9 lines below
@@ -397,33 +444,37 @@ decision, this is a fixed route, not a Cost/effects choice.
 The app is built for real users at each governance tier — the
 metropolitan council, the prefecture, a municipal council, a district
 office — to work through policy and project decisions the way their own
-administration is actually organized. Every tier now shows its own
-organizational chart: purely descriptive world-building (no cost, no
-score effects), same shape as everything else in this section.
+administration is actually organized. Every tier's own organizational
+chart lives together in the **🏢 Directorates** tab: purely descriptive
+world-building (no cost, no score effects), kept separate from the
+Decentralization Structure tab's navigation and policy/project decisions
+so neither tab gets overloaded.
 
-- **🏛️ Florești Prefecture — Directorates (4)**, shown at the top of the
-  Governance Structure section regardless of whether the metropole has
-  been established — the prefecture is the outer state tier the metropole
-  gets carved out of, so it's in effect either way. Public Order & Civil
-  Protection, State Finance & Treasury Oversight, Public Administration &
-  Legal Affairs, Civil Registry & Documents.
-- **🏢 Metropolitan Council — Directorates (6)**, alongside Suburbs,
-  Technopolis Okrugs, and the transit network at the Metropole layer, once
-  established: Urban Planning & Territorial Development, Transport &
-  Infrastructure, Economic Development & Investment, Environment &
-  Sustainability, Education & Culture, Health & Social Assistance.
-- **🏢 Departments (3 each)**, one per municipality, shown in that
-  municipality's own drill-down view: two generic departments every
-  municipality needs (Municipal Finance, Public Services) plus one
-  thematic department tied to its established identity — Urban
-  Development & CBD Management at Florești Central, Transport & Airport
-  Liaison at Mărculești, Agriculture & Rural Development at Vărvăreuca,
-  Local Economy & Crafts at Lunga.
-- **🏢 Civic Office**, one per district (16 total), shown in that
-  district's own drill-down view — districts sit below the municipal
-  tier, so each gets a single lightweight office (e.g. "Politeh Civic
-  Office") rather than a full directorate roster of its own, framed as a
-  first-line liaison to its municipality's council.
+- **🏛️ Florești Prefecture — Directorates (4)**, shown regardless of
+  whether the metropole has been established — the prefecture is the
+  outer state tier the metropole gets carved out of, so it's in effect
+  either way. Public Order & Civil Protection, State Finance & Treasury
+  Oversight, Public Administration & Legal Affairs, Civil Registry &
+  Documents.
+- **🏢 Metropolitan Council — Directorates (6)**, once established: Urban
+  Planning & Territorial Development, Transport & Infrastructure,
+  Economic Development & Investment, Environment & Sustainability,
+  Education & Culture, Health & Social Assistance.
+- **🏢 Departments (3 each)**, one per municipality: two generic
+  departments every municipality needs (Municipal Finance, Public
+  Services) plus one thematic department tied to its established identity
+  — Urban Development & CBD Management at Florești Central, Transport &
+  Airport Liaison at Mărculești, Agriculture & Rural Development at
+  Vărvăreuca, Local Economy & Crafts at Lunga.
+- **🏢 Civic Office**, one per district (16 total) — districts sit below
+  the municipal tier, so each gets a single lightweight office (e.g.
+  "Politeh Civic Office") rather than a full directorate roster of its
+  own, framed as a first-line liaison to its municipality's council.
+
+The Decentralization Structure tab's own municipality/district drill-down
+no longer repeats this org-chart detail inline — it just points to the
+Directorates tab instead, so the two tabs stay complementary rather than
+duplicating each other.
 
 ### Prefecture Policies — a fourth decision-making layer
 
@@ -440,10 +491,11 @@ list.
 ### Current Policies — reviewing what's already been decided
 
 The 5 top-level scenarios disappear from the main flow once resolved
-(only the text Log kept a record). A **📋 Current Policies** expander at
-the Metropole layer, next to the Metropolitan Council directorates, now
-lists every resolved scenario with the option actually chosen, so you can
-review past decisions without digging through the log.
+(only the text Log kept a record). A **📋 Current Policies** expander in
+the Decentralization Structure tab's Metropole layer, next to Suburbs and
+Technopolis Okrugs, now lists every resolved scenario with the option
+actually chosen, so you can review past decisions without digging
+through the log.
 
 ### Prefecture Towns — a third kind of settlement
 
@@ -457,7 +509,7 @@ town is reached by its own Regional Rail line from Florești Central and
 by the Regional Expressway, and gets a 🏘️ sign on the map, ringed by a
 dashed green 1.4 km territory circle reflecting their expanded land area —
 and, per their own notes, neither town is mono-industrial like the
-Technopolis Okrugs (see Industries & Schools Dashboard below).
+Technopolis Okrugs (see the Industry tab).
 
 The Prefecture section now reads as one consistent scheme top to bottom —
 **Prefecture** (Directorates, Policies) → **Metropole** (map, Suburbs and
@@ -466,23 +518,24 @@ districts) → **Prefecture Towns** — with the two towns shown last, as a
 third branch under the Prefecture alongside the Metropole, rather than
 interleaved between Prefecture Policies and the map.
 
-### Directorates Dashboard — every tier, one screen
+### Directorates tab — every tier, one screen
 
-A new top-level **📊 Directorates Dashboard** panel lays out every
-governance tier's own directorates/departments/civic offices flat, in one
-place — the same data the drill-down and expanders elsewhere already
-show, but without needing to click into every municipality and district
-one at a time to see it. Lists the Prefecture's 4 directorates and both
-Prefecture Towns' councils always; once the metropole is established,
-adds the Metropolitan Council's 6 directorates and one expander per
-municipality (its 3 departments plus all 4 of its districts' civic
-offices).
+The **🏢 Directorates** tab lays out every governance tier's own
+directorates/departments/civic offices flat, in one place — the same
+data the Decentralization Structure tab's own drill-down used to repeat
+inline, now consolidated so you don't need to click into every
+municipality and district one at a time to see it. Lists the Prefecture's
+4 directorates and both Prefecture Towns' councils always; once the
+metropole is established, adds the Metropolitan Council's 6 directorates
+and one expander per municipality (its 3 departments plus all 4 of its
+districts' civic offices).
 
-### Industries & Schools Dashboard — factories and schools, one screen
+### Industry tab — Technopolis Okrugs' product lines and every factory
 
-A new top-level **🏭 Industries & Schools Dashboard** panel, same flat
-click-to-browse shape as the Directorates Dashboard: one expander per
-location, showing its factories (name, sector, products) and schools.
+The **🏭 Industry** tab holds the Technopolis Okrugs' full company/
+product-line detail (the Decentralization Structure tab only names them
+administratively) plus every location's own factories (name, sector,
+products), same flat click-to-browse shape as the Directorates tab.
 Purely descriptive world-building — no cost, no score effects.
 
 - **Beside the metropole** (always visible): **Cunicea** (Cunicea
@@ -497,13 +550,18 @@ Purely descriptive world-building — no cost, no score effects.
   above); **Gura Camencii** has a bread factory; **Ghindești** has both a
   beer factory and Ghindești Zahăr S.A., a sugar-processing plant; **Gura
   Căinarului** (now a suburb, see above) has the Beverage Works.
-- **Schools** are listed the same way per location, spread across the
-  whole metropole rather than stacked in one place — each
-  municipality/suburb's own real-named school(s) (e.g. Liceul Teoretic
-  Ștefan cel Mare at Florești Central) plus one fictional international
-  school each: Fuad Seniora School at Florești Central, Tokugawa
-  International Japanese School at Mărculești, Liceo Español Don Quijote
-  at Vărvăreuca, Liceo Classico Italiano Giuseppe Verdi at Lunga, Abdi
-  İpekçi Türk Lisesi at Ghindești, and **Liceo Tecnico Giorgetto
-  Giugiaro** deliberately at Ciripcău next to Sigma Motors — a thematic
-  pairing with the real automotive designer's namesake.
+
+### Schools tab — every location's schools, plus FlorTech and AgroFlor
+
+The **🎓 Schools** tab lists every location's own schools, spread across
+the whole metropole rather than stacked in one place — each
+municipality/suburb's own real-named school(s) (e.g. Liceul Teoretic
+Ștefan cel Mare at Florești Central) plus one fictional international
+school each: Fuad Seniora School at Florești Central, Tokugawa
+International Japanese School at Mărculești, Liceo Español Don Quijote
+at Vărvăreuca, Liceo Classico Italiano Giuseppe Verdi at Lunga, Abdi
+İpekçi Türk Lisesi at Ghindești, and **Liceo Tecnico Giorgetto Giugiaro**
+deliberately at Ciripcău next to Sigma Motors — a thematic pairing with
+the real automotive designer's namesake. FlorTech and AgroFlor (see
+below) share this tab too, since they're the metropole's own higher-ed
+institutions.

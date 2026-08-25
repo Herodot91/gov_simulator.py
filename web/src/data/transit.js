@@ -160,6 +160,33 @@ export const TRANSIT_MODE_LABELS = {
   regional_rail: "🚆 Regional Rail",
 };
 
+// Two operators, one per governance tier that actually runs transit --
+// mirrors the app's own two-tier transit planning (Metropolitan Council
+// Directorate of Transport & Infrastructure vs. the Prefecture): MetroFlor
+// runs everything that stays within the metropole itself, FlorLink connects
+// Florești to the Prefecture Towns and beyond.
+export const TRANSIT_OPERATORS = [
+  {
+    id: "metroflor",
+    name: "MetroFlor",
+    level: "Metropolitan",
+    note:
+      "The Metropolitan Council's own transit operator — every mode that stays within the metropole " +
+      "itself: the metro, the tram, the BRT lines, and the biogas/electric bus network.",
+    lineIds: ["metro_m1", "metro_m2", "tram_t1", "brt1", "brt2", "brt3", "bus_b1"],
+  },
+  {
+    id: "florlink",
+    name: "FlorLink",
+    level: "Prefecture",
+    note:
+      "The Prefecture's own operator, connecting Florești to Cunicea and Răduleni by regional rail " +
+      "and running the Autogara Metropolitană's (Coach Terminal) intercity coach services — reaching " +
+      "beyond the metropole's own network, the way MetroFlor doesn't.",
+    lineIds: ["regional_r1", "regional_r2"],
+  },
+];
+
 // Stops served by 2+ transit lines -- where metro/trams interchange with
 // each other, the BRT lines, buses, and regional rail.
 export function transitInterchanges() {
