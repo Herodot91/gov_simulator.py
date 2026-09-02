@@ -38,6 +38,15 @@ export const PREFECTURE_POLICIES = [
     },
     intl: "Regional emergency-response reviews recommend investment.",
   },
+  {
+    id: "florlink_fleet",
+    title: "FlorLink Fleet Expansion",
+    options: {
+      A: ["Add more coach/bus slots at Autogara Metropolitană", { Economy: +4, Stability: +2 }, 14],
+      B: ["Keep the current schedule", {}, 0],
+    },
+    intl: "Commuters from Cunicea and Răduleni push for more frequent FlorLink service.",
+  },
 ];
 
 // Two real villages, both outside the metropole and the Technopolis

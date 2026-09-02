@@ -14,7 +14,7 @@ import folium
 from streamlit_folium import st_folium
 from shapely.geometry import shape, mapping, Point, box
 
-st.set_page_config(page_title="Florești Metropole — CivicTech Simulator", layout="wide")
+st.set_page_config(page_title="North East Simulator", layout="wide")
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
@@ -399,6 +399,42 @@ def find_locality(name):
     return (towns or matches)[0]
 
 
+# ---------- Rabnirez Metropole (Rîbnița + Rezina) ----------
+# A second fictional metropole, alongside Florești, in the same "North East
+# Simulator" -- real geography (Overpass API-sourced OSM points: Rîbnița,
+# Rezina, their real named quarters, and the real Rezina-Rîbnița bridge)
+# under the same governance scheme as Florești: a French-style Prefecture
+# (here uniting Rîbnița raion and Rezina raion into one, "Rabnirez") with a
+# Metropole carved out inside it using the same Istanbul-ilçe/Budapest-
+# kerület mixed decentralization. A speculative cross-Nistru thought
+# experiment, explicitly not a real position on Transnistria's status.
+@st.cache_data
+def load_rabnirez_localities():
+    with open(os.path.join(DATA_DIR, "rabnirez_localities.json"), encoding="utf-8") as f:
+        return json.load(f)
+
+
+RABNIREZ_LOCALITIES = load_rabnirez_localities()
+
+
+def find_rabnirez_locality(name):
+    matches = [loc for loc in RABNIREZ_LOCALITIES if loc["name"] == name]
+    return matches[0]
+
+
+RABNIREZ_METRO_STRUCTURE = {
+    "Rîbnița": {
+        "anchor": "Rîbnița",
+        "districts": ["Centru (Rîbnița)", "Pușkina (Rîbnița)", "Sahkamen (Rîbnița)", "Verșigora (Rîbnița)"],
+    },
+    "Rezina": {
+        "anchor": "Rezina",
+        "districts": ["Centru (Rezina)", "Rezina Vale", "Cartierul Pietrarilor", "Cartierul Văii Nistrului"],
+    },
+}
+RABNIREZ_SUBURBS = [{"name": "Iubileinîi (Rîbnița)"}, {"name": "Valcenko (Rîbnița)"}]
+
+
 @st.cache_data
 def compute_metro_polygons():
     """The real current territory of each municipality, and their union as
@@ -483,6 +519,10 @@ PREFECTURE_POLICIES = [
      "options": {"A": ("Expand civil protection & emergency services", {"Risk": -5, "Stability": +3}, 15),
                  "B": ("Maintain current staffing levels", {}, 0)},
      "intl": "Regional emergency-response reviews recommend investment."},
+    {"id": "florlink_fleet", "title": "FlorLink Fleet Expansion",
+     "options": {"A": ("Add more coach/bus slots at Autogara Metropolitană", {"Economy": +4, "Stability": +2}, 14),
+                 "B": ("Keep the current schedule", {}, 0)},
+     "intl": "Commuters from Cunicea and Răduleni push for more frequent FlorLink service."},
 ]
 
 # Two real villages, both outside the metropole and the Technopolis Okrugs,
@@ -735,6 +775,7 @@ STOP_COORDS = {
     "Gura Camencii": _GURACAMENCII_PT,
     "Gura Căinarului": _GURA_CAINARULUI_PT,
     "Prajila": _PRAJILA_PT,
+    "Ciripcău": _CIRIPCAU_PT,
     "Coach Terminal": _COACH_TERMINAL_PT,
     "Cunicea": _CUNICEA_PT,
     "Răduleni": _RADULENI_PT,
@@ -778,7 +819,7 @@ TRANSIT_LINES = [
     {"id": "tram_t1", "name": "Tram T1", "mode": "tram", "color": "#8e44ad",
      "stops": ["Florești Central", "Centrul Civic"]},
     {"id": "brt1", "name": "BRT 1 (biogas/electric)", "mode": "brt", "color": "#16a085",
-     "stops": ["Gura Camencii", "Florești Central", "Mărculești Airport"]},
+     "stops": ["Gura Camencii", "Florești Central", "Mărculești Airport", "Ciripcău"]},
     {"id": "brt2", "name": "BRT 2 (biogas/electric)", "mode": "brt", "color": "#2980b9",
      "stops": ["Ghindești", "Florești Central", "Lunga", "Mărculești Airport", "Gura Căinarului"]},
     {"id": "brt3", "name": "BRT 3 (biogas/electric)", "mode": "brt", "color": "#27ae60",
@@ -813,12 +854,17 @@ TRANSIT_MODE_LABELS = {
 TRANSIT_OPERATORS = [
     {"id": "metroflor", "name": "MetroFlor", "level": "Metropolitan",
      "note": "The Metropolitan Council's own transit operator -- every mode that stays within the "
-             "metropole itself: the metro, the tram, the BRT lines, and the biogas/electric bus network.",
+             "metropole itself: the metro, the tram, the BRT lines, and the biogas/electric bus "
+             "network. BRT 3 reaches Prajila and BRT 1 reaches Ciripcău, so MetroFlor covers both "
+             "Technopolis Okrugs too, not just the 4 municipalities.",
      "line_ids": ["metro_m1", "metro_m2", "tram_t1", "brt1", "brt2", "brt3", "bus_b1"]},
     {"id": "florlink", "name": "FlorLink", "level": "Prefecture",
      "note": "The Prefecture's own operator, connecting Florești to Cunicea and Răduleni by regional "
              "rail and running the Autogara Metropolitană's (Coach Terminal) intercity coach services -- "
-             "reaching beyond the metropole's own network, the way MetroFlor doesn't.",
+             "reaching beyond the metropole's own network, the way MetroFlor doesn't. Cunicea and "
+             "Răduleni each run their own local public transport (electric buses, trams, or "
+             "trolleybuses) beyond that FlorLink connection -- neither MetroFlor nor FlorLink operate "
+             "inside the towns themselves.",
      "line_ids": ["regional_r1", "regional_r2"]},
 ]
 
@@ -946,6 +992,8 @@ def reset_simulation(start_budget):
     st.session_state.inaugurated = []
     st.session_state.selected_municipality = None
     st.session_state.selected_district = None
+    st.session_state.rr_selected_municipality = None
+    st.session_state.rr_selected_district = None
     st.session_state.resolved_projects = {}
     st.session_state.resolved_scenarios = {}
     st.session_state.selected_campus = None
@@ -1428,7 +1476,12 @@ def build_map():
 
 
 # ---------- Sidebar ----------
-st.title("Florești Metropole — CivicTech Simulator")
+st.title("North East Simulator")
+st.caption(
+    "A governance-simulation covering two fictional metropoles in the same real North-East Moldova "
+    "corridor: **Florești Metropole** (below) and **Rabnirez Metropole** — Rîbnița and Rezina, a "
+    "speculative cross-Nistru reunification thought experiment, not a real policy position."
+)
 
 with st.sidebar:
     st.session_state.mode = st.radio("Mode", ["Democracy", "Autocracy"], key="mode_radio",
@@ -1561,6 +1614,20 @@ def render_project(project, scope_label, key_prefix):
                 st.rerun()
 
 
+def render_project_readonly(project):
+    """A project/policy's status with no buttons -- used in the
+    Decentralization Structure tab, which explains the governance
+    hierarchy and points to the Policy Simulation tab to actually decide
+    anything, rather than resolving decisions itself."""
+    resolved = st.session_state.resolved_projects.get(project["id"])
+    if resolved is None:
+        st.markdown(f"- **{project['title']}** — not yet decided *(see the Policy Simulation tab)*")
+    elif resolved["choice"] is None:
+        st.markdown(f"- **{project['title']}** — ⏭️ Skipped")
+    else:
+        st.markdown(f"- **{project['title']}** — ✅ {resolved['choice']}) {resolved['label']}")
+
+
 def bar_html(value, color):
     return f'''
       <div style="height:10px;background:#e9eef5;border-radius:999px;overflow:hidden;">
@@ -1684,18 +1751,40 @@ if st.session_state.metro_active and map_state and map_state.get("last_object_cl
 
 # ---------- Decentralization Structure tab ----------
 with tab_structure:
+    st.markdown(
+        "Florești's governance is explained top to bottom, Prefecture down to Municipality/District/"
+        "Town, as **three borrowed models layered on top of each other** rather than one uniform "
+        "system:"
+    )
+    st.markdown(
+        "1. 🇫🇷 **Prefecture** — the outer tier, a real French-style *deconcentrated* state "
+        "administration (a reframing of Raionul Florești). Always in effect, whether or not the "
+        "metropole below has been established.\n"
+        "2. 🏙️ **Metropole** — carved out *within* the Prefecture, this tier is genuinely **mixed "
+        "decentralization**, combining three different real-world models at once:\n"
+        "   - 🇹🇷 **Istanbul's ilçe** + 🇭🇺 **Budapest's kerület** — the metropolitan tier itself, "
+        "governing 4 **Municipalities**, each inaugurated separately and each split into its own 4 "
+        "**Districts** (16 total).\n"
+        "   - 🇷🇺 **Moscow's Zelenograd** — the **Technopolis Okrugs** (Prajila, Ciripcău), detached "
+        "single-industry okrugs administratively sponsored by the metropole rather than ordinary "
+        "municipalities.\n"
+        "   - **Suburbs** stay administratively dependent on the metropole, with no local government "
+        "of their own.\n"
+        "3. 🏘️ **Prefecture Towns** — Cunicea and Răduleni sit *alongside* the Metropole, not under "
+        "it: real French-model small towns directly under the Prefecture, each with its own town "
+        "council."
+    )
     if not st.session_state.metro_active:
-        st.info("Choose **B) Establish Florești Metropole** in Scenario 1 to activate mixed-decentralization "
-                "governance: a metropolitan tier (Istanbul/Budapest-style) carved out of the French-style "
-                "Florești Prefecture, over 4 municipalities, each with its own local government and districts.")
+        st.info("Choose **B) Establish Florești Metropole** in Scenario 1 to activate the Metropole "
+                "tier described above.")
     else:
-        st.caption("Mixed decentralization is in effect — click a municipality below (or on the Map tab) "
-                   "to drill down into its districts. Suburbs stay administratively dependent on the "
-                   "metropole. See the Directorates tab for every tier's own org chart.")
+        st.caption("Click a municipality below (or on the Map tab) to drill down into its districts. "
+                   "See the Directorates tab for every tier's own org chart, and the Policy Simulation "
+                   "tab to actually decide any of the policies mentioned below.")
 
     st.markdown("#### 🏛️ Prefecture Policies")
     for policy in PREFECTURE_POLICIES:
-        render_project(policy, "Prefecture", "prefecture_policy")
+        render_project_readonly(policy)
 
     if st.session_state.metro_active:
         sel_muni = st.session_state.selected_municipality
@@ -1745,7 +1834,7 @@ with tab_structure:
 
             st.markdown("#### 🏗️ Metropolitan Projects")
             for project in METRO_PROJECTS:
-                render_project(project, "Metropolitan", "metro_project")
+                render_project_readonly(project)
 
         else:
             info = METRO_STRUCTURE[sel_muni]
@@ -1782,7 +1871,7 @@ with tab_structure:
                     st.markdown("#### 🏗️ Municipal Projects")
                     if active:
                         for project in muni_projects:
-                            render_project(project, f"{sel_muni} municipal", "muni_project")
+                            render_project_readonly(project)
                     else:
                         st.caption(f"Inaugurate {sel_muni} to unlock its municipal projects.")
 
@@ -1818,7 +1907,7 @@ with tab_structure:
                     st.markdown("#### 🏗️ District Projects")
                     if active:
                         for project in dist_projects:
-                            render_project(project, f"{sel_dist} district", "district_project")
+                            render_project_readonly(project)
                     else:
                         st.caption(f"Inaugurate {sel_muni} to unlock projects in this district.")
 
@@ -1836,7 +1925,7 @@ with tab_structure:
     for town in PREFECTURE_TOWNS:
         st.markdown(f"**{town['name']}** — {town['note']}")
         for policy in TOWN_POLICIES[town["id"]]:
-            render_project(policy, f"{town['name']} Town Council", f"town_policy_{town['id']}")
+            render_project_readonly(policy)
 
 # ---------- Directorates tab ----------
 # Every governance tier's own directorates/departments/civic offices, in
@@ -2105,6 +2194,25 @@ with tab_transport:
 # it), so it's a real decision, not a preview -- it shows up at that
 # level's own natural section too, and vice versa.
 with tab_policy_sim:
+    st.markdown("#### 📊 Where the metropole stands right now")
+    sim_fig, sim_ax = plt.subplots(figsize=(8, 3.2))
+    sim_metrics = ["Governance", "Economy", "Stability", "Risk"]
+    sim_colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
+    sim_values = [st.session_state.scores[m] for m in sim_metrics]
+    sim_ax.barh(sim_metrics, sim_values, color=sim_colors)
+    sim_ax.set_xlim(0, 100)
+    sim_ax.set_xlabel("Score (0-100)")
+    sim_ax.invert_yaxis()
+    for i, v in enumerate(sim_values):
+        sim_ax.text(v + 1, i, str(v), va="center")
+    st.pyplot(sim_fig)
+    st.caption(
+        "**In plain language:** Governance is how effective and trusted the administration is. "
+        "Economy is the strength of local business and jobs. Stability is public order and calm. "
+        "Risk is the chance of a crisis -- for Risk, lower is better; for the other three, higher is "
+        "better. Every policy below moves one or more of these four numbers."
+    )
+
     st.caption(
         "Pick a governance level to jump straight to its own real policies/projects -- the same "
         "Cost + effects decisions available at that level's own section elsewhere in the app. "
@@ -2175,6 +2283,74 @@ with tab_policy_sim:
         )
         for policy in TECHNOPOLIS_POLICIES.get(ps_okrug_name, []):
             render_project(policy, f"{ps_okrug_name} Technopolis Okrug", "policysim_okrug")
+
+# ---------- Rabnirez Metropole (stage 1: structure + drill-down only) ----------
+# A second region in the same North East Simulator, alongside Florești
+# Metropole above -- real geography (Overpass-sourced), same governance
+# scheme (French Prefecture -> Istanbul/Budapest mixed-decentralization
+# Metropole -> Municipality -> District), sharing the same global
+# budget/scores as everything else in the app. Always explorable, not
+# gated behind a scenario choice -- map, industry, schools, transit, and
+# its own Policy Simulation entry are later stages, not yet built here.
+st.divider()
+st.subheader("🌉 Rabnirez Metropole")
+st.markdown(
+    "A speculative cross-Nistru thought experiment, not a real position on Transnistria's status: "
+    "**Rîbnița** (east bank) and **Rezina** (west bank), real towns on opposite sides of the Nistru "
+    "river and connected by the real Rezina–Rîbnița Bridge, imagined here as sharing one governance "
+    "scheme, explained top to bottom the same way as Florești:"
+)
+st.markdown(
+    "1. 🇫🇷 **Rabnirez Prefecture** — a French-style deconcentrated administration, uniting Rîbnița "
+    "raion and Rezina raion into one prefecture instead of two, the same reframing Florești Prefecture "
+    "applies to Raionul Florești.\n"
+    "2. 🏙️ **Rabnirez Metropole** — carved out within the prefecture, the same **mixed "
+    "decentralization** as Florești: 🇹🇷 Istanbul's ilçe + 🇭🇺 Budapest's kerület, governing 2 "
+    "**Municipalities** — Rîbnița and Rezina — each split into its own 4 **Districts**.\n"
+    "3. 🌉 **Rezina–Rîbnița Bridge** — the real bridge across the Nistru, the metropole's own shared "
+    "landmark connecting both municipalities, the way the Coach Terminal or Metro do for Florești."
+)
+
+rr_sel_muni = st.session_state.rr_selected_municipality
+rr_sel_dist = st.session_state.rr_selected_district
+
+if rr_sel_muni is None:
+    st.caption("👆 Click a municipality to see its 4 districts.")
+    rr_muni_cols = st.columns(2)
+    for col, name in zip(rr_muni_cols, RABNIREZ_METRO_STRUCTURE):
+        with col:
+            if st.button(name, key=f"rr_select_{name}", use_container_width=True):
+                st.session_state.rr_selected_municipality = name
+                st.session_state.rr_selected_district = None
+                st.rerun()
+
+    with st.expander(f"🏘️ Suburbs ({len(RABNIREZ_SUBURBS)}) — dependent on the metropole, no local government"):
+        for suburb in RABNIREZ_SUBURBS:
+            loc = find_rabnirez_locality(suburb["name"])
+            st.markdown(f"- **{loc['display_name']}** ({loc['type']})")
+
+elif rr_sel_dist is None:
+    rr_info = RABNIREZ_METRO_STRUCTURE[rr_sel_muni]
+    rr_anchor = find_rabnirez_locality(rr_info["anchor"])
+    if st.button("← Back to Rabnirez Metropole", key="rr_back_to_metro"):
+        st.session_state.rr_selected_municipality = None
+        st.rerun()
+    st.markdown(f"### {rr_sel_muni}")
+    st.caption(f"Anchor: {rr_anchor['display_name']}")
+    st.write("👆 Click a district for details:")
+    rr_dist_cols = st.columns(4)
+    for col, d in zip(rr_dist_cols, rr_info["districts"]):
+        with col:
+            if st.button(d, key=f"rr_select_district_{rr_sel_muni}_{d}", use_container_width=True):
+                st.session_state.rr_selected_district = d
+                st.rerun()
+
+else:
+    if st.button(f"← Back to {rr_sel_muni}", key="rr_back_to_muni"):
+        st.session_state.rr_selected_district = None
+        st.rerun()
+    st.markdown(f"### {rr_sel_dist}")
+    st.caption(f"District of **{rr_sel_muni}**, Rabnirez Metropole.")
 
 # ---------- Real-time clock loop ----------
 # While auto-play is on, the app sleeps for one tick then reruns itself,

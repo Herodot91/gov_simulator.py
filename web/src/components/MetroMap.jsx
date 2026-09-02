@@ -1,4 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
+import localitiesData from "../../public/data/floresti_localities.json";
+import districtGeoRaw from "../../public/data/floresti_district.geojson?raw";
+import municipalitiesGeoRaw from "../../public/data/floresti_municipalities.geojson?raw";
 import { MapContainer, TileLayer, GeoJSON, Marker, Polyline, Circle, Rectangle, useMap } from "react-leaflet";
 import L from "leaflet";
 import { useSimState, useSimActions } from "../state/SimulationContext.jsx";
@@ -106,22 +109,16 @@ function SetView({ center, zoom }) {
   return null;
 }
 
+// Bundled at build time (not fetched at runtime) so the app -- and an
+// Artifact publish of it -- works with no server behind it.
+const GEO_DATA = {
+  localities: localitiesData,
+  prefecture: JSON.parse(districtGeoRaw),
+  municipalities: JSON.parse(municipalitiesGeoRaw),
+};
+
 function useGeoData() {
-  const [data, setData] = useState(null);
-  useEffect(() => {
-    let cancelled = false;
-    Promise.all([
-      fetch("/data/floresti_localities.json").then((r) => r.json()),
-      fetch("/data/floresti_district.geojson").then((r) => r.json()),
-      fetch("/data/floresti_municipalities.geojson").then((r) => r.json()),
-    ]).then(([localities, prefecture, municipalities]) => {
-      if (!cancelled) setData({ localities, prefecture, municipalities });
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-  return data;
+  return GEO_DATA;
 }
 
 // Once a municipality is selected, split its territory into its 4

@@ -1,9 +1,7 @@
-import { useEffect, useState } from "react";
+import localities from "../../public/data/floresti_localities.json";
 
+// Bundled at build time (not fetched at runtime) so the app -- and an
+// Artifact publish of it -- works with no server behind it.
 export function useLocalities() {
-  const [localities, setLocalities] = useState(null);
-  useEffect(() => {
-    fetch("/data/floresti_localities.json").then((r) => r.json()).then(setLocalities);
-  }, []);
   return localities;
 }

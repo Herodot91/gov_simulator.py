@@ -10,6 +10,7 @@ import {
 } from "../data/projects.js";
 import { PREFECTURE_POLICIES, PREFECTURE_TOWNS, TOWN_POLICIES } from "../data/directorates.js";
 import ProjectCard from "./ProjectCard.jsx";
+import CurrentStateChart from "./CurrentStateChart.jsx";
 
 const LEVELS = ["Prefecture", "Metropole", "Municipality", "District", "Town", "Technopolis"];
 
@@ -32,6 +33,15 @@ export default function PolicySimulationTab() {
 
   return (
     <>
+      <h4>📊 Where the metropole stands right now</h4>
+      <CurrentStateChart scores={state.scores} />
+      <p className="caption">
+        <strong>In plain language:</strong> Governance is how effective and trusted the administration
+        is. Economy is the strength of local business and jobs. Stability is public order and calm.
+        Risk is the chance of a crisis — for Risk, lower is better; for the other three, higher is
+        better. Every policy below moves one or more of these four numbers.
+      </p>
+
       <p className="caption">
         Pick a governance level to jump straight to its own real policies/projects — the same Cost +
         effects decisions available at that level's own section elsewhere in the app. Resolving one

@@ -1,20 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import masterplanSvg from "../../public/data/cbd_masterplan.svg?raw";
 
 // Concept site plan for the new CBD proposed in Florești Central, anchored
-// on Metro Line 1 and the Răut Plaza municipal project. Fetched as a static
-// SVG (same file the Streamlit app embeds) rather than hand-ported to JSX,
-// so both apps render from exactly one drawing.
+// on Metro Line 1 and the Răut Plaza municipal project. Bundled at build
+// time as the same static SVG file the Streamlit app embeds (not fetched
+// at runtime), so both apps render from exactly one drawing and this also
+// works with no server behind it (e.g. published as an Artifact).
 export default function CbdMasterplan() {
   const [open, setOpen] = useState(false);
-  const [svg, setSvg] = useState(null);
-
-  useEffect(() => {
-    if (open && svg === null) {
-      fetch("/data/cbd_masterplan.svg")
-        .then((r) => r.text())
-        .then(setSvg);
-    }
-  }, [open, svg]);
 
   return (
     <div className="expander masterplan-expander">
@@ -29,11 +22,7 @@ export default function CbdMasterplan() {
             Răut, built around the Metro Line 1 station and Răut Plaza as its civic anchor. Concept only —
             not an adopted plan.
           </p>
-          {svg ? (
-            <div className="masterplan-svg" dangerouslySetInnerHTML={{ __html: svg }} />
-          ) : (
-            <p className="caption">Loading masterplan…</p>
-          )}
+          <div className="masterplan-svg" dangerouslySetInnerHTML={{ __html: masterplanSvg }} />
         </div>
       )}
     </div>

@@ -47,6 +47,7 @@ export const STOP_COORDS = {
   "Gura Camencii": GURACAMENCII_PT,
   "Gura Căinarului": GURA_CAINARULUI_PT,
   "Prajila": PRAJILA_PT,
+  "Ciripcău": CIRIPCAU_PT,
   "Coach Terminal": COACH_TERMINAL_PT,
   "Cunicea": CUNICEA_PT,
   "Răduleni": RADULENI_PT,
@@ -102,7 +103,7 @@ export const TRANSIT_LINES = [
     name: "BRT 1 (biogas/electric)",
     mode: "brt",
     color: "#16a085",
-    stops: ["Gura Camencii", "Florești Central", "Mărculești Airport"],
+    stops: ["Gura Camencii", "Florești Central", "Mărculești Airport", "Ciripcău"],
   },
   {
     id: "brt2",
@@ -172,7 +173,9 @@ export const TRANSIT_OPERATORS = [
     level: "Metropolitan",
     note:
       "The Metropolitan Council's own transit operator — every mode that stays within the metropole " +
-      "itself: the metro, the tram, the BRT lines, and the biogas/electric bus network.",
+      "itself: the metro, the tram, the BRT lines, and the biogas/electric bus network. BRT 3 " +
+      "reaches Prajila and BRT 1 reaches Ciripcău, so MetroFlor covers both Technopolis Okrugs too, " +
+      "not just the 4 municipalities.",
     lineIds: ["metro_m1", "metro_m2", "tram_t1", "brt1", "brt2", "brt3", "bus_b1"],
   },
   {
@@ -182,7 +185,9 @@ export const TRANSIT_OPERATORS = [
     note:
       "The Prefecture's own operator, connecting Florești to Cunicea and Răduleni by regional rail " +
       "and running the Autogara Metropolitană's (Coach Terminal) intercity coach services — reaching " +
-      "beyond the metropole's own network, the way MetroFlor doesn't.",
+      "beyond the metropole's own network, the way MetroFlor doesn't. Cunicea and Răduleni each run " +
+      "their own local public transport (electric buses, trams, or trolleybuses) beyond that " +
+      "FlorLink connection — neither MetroFlor nor FlorLink operate inside the towns themselves.",
     lineIds: ["regional_r1", "regional_r2"],
   },
 ];

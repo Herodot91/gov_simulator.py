@@ -6,31 +6,70 @@ import { SCENARIOS } from "../data/scenarios.js";
 import { PREFECTURE_POLICIES, PREFECTURE_TOWNS, TOWN_POLICIES } from "../data/directorates.js";
 import { findLocality } from "./MetroMap.jsx";
 import { useLocalities } from "./useLocalities.js";
-import ProjectCard from "./ProjectCard.jsx";
 import CbdMasterplan from "./CbdMasterplan.jsx";
 
 // The governance hierarchy itself, with its click-to-drill-down navigation
-// and policy/project levers -- every tier's own org chart (directorates,
-// departments, civic offices) lives in the separate Directorates tab
-// instead, so this stays focused on structure and decisions.
+// -- every tier's own org chart (directorates, departments, civic offices)
+// lives in the separate Directorates tab, and every policy/project actually
+// gets DECIDED in the separate Policy Simulation tab (with its own big
+// graph); this tab only explains the structure and shows each policy's
+// status read-only, so the two tabs stay distinct instead of duplicating
+// the same decision UI.
 export default function GovernanceStructure() {
   const state = useSimState();
   const localities = useLocalities();
 
   return (
     <>
+      <p>
+        Florești's governance is explained top to bottom, Prefecture down to Municipality/District/
+        Town, as <strong>three borrowed models layered on top of each other</strong> rather than one
+        uniform system:
+      </p>
+      <ol className="governance-hierarchy">
+        <li>
+          🇫🇷 <strong>Prefecture</strong> — the outer tier, a real French-style <em>deconcentrated</em>{" "}
+          state administration (a reframing of Raionul Florești). Always in effect, whether or not the
+          metropole below has been established.
+        </li>
+        <li>
+          🏙️ <strong>Metropole</strong> — carved out <em>within</em> the Prefecture, this tier is
+          genuinely <strong>mixed decentralization</strong>, combining three different real-world
+          models at once:
+          <ul>
+            <li>
+              🇹🇷 <strong>Istanbul's ilçe</strong> + 🇭🇺 <strong>Budapest's kerület</strong> — the
+              metropolitan tier itself, governing 4 <strong>Municipalities</strong>, each inaugurated
+              separately and each split into its own 4 <strong>Districts</strong> (16 total).
+            </li>
+            <li>
+              🇷🇺 <strong>Moscow's Zelenograd</strong> — the <strong>Technopolis Okrugs</strong> (Prajila,
+              Ciripcău), detached single-industry okrugs administratively sponsored by the metropole
+              rather than ordinary municipalities.
+            </li>
+            <li>
+              <strong>Suburbs</strong> stay administratively dependent on the metropole, with no local
+              government of their own.
+            </li>
+          </ul>
+        </li>
+        <li>
+          🏘️ <strong>Prefecture Towns</strong> — Cunicea and Răduleni sit <em>alongside</em> the
+          Metropole, not under it: real French-model small towns directly under the Prefecture, each
+          with its own town council.
+        </li>
+      </ol>
+
       {!state.metroActive ? (
         <div className="callout callout-info">
-          Choose <strong>B) Establish Florești Metropole</strong> in Scenario 1 to activate
-          mixed-decentralization governance: a metropolitan tier (Istanbul/Budapest-style) carved out of
-          the French-style Florești Prefecture, over 4 municipalities, each with its own local government
-          and districts.
+          Choose <strong>B) Establish Florești Metropole</strong> in Scenario 1 to activate the
+          Metropole tier described above.
         </div>
       ) : (
         <p className="caption">
-          Mixed decentralization is in effect — click a municipality below (or on the Map tab) to drill
-          down into its districts. Suburbs stay administratively dependent on the metropole. See the
-          Directorates tab for every tier's own org chart.
+          Click a municipality below (or on the Map tab) to drill down into its districts. See the
+          Directorates tab for every tier's own org chart, and the Policy Simulation tab to actually
+          decide any of the policies mentioned below.
         </p>
       )}
 
@@ -45,6 +84,28 @@ export default function GovernanceStructure() {
           two towns. */}
       <PrefectureTowns />
     </>
+  );
+}
+
+// Read-only status for a policy/project -- shown in this tab, which
+// explains structure and navigation but doesn't resolve decisions itself;
+// resolve from the Policy Simulation tab, which every card here points to.
+function ReadOnlyProject({ project }) {
+  const state = useSimState();
+  const resolved = state.resolvedProjects[project.id];
+  return (
+    <p className="readonly-project">
+      <strong>{project.title}</strong> —{" "}
+      {resolved == null ? (
+        <>
+          not yet decided <em>(see the Policy Simulation tab)</em>
+        </>
+      ) : resolved.choice === null ? (
+        "⏭️ Skipped"
+      ) : (
+        `✅ ${resolved.choice}) ${resolved.label}`
+      )}
+    </p>
   );
 }
 
@@ -75,7 +136,7 @@ function DrillDown({ localities }) {
 
         <h4>🏗️ Metropolitan Projects</h4>
         {METRO_PROJECTS.map((p) => (
-          <ProjectCard key={p.id} project={p} scopeLabel="Metropolitan" />
+          <ReadOnlyProject key={p.id} project={p} />
         ))}
       </>
     );
@@ -121,7 +182,7 @@ function DrillDown({ localities }) {
           <>
             <h4>🏗️ Municipal Projects</h4>
             {active ? (
-              muniProjects.map((p) => <ProjectCard key={p.id} project={p} scopeLabel={`${selMuni} municipal`} />)
+              muniProjects.map((p) => <ReadOnlyProject key={p.id} project={p} />)
             ) : (
               <p className="caption">Inaugurate {selMuni} to unlock its municipal projects.</p>
             )}
@@ -167,7 +228,7 @@ function DrillDown({ localities }) {
         <>
           <h4>🏗️ District Projects</h4>
           {active ? (
-            distProjects.map((p) => <ProjectCard key={p.id} project={p} scopeLabel={`${selDist} district`} />)
+            distProjects.map((p) => <ReadOnlyProject key={p.id} project={p} />)
           ) : (
             <p className="caption">Inaugurate {selMuni} to unlock projects in this district.</p>
           )}
@@ -206,7 +267,7 @@ function PrefecturePolicies() {
     <>
       <h4>🏛️ Prefecture Policies</h4>
       {PREFECTURE_POLICIES.map((policy) => (
-        <ProjectCard key={policy.id} project={policy} scopeLabel="Prefecture" />
+        <ReadOnlyProject key={policy.id} project={policy} />
       ))}
     </>
   );
@@ -228,7 +289,7 @@ function PrefectureTowns() {
             <strong>{town.name}</strong> — {town.note}
           </p>
           {TOWN_POLICIES[town.id].map((policy) => (
-            <ProjectCard key={policy.id} project={policy} scopeLabel={`${town.name} Town Council`} />
+            <ReadOnlyProject key={policy.id} project={policy} />
           ))}
         </div>
       ))}

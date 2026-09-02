@@ -1,10 +1,30 @@
 # gov_simulator.py
-Simulation of Moldova — Florești Metropole CivicTech Simulator.
+North East Simulator — governance-simulation proof of concept for two
+fictional metropoles in the same real North-East Moldova corridor.
 
 A governance-simulation proof of concept aimed at policy makers, political
-analysts, and staff at each tier of the metropole's own administration —
+analysts, and staff at each tier of a metropole's own administration —
 metropolitan city hall, a municipal council, or a district office — to
 explore mixed-decentralization tradeoffs interactively rather than on paper.
+
+- **Florești Metropole** — the original, fully-built region: French-style
+  Prefecture, Istanbul/Budapest-mixed Metropole, Zelenograd-style
+  Technopolis Okrugs, transit, industry, schools, universities, and a
+  Policy Simulation tab. See the rest of this README for the full detail.
+- **Rabnirez Metropole** — a second region, added as a speculative
+  cross-Nistru thought experiment: **Rîbnița** (east bank) and **Rezina**
+  (west bank), real towns connected by the real Rezina–Rîbnița Bridge,
+  imagined as sharing one governance scheme — a French-style **Rabnirez
+  Prefecture** uniting Rîbnița raion and Rezina raion, with a **Rabnirez
+  Metropole** carved out inside it using the same Istanbul/Budapest mixed
+  decentralization as Florești. Explicitly not a real position on
+  Transnistria's status — the same "real geography, fictional governance"
+  treatment as everything else in this app. **Currently stage 1 only**:
+  the governance-model explanation and a real click-to-drill-down
+  (Rabnirez Metropole → Rîbnița/Rezina → their 4 real-named districts
+  each) and a Suburbs listing, sharing the same global budget/scores as
+  the rest of the app. No map, industry, schools, transit, or Policy
+  Simulation entry yet for this region — later stages.
 
 A Streamlit app where you make a handful of scripted policy decisions
 (metropole administration reform, education, procurement reform, green tech,

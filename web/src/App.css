@@ -367,6 +367,54 @@
   margin: 6px 0;
 }
 
+.big-chart {
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  margin: 10px 0;
+}
+
+.big-chart-label {
+  font-size: 15px;
+  font-weight: 600;
+  fill: var(--text);
+}
+
+.big-chart-value {
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text);
+}
+
+.governance-hierarchy {
+  margin: 10px 0 16px;
+  padding-left: 22px;
+}
+
+.governance-hierarchy > li {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.governance-hierarchy ul {
+  margin: 6px 0 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.governance-hierarchy ul li {
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+.readonly-project {
+  margin: 6px 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+}
+
 .level-picker {
   display: flex;
   flex-wrap: wrap;
