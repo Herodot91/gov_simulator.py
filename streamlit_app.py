@@ -434,6 +434,164 @@ RABNIREZ_METRO_STRUCTURE = {
 }
 RABNIREZ_SUBURBS = [{"name": "Iubileinîi (Rîbnița)"}, {"name": "Valcenko (Rîbnița)"}]
 
+# Both towns' real cement industry, and Rîbnița's real steel/metallurgical
+# plant -- fictionalized company names on real real-world facts, same
+# "real geography, fictional institutions" pattern as Florești's own
+# factories (e.g. PHI, Sigma Motors). Structural world-building for now
+# (map markers only) -- a full Industry tab for Rabnirez is a later stage.
+RABNIREZ_FACTORIES = {
+    "Rîbnița": [
+        {"name": "Nistru Metalurgic", "sector": "Steel & Metallurgy",
+         "products": ["Steel billets", "Rebar", "Rolled steel sheet"]},
+        {"name": "Rîbnița Ciment Nord", "sector": "Cement & Building Materials",
+         "products": ["Portland cement", "Construction aggregates"]},
+    ],
+    "Rezina": [
+        {"name": "Rezina CimentGrup", "sector": "Cement & Building Materials",
+         "products": ["Portland cement", "Ready-mix concrete", "Limestone aggregate"]},
+    ],
+}
+
+
+@st.cache_data
+def load_rabnirez_geo_data():
+    with open(os.path.join(DATA_DIR, "rabnirez_district.geojson"), encoding="utf-8") as f:
+        boundary = json.load(f)
+    with open(os.path.join(DATA_DIR, "rabnirez_municipalities.geojson"), encoding="utf-8") as f:
+        municipalities = json.load(f)
+    return boundary, municipalities
+
+
+RABNIREZ_BOUNDARY, RABNIREZ_MUNICIPALITY_GEOJSON = load_rabnirez_geo_data()
+
+
+def compute_rabnirez_metro_polygons():
+    """Same approach as compute_metro_polygons(): real current territory of
+    Rîbnița and Rezina (both admin_level=8 OSM boundaries), and their union
+    as the Rabnirez Metropole outline -- both merged once via shapely from
+    real Nominatim-sourced boundaries, not approximated at runtime."""
+    polygons = {f["properties"]["name"]: shape(f["geometry"]).buffer(0)
+                for f in RABNIREZ_MUNICIPALITY_GEOJSON["features"]}
+    metro_boundary = polygons.pop("Rabnirez Metropole")
+    return polygons, metro_boundary
+
+
+def compute_rabnirez_district_polygons(muni_name, muni_polygon):
+    """Same 2x2 quadrant-split approximation compute_district_polygons()
+    uses for Florești -- Rabnirez's districts aren't real cadastral units
+    either."""
+    minx, miny, maxx, maxy = muni_polygon.bounds
+    midx, midy = (minx + maxx) / 2, (miny + maxy) / 2
+    quadrants = [box(minx, midy, midx, maxy), box(midx, midy, maxx, maxy),
+                 box(minx, miny, midx, midy), box(midx, miny, maxx, midy)]
+    result = {}
+    for name, quad in zip(RABNIREZ_METRO_STRUCTURE[muni_name]["districts"], quadrants):
+        clipped = muni_polygon.intersection(quad)
+        if clipped.is_empty:
+            continue
+        if clipped.geom_type == "MultiPolygon":
+            clipped = max(clipped.geoms, key=lambda g: g.area)
+        result[name] = clipped
+    return result
+
+
+def build_rabnirez_map():
+    """Real map of Rabnirez Prefecture -- merged Rîbnița+Rezina raion
+    boundary (dashed outline), the merged Rabnirez Metropole territory
+    (highlighted outline), and each municipality drawn as its actual real
+    OSM territory, clickable the same way Florești's map works. Roads,
+    transit, and other layers are later stages -- this is Prefecture +
+    Metropole + Municipality/District only."""
+    polygons, metro_boundary = compute_rabnirez_metro_polygons()
+    min_lon, min_lat, max_lon, max_lat = metro_boundary.bounds
+    center = [(min_lat + max_lat) / 2, (min_lon + max_lon) / 2]
+    zoom = _zoom_for_bounds((min_lon, min_lat, max_lon, max_lat), 600, 500)
+
+    m = folium.Map(location=center, zoom_start=zoom, tiles=None)
+    folium.TileLayer(
+        tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png",
+        attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
+             'contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        name="Streets",
+    ).add_to(m)
+    folium.GeoJson(
+        RABNIREZ_BOUNDARY,
+        name="Rabnirez Prefecture boundary",
+        style_function=lambda f: {"color": "#333333", "weight": 2, "dashArray": "6,4", "fillOpacity": 0},
+        tooltip="Rabnirez Prefecture boundary (Rîbnița raion + Rezina raion, merged)",
+    ).add_to(m)
+    folium.GeoJson(
+        mapping(metro_boundary),
+        style_function=lambda f: {"color": "#e91e8c", "weight": 3, "fillOpacity": 0},
+        tooltip="Rabnirez Metropole boundary",
+    ).add_to(m)
+
+    def rr_label(lat, lon, text, color, size=12, weight=700):
+        folium.Marker(
+            location=[lat, lon],
+            icon=folium.DivIcon(html=(
+                f'<div style="font-size:{size}px;font-weight:{weight};color:{color};'
+                f'text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;white-space:nowrap;'
+                f'transform:translate(-50%,-50%);">{text}</div>'
+            )),
+            tooltip=re.sub("<[^>]+>", " ", text).strip(),
+        ).add_to(m)
+
+    rr_colors = {"Rîbnița": "#8338ec", "Rezina": "#3a86ff"}
+    for name in RABNIREZ_METRO_STRUCTURE:
+        poly = polygons.get(name)
+        if poly is None or poly.is_empty:
+            continue
+        color = rr_colors[name]
+        folium.GeoJson(
+            mapping(poly),
+            style_function=lambda f, color=color: {
+                "color": color, "weight": 3, "fillColor": color, "fillOpacity": 0.45,
+            },
+            tooltip=name,
+        ).add_to(m)
+        real_pt = find_rabnirez_locality(name)
+        rr_label(real_pt["lat"], real_pt["lon"], name, "#111111")
+
+        sel_muni = st.session_state.rr_selected_municipality
+        if sel_muni == name:
+            rr_dist_colors = ["#e63946", "#2a9d8f", "#e9c46a", "#457b9d"]
+            for i, (dname, dpoly) in enumerate(compute_rabnirez_district_polygons(name, poly).items()):
+                dcolor = rr_dist_colors[i % len(rr_dist_colors)]
+                folium.GeoJson(
+                    mapping(dpoly),
+                    style_function=lambda f, dcolor=dcolor: {
+                        "color": dcolor, "weight": 2, "fillColor": dcolor, "fillOpacity": 0.5,
+                    },
+                    tooltip=dname,
+                ).add_to(m)
+                c = dpoly.representative_point()
+                rr_label(c.y, c.x, dname, dcolor, size=10, weight=600)
+
+    bridge = find_rabnirez_locality("Rezina-Rîbnița Bridge")
+    folium.Marker(
+        location=[bridge["lat"], bridge["lon"]],
+        icon=folium.DivIcon(html=(
+            '<div style="font-size:20px;line-height:1;transform:translate(-50%,-100%);'
+            'filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🌉</div>'
+        )),
+        tooltip="Podul Rezina-Rîbnița — the real bridge across the Nistru connecting both municipalities",
+    ).add_to(m)
+
+    for muni_name, factories in RABNIREZ_FACTORIES.items():
+        anchor = find_rabnirez_locality(muni_name)
+        for i, factory in enumerate(factories):
+            folium.Marker(
+                location=[anchor["lat"] + 0.006 + i * 0.004, anchor["lon"] + 0.006],
+                icon=folium.DivIcon(html=(
+                    '<div style="font-size:18px;line-height:1;transform:translate(-50%,-100%);'
+                    'filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));">🏭</div>'
+                )),
+                tooltip=f"{factory['name']} — {factory['sector']} ({muni_name})",
+            ).add_to(m)
+
+    return m
+
 
 @st.cache_data
 def compute_metro_polygons():
@@ -2308,14 +2466,38 @@ st.markdown(
     "decentralization** as Florești: 🇹🇷 Istanbul's ilçe + 🇭🇺 Budapest's kerület, governing 2 "
     "**Municipalities** — Rîbnița and Rezina — each split into its own 4 **Districts**.\n"
     "3. 🌉 **Rezina–Rîbnița Bridge** — the real bridge across the Nistru, the metropole's own shared "
-    "landmark connecting both municipalities, the way the Coach Terminal or Metro do for Florești."
+    "landmark connecting both municipalities, the way the Coach Terminal or Metro do for Florești.\n"
+    "4. 🏭 Both towns are strategically industrial: Rîbnița hosts a steel/metallurgical plant and its "
+    "own cement works, Rezina its own major cement works -- marked on the map below."
 )
+
+rr_map_state = st_folium(build_rabnirez_map(), height=480, use_container_width=True, key="rabnirez_map")
+
+if rr_map_state and rr_map_state.get("last_object_clicked"):
+    rr_click = rr_map_state["last_object_clicked"]
+    rr_click_pt = Point(rr_click["lng"], rr_click["lat"])
+    rr_polygons, _ = compute_rabnirez_metro_polygons()
+
+    rr_sel_muni_click = st.session_state.rr_selected_municipality
+    if rr_sel_muni_click and rr_polygons.get(rr_sel_muni_click) is not None:
+        for rr_dname, rr_dpoly in compute_rabnirez_district_polygons(
+            rr_sel_muni_click, rr_polygons[rr_sel_muni_click]
+        ).items():
+            if rr_dpoly.contains(rr_click_pt) and st.session_state.rr_selected_district != rr_dname:
+                st.session_state.rr_selected_district = rr_dname
+                st.rerun()
+    else:
+        for rr_muni_name, rr_poly in rr_polygons.items():
+            if rr_poly.contains(rr_click_pt) and st.session_state.rr_selected_municipality != rr_muni_name:
+                st.session_state.rr_selected_municipality = rr_muni_name
+                st.session_state.rr_selected_district = None
+                st.rerun()
 
 rr_sel_muni = st.session_state.rr_selected_municipality
 rr_sel_dist = st.session_state.rr_selected_district
 
 if rr_sel_muni is None:
-    st.caption("👆 Click a municipality to see its 4 districts.")
+    st.caption("👆 Click a municipality on the map (or below) to see its 4 districts.")
     rr_muni_cols = st.columns(2)
     for col, name in zip(rr_muni_cols, RABNIREZ_METRO_STRUCTURE):
         with col:
@@ -2344,6 +2526,12 @@ elif rr_sel_dist is None:
             if st.button(d, key=f"rr_select_district_{rr_sel_muni}_{d}", use_container_width=True):
                 st.session_state.rr_selected_district = d
                 st.rerun()
+
+    rr_factories = RABNIREZ_FACTORIES.get(rr_sel_muni, [])
+    if rr_factories:
+        with st.expander(f"🏭 Factories ({len(rr_factories)})"):
+            for f in rr_factories:
+                st.markdown(f"- **{f['name']}** — *{f['sector']}.* {', '.join(f['products'])}")
 
 else:
     if st.button(f"← Back to {rr_sel_muni}", key="rr_back_to_muni"):

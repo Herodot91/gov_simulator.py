@@ -19,12 +19,21 @@ explore mixed-decentralization tradeoffs interactively rather than on paper.
   Metropole** carved out inside it using the same Istanbul/Budapest mixed
   decentralization as Florești. Explicitly not a real position on
   Transnistria's status — the same "real geography, fictional governance"
-  treatment as everything else in this app. **Currently stage 1 only**:
-  the governance-model explanation and a real click-to-drill-down
-  (Rabnirez Metropole → Rîbnița/Rezina → their 4 real-named districts
-  each) and a Suburbs listing, sharing the same global budget/scores as
-  the rest of the app. No map, industry, schools, transit, or Policy
-  Simulation entry yet for this region — later stages.
+  treatment as everything else in this app. **Stage 1** built the
+  governance-model explanation and a click-to-drill-down (Rabnirez
+  Metropole → Rîbnița/Rezina → their 4 real-named districts each), sharing
+  the same global budget/scores as the rest of the app. **Stage 2** added
+  a real interactive map: real OSM administrative boundaries for both
+  raions merged into the Rabnirez Prefecture outline, and for both towns
+  merged into the Rabnirez Metropole outline (both computed once via
+  shapely from Nominatim-sourced boundaries, same approach as Florești's
+  own `floresti_district.geojson`/`floresti_municipalities.geojson`),
+  click-to-drill-down on the map itself (not just buttons), and 🏭 factory
+  markers for both towns' real cement industry and Rîbnița's real
+  steel/metallurgical plant (fictionalized company names, same "real
+  geography, fictional institutions" pattern as Florești's own PHI/Sigma
+  Motors). No industry tab, schools, transit, or Policy Simulation entry
+  yet for this region, and nothing built in React yet — later stages.
 
 A Streamlit app where you make a handful of scripted policy decisions
 (metropole administration reform, education, procurement reform, green tech,
