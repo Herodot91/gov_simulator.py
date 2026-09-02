@@ -35,6 +35,17 @@ explore mixed-decentralization tradeoffs interactively rather than on paper.
   Motors). No industry tab, schools, transit, or Policy Simulation entry
   yet for this region, and nothing built in React yet — later stages.
 
+## North East Overview — both regions, one map
+
+Right at the top of the app, a **🗺️ North East Overview** panel (expanded
+by default) shows both prefectures and both metropoles together on a
+single map, not separated into each region's own section — Florești
+Prefecture/Metropole (pink, west) and Rabnirez Prefecture/Metropole
+(purple, east), auto-fit to show both at once. Read-only (no
+click-to-drill-down here; each region's own Map tab/section still has
+that) — purely a "big picture" orientation view, built from the exact
+same real GeoJSON boundary data both regions' own maps already use.
+
 A Streamlit app where you make a handful of scripted policy decisions
 (metropole administration reform, education, procurement reform, green tech,
 universities), then the simulation keeps running live: random world events

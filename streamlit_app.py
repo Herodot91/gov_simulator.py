@@ -593,6 +593,73 @@ def build_rabnirez_map():
     return m
 
 
+def build_overview_map():
+    """Both regions on one map, not separated -- Florești Prefecture +
+    Metropole (west) and Rabnirez Prefecture + Metropole (east), fit to
+    show both at once. Read-only overview, no click-to-drill-down (each
+    region's own Map tab/section is where that happens); this is the
+    "big picture" view of the whole North East Simulator."""
+    floresti_metro_shape = shape(
+        next(f for f in MUNICIPALITY_GEOJSON["features"] if f["properties"]["name"] == "Florești Metropole")["geometry"]
+    )
+    rabnirez_metro_shape = shape(
+        next(f for f in RABNIREZ_MUNICIPALITY_GEOJSON["features"] if f["properties"]["name"] == "Rabnirez Metropole")["geometry"]
+    )
+    floresti_prefecture_shape = shape(PREFECTURE_BOUNDARY["geometry"])
+    rabnirez_prefecture_shape = shape(RABNIREZ_BOUNDARY["geometry"])
+    both = floresti_prefecture_shape.union(rabnirez_prefecture_shape)
+    min_lon, min_lat, max_lon, max_lat = both.bounds
+    center = [(min_lat + max_lat) / 2, (min_lon + max_lon) / 2]
+    zoom = _zoom_for_bounds((min_lon, min_lat, max_lon, max_lat), 600, 500)
+
+    m = folium.Map(location=center, zoom_start=zoom, tiles=None)
+    folium.TileLayer(
+        tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png",
+        attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
+             'contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        name="Streets",
+    ).add_to(m)
+
+    folium.GeoJson(
+        PREFECTURE_BOUNDARY,
+        style_function=lambda f: {"color": "#c2185b", "weight": 2, "dashArray": "6,4", "fillOpacity": 0},
+        tooltip="Florești Prefecture boundary",
+    ).add_to(m)
+    folium.GeoJson(
+        mapping(floresti_metro_shape),
+        style_function=lambda f: {"color": "#e91e8c", "weight": 3, "fillOpacity": 0.2, "fillColor": "#e91e8c"},
+        tooltip="Florești Metropole",
+    ).add_to(m)
+    folium.GeoJson(
+        RABNIREZ_BOUNDARY,
+        style_function=lambda f: {"color": "#7209b7", "weight": 2, "dashArray": "6,4", "fillOpacity": 0},
+        tooltip="Rabnirez Prefecture boundary (Rîbnița raion + Rezina raion, merged)",
+    ).add_to(m)
+    folium.GeoJson(
+        mapping(rabnirez_metro_shape),
+        style_function=lambda f: {"color": "#7209b7", "weight": 3, "fillOpacity": 0.25, "fillColor": "#9d4edd"},
+        tooltip="Rabnirez Metropole",
+    ).add_to(m)
+
+    def ov_label(lat, lon, text, color, size=15):
+        folium.Marker(
+            location=[lat, lon],
+            icon=folium.DivIcon(html=(
+                f'<div style="font-size:{size}px;font-weight:800;color:{color};'
+                f'text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;white-space:nowrap;'
+                f'transform:translate(-50%,-50%);">{text}</div>'
+            )),
+            tooltip=re.sub("<[^>]+>", " ", text).strip(),
+        ).add_to(m)
+
+    f_minx, f_miny, f_maxx, f_maxy = floresti_prefecture_shape.bounds
+    ov_label((f_miny + f_maxy) / 2, f_minx - 0.02, "Florești Prefecture", "#c2185b")
+    r_minx, r_miny, r_maxx, r_maxy = rabnirez_prefecture_shape.bounds
+    ov_label((r_miny + r_maxy) / 2, r_maxx + 0.02, "Rabnirez Prefecture", "#7209b7")
+
+    return m
+
+
 @st.cache_data
 def compute_metro_polygons():
     """The real current territory of each municipality, and their union as
@@ -1640,6 +1707,16 @@ st.caption(
     "corridor: **Florești Metropole** (below) and **Rabnirez Metropole** — Rîbnița and Rezina, a "
     "speculative cross-Nistru reunification thought experiment, not a real policy position."
 )
+
+# Both regions on one map, not separated into their own per-section maps
+# below -- the "big picture" view of the whole North East Simulator.
+with st.expander("🗺️ North East Overview — both prefectures and both metropoles, one map", expanded=True):
+    st.caption(
+        "**Florești Prefecture/Metropole** (pink, west) and **Rabnirez Prefecture/Metropole** "
+        "(purple, east) together. Read-only overview -- each region's own Map tab/section below has "
+        "the click-to-drill-down."
+    )
+    st_folium(build_overview_map(), height=480, use_container_width=True, key="overview_map")
 
 with st.sidebar:
     st.session_state.mode = st.radio("Mode", ["Democracy", "Autocracy"], key="mode_radio",
